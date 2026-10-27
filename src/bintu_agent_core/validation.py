@@ -12,39 +12,10 @@ from bintu_agent_core.errors import (
 from bintu_agent_core.models import (
     AgentDecision,
     CompareMeasurementsArguments,
-    EvidenceRelation,
     FinishInvestigationArguments,
     GenerateReportArguments,
-    HypothesisStatus,
     InvestigationState,
 )
-
-
-ALLOWED_HYPOTHESIS_TRANSITIONS: dict[
-    HypothesisStatus, set[HypothesisStatus]
-] = {
-    HypothesisStatus.UNEXPLORED: {
-        HypothesisStatus.PLAUSIBLE,
-        HypothesisStatus.SUPPORTED,
-        HypothesisStatus.WEAKENED,
-        HypothesisStatus.ELIMINATED,
-    },
-    HypothesisStatus.PLAUSIBLE: {
-        HypothesisStatus.SUPPORTED,
-        HypothesisStatus.WEAKENED,
-        HypothesisStatus.ELIMINATED,
-    },
-    HypothesisStatus.SUPPORTED: {
-        HypothesisStatus.WEAKENED,
-        HypothesisStatus.ELIMINATED,
-    },
-    HypothesisStatus.WEAKENED: {
-        HypothesisStatus.PLAUSIBLE,
-        HypothesisStatus.SUPPORTED,
-        HypothesisStatus.ELIMINATED,
-    },
-    HypothesisStatus.ELIMINATED: set(),
-}
 
 
 def _normalized_text(decision: AgentDecision) -> str:
@@ -110,32 +81,6 @@ def validate_decision(
     if len(distinguishes) != len(set(distinguishes)):
         raise DecisionValidationError("distinguishes must not contain duplicates")
 
-    known_evidence = set(state.evidence)
-    for update in decision.arguments.hypothesis_updates:
-        hypothesis = state.hypotheses[update.hypothesis_id]
-        if update.new_status is not hypothesis.status:
-            allowed = ALLOWED_HYPOTHESIS_TRANSITIONS[hypothesis.status]
-            if update.new_status not in allowed:
-                raise DecisionValidationError(
-                    f"invalid hypothesis transition: "
-                    f"{hypothesis.status.value} -> {update.new_status.value}"
-                )
-        unknown_ids = set(update.evidence_ids) - known_evidence
-        if unknown_ids:
-            raise DecisionValidationError(
-                f"hypothesis update references unknown evidence: {sorted(unknown_ids)}"
-            )
-        if (
-            update.new_status is HypothesisStatus.ELIMINATED
-            and (
-                update.evidence_relation is not EvidenceRelation.CONTRADICTORY
-                or not update.evidence_ids
-            )
-        ):
-            raise DecisionValidationError(
-                "eliminating a hypothesis requires contradictory evidence"
-            )
-
     arguments = decision.arguments
     if isinstance(arguments, CompareMeasurementsArguments):
         unknown_measurements = set(arguments.measurement_ids) - set(state.measurements)
@@ -154,7 +99,7 @@ def validate_decision(
             )
 
     if isinstance(arguments, FinishInvestigationArguments):
-        unknown_evidence = set(arguments.evidence) - known_evidence
+        unknown_evidence = set(arguments.evidence) - set(state.evidence)
         if unknown_evidence:
             raise DecisionValidationError(
                 f"conclusion references unknown evidence: {sorted(unknown_evidence)}"

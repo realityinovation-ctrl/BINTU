@@ -14,15 +14,7 @@
       "measurement_type": "voltage",
       "location": "sortie du champ PV",
       "unit": "V",
-      "distinguishes": ["H1", "H2"],
-      "hypothesis_updates": [
-        {
-          "hypothesis_id": "H1",
-          "new_status": "plausible",
-          "evidence_ids": ["image-dust"],
-          "evidence_relation": "supporting"
-        }
-      ]
+      "distinguishes": ["H1", "H2"]
     },
     "reason": "Vérifier par une mesure l'hypothèse suggérée par l'image."
   },
@@ -53,21 +45,7 @@
       "confidence": 0.86,
       "evidence": ["image-dust", "m-array", "m-inverter", "comparison-4"],
       "remaining_uncertainties": ["Le composant précis de la liaison reste à localiser en sécurité."],
-      "distinguishes": ["H1", "H2"],
-      "hypothesis_updates": [
-        {
-          "hypothesis_id": "H1",
-          "new_status": "weakened",
-          "evidence_ids": ["comparison-4"],
-          "evidence_relation": "contradictory"
-        },
-        {
-          "hypothesis_id": "H2",
-          "new_status": "supported",
-          "evidence_ids": ["comparison-4"],
-          "evidence_relation": "supporting"
-        }
-      ]
+      "distinguishes": ["H1", "H2"]
     },
     "reason": "La chute électrique mesurée contredit l'explication limitée à la poussière."
   }

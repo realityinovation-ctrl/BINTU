@@ -15,21 +15,7 @@
       "confidence": 0.92,
       "evidence": ["answer-full"],
       "remaining_uncertainties": [],
-      "distinguishes": ["H0", "H3"],
-      "hypothesis_updates": [
-        {
-          "hypothesis_id": "H0",
-          "new_status": "supported",
-          "evidence_ids": ["answer-full"],
-          "evidence_relation": "supporting"
-        },
-        {
-          "hypothesis_id": "H3",
-          "new_status": "weakened",
-          "evidence_ids": ["answer-full"],
-          "evidence_relation": "contradictory"
-        }
-      ]
+      "distinguishes": ["H0", "H3"]
     },
     "reason": "La charge complète observée explique l'arrêt sans panne."
   }

@@ -4,13 +4,13 @@ from pydantic import ValidationError
 from bintu_agent_core.models import (
     AgentDecision,
     AskTechnicianArguments,
-    Evidence,
     EvidenceSourceType,
     FinishInvestigationArguments,
     FinishOutcome,
     HypothesisId,
     InstallationData,
     InvestigationState,
+    Observation,
     RequestMeasurementArguments,
     ToolName,
 )
@@ -25,7 +25,7 @@ def test_unknown_installation_values_stay_none() -> None:
 
 def test_image_analysis_requires_certainty() -> None:
     with pytest.raises(ValidationError, match="requires certainty"):
-        Evidence(
+        Observation(
             id="e1",
             source_type=EvidenceSourceType.IMAGE_ANALYSIS,
             source_id="image-1",
@@ -35,7 +35,7 @@ def test_image_analysis_requires_certainty() -> None:
 
 def test_non_image_evidence_rejects_certainty() -> None:
     with pytest.raises(ValidationError, match="only valid"):
-        Evidence(
+        Observation(
             id="e1",
             source_type=EvidenceSourceType.OBSERVATION,
             source_id="observation-1",
@@ -78,4 +78,19 @@ def test_diagnosed_outcome_requires_diagnosis() -> None:
             confidence=0.8,
             evidence=["e1"],
             distinguishes=[HypothesisId.H0, HypothesisId.H3],
+        )
+
+
+def test_provider_decision_cannot_contain_hypothesis_updates() -> None:
+    with pytest.raises(ValidationError, match="hypothesis_updates"):
+        AgentDecision.model_validate(
+            {
+                "tool_name": "ask_technician",
+                "arguments": {
+                    "question": "Quel état est affiché ?",
+                    "distinguishes": ["H0", "H3"],
+                    "hypothesis_updates": [],
+                },
+                "reason": "Obtenir une observation.",
+            }
         )

@@ -36,21 +36,7 @@
       "confidence": 0.88,
       "evidence": ["m-array", "m-inverter", "comparison-3"],
       "remaining_uncertainties": ["Le point exact de dégradation reste à localiser selon les procédures de sécurité."],
-      "distinguishes": ["H1", "H2"],
-      "hypothesis_updates": [
-        {
-          "hypothesis_id": "H1",
-          "new_status": "weakened",
-          "evidence_ids": ["comparison-3"],
-          "evidence_relation": "contradictory"
-        },
-        {
-          "hypothesis_id": "H2",
-          "new_status": "supported",
-          "evidence_ids": ["comparison-3"],
-          "evidence_relation": "supporting"
-        }
-      ]
+      "distinguishes": ["H1", "H2"]
     },
     "reason": "La chute mesurée localise l'anomalie dans la chaîne électrique."
   }

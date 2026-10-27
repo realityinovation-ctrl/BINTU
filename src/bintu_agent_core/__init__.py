@@ -12,7 +12,10 @@ from bintu_agent_core.errors import (
 from bintu_agent_core.models import (
     AgentDecision,
     Evidence,
+    HypothesisImpact,
     InvestigationState,
+    Observation,
+    Verification,
 )
 from bintu_agent_core.provider import AIProvider, MockAIProvider
 
@@ -22,11 +25,14 @@ __all__ = [
     "AgentDecision",
     "DecisionValidationError",
     "Evidence",
+    "HypothesisImpact",
     "InvalidStateTransitionError",
     "InvestigationEngine",
     "InvestigationState",
     "MockAIProvider",
+    "Observation",
     "SafetyViolationError",
     "ScriptExhaustedError",
     "UnsupportedToolError",
+    "Verification",
 ]

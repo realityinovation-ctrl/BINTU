@@ -34,7 +34,13 @@ voix, la persistance et les services réseau sont volontairement reportés.
 Le moteur dépend uniquement de `AIProvider.decide_next(state)`. Il transmet
 une copie structurée de l'état et reçoit un `AgentDecision` composé d'un outil,
 de ses arguments typés et d'une justification opérationnelle. Il ne manipule
-aucun message brut propre à un fournisseur.
+aucun message brut propre à un fournisseur. Une décision ne peut contenir ni
+preuve ni changement de statut d'hypothèse.
+
+Le cœur transforme chaque résultat d'outil validé en quatre concepts séparés :
+une `Observation` factuelle, une `Evidence` qui référence cette observation,
+une `Verification` qui relie le résultat à l'action, puis éventuellement un
+impact validé dont le cœur dérive seul le statut des hypothèses.
 
 `MockAIProvider` rejoue une séquence fournie par les tests. Les diagnostics
 présents dans `tests/fixtures/` sont des données de scénario, pas des règles de
@@ -48,10 +54,13 @@ format d'appel du fournisseur, traduire le `tool_call` reçu en
 
 - une donnée d'installation inconnue reste `None` ;
 - une décision ne s'exécute jamais avant validation ;
-- une élimination exige une preuve contradictoire ;
+- une élimination est dérivée uniquement d'une preuve contradictoire forte ;
 - une conclusion cite au moins une preuve existante ;
 - une demande d'ouvrir ou déconnecter un conducteur sous tension est refusée ;
-- une limite d'étapes atteinte produit `insufficient_information` ;
+- une limite d'étapes atteinte provoque un arrêt sécurisé avec raison factuelle
+  dans la timeline et produit `insufficient_information` ;
+- l'épuisement d'un script mock reste une erreur de test et ne modifie pas
+  l'état de l'investigation ;
 - la timeline contient des événements et justifications opérationnelles, pas
   de chaîne de pensée.
 

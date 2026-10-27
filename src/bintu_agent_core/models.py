@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -46,6 +46,11 @@ class EvidenceRelation(StrEnum):
     CONTRADICTORY = "contradictory"
 
 
+class EvidenceStrength(StrEnum):
+    INDICATIVE = "indicative"
+    STRONG = "strong"
+
+
 class ToolName(StrEnum):
     ASK_TECHNICIAN = "ask_technician"
     REQUEST_MEASUREMENT = "request_measurement"
@@ -64,6 +69,8 @@ class TimelineEventType(StrEnum):
     DECISION_RECORDED = "decision_recorded"
     STATUS_CHANGED = "status_changed"
     HYPOTHESIS_CHANGED = "hypothesis_changed"
+    OBSERVATION_ADDED = "observation_added"
+    VERIFICATION_RECORDED = "verification_recorded"
     EVIDENCE_ADDED = "evidence_added"
     ACTION_REQUESTED = "action_requested"
     ACTION_RESUMED = "action_resumed"
@@ -81,13 +88,30 @@ class InstallationData(ContractModel):
 EvidenceValue = str | int | float | bool
 
 
-class Evidence(ContractModel):
+class Observation(ContractModel):
     id: str = Field(min_length=1)
     source_type: EvidenceSourceType
     source_id: str = Field(min_length=1)
     statement: str = Field(min_length=1)
     value: EvidenceValue | None = None
     unit: str | None = None
+    certainty: float | None = Field(default=None, ge=0, le=1)
+
+    @model_validator(mode="after")
+    def validate_certainty_origin(self) -> Observation:
+        if self.source_type is EvidenceSourceType.IMAGE_ANALYSIS:
+            if self.certainty is None:
+                raise ValueError("image_analysis observation requires certainty")
+        elif self.certainty is not None:
+            raise ValueError("certainty is only valid for image_analysis observation")
+        return self
+
+
+class Evidence(ContractModel):
+    id: str = Field(min_length=1)
+    observation_id: str = Field(min_length=1)
+    source_type: EvidenceSourceType
+    source_id: str = Field(min_length=1)
     certainty: float | None = Field(default=None, ge=0, le=1)
 
     @model_validator(mode="after")
@@ -116,24 +140,14 @@ class HypothesisState(ContractModel):
     contradictory_evidence_ids: list[str] = Field(default_factory=list)
 
 
-class HypothesisUpdate(ContractModel):
+class HypothesisImpact(ContractModel):
     hypothesis_id: HypothesisId
-    new_status: HypothesisStatus
-    evidence_ids: list[str] = Field(default_factory=list)
-    evidence_relation: EvidenceRelation | None = None
-
-    @model_validator(mode="after")
-    def validate_evidence_relation(self) -> HypothesisUpdate:
-        if bool(self.evidence_ids) != (self.evidence_relation is not None):
-            raise ValueError(
-                "evidence_ids and evidence_relation must be provided together"
-            )
-        return self
+    relation: EvidenceRelation
+    strength: EvidenceStrength
 
 
 class ActionArguments(ContractModel):
     distinguishes: Annotated[list[HypothesisId], Field(min_length=1)]
-    hypothesis_updates: list[HypothesisUpdate] = Field(default_factory=list)
 
 
 class AskTechnicianArguments(ActionArguments):
@@ -220,6 +234,15 @@ class PendingAction(ContractModel):
     decision: AgentDecision
 
 
+class Verification(ContractModel):
+    id: str = Field(min_length=1)
+    action_id: str = Field(min_length=1)
+    distinguishes: Annotated[list[HypothesisId], Field(min_length=1)]
+    observation_ids: Annotated[list[str], Field(min_length=1)]
+    evidence_ids: Annotated[list[str], Field(min_length=1)]
+    impacts: list[HypothesisImpact] = Field(default_factory=list)
+
+
 class Conclusion(ContractModel):
     diagnosis: str
     confidence: float = Field(ge=0, le=1)
@@ -250,7 +273,9 @@ class InvestigationState(ContractModel):
     hypotheses: dict[HypothesisId, HypothesisState] = Field(
         default_factory=initial_hypotheses
     )
+    observations: dict[str, Observation] = Field(default_factory=dict)
     evidence: dict[str, Evidence] = Field(default_factory=dict)
+    verifications: dict[str, Verification] = Field(default_factory=dict)
     measurements: dict[str, Measurement] = Field(default_factory=dict)
     pending_action: PendingAction | None = None
     timeline: list[TimelineEvent] = Field(default_factory=list)

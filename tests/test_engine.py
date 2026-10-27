@@ -3,6 +3,7 @@ import pytest
 from bintu_agent_core.engine import InvestigationEngine
 from bintu_agent_core.errors import (
     InvalidStateTransitionError,
+    ScriptExhaustedError,
     UnsupportedToolError,
 )
 from bintu_agent_core.models import (
@@ -68,7 +69,8 @@ def test_measurement_uses_requested_metadata_without_inventing_installation() ->
     engine.submit_measurement("m-1", 382.4)
 
     assert state.measurements["m-1"].value == 382.4
-    assert state.evidence["m-1"].value == 382.4
+    observation_id = state.evidence["m-1"].observation_id
+    assert state.observations[observation_id].value == 382.4
     assert all(value is None for value in state.installation.model_dump().values())
 
 
@@ -82,6 +84,9 @@ def test_step_limit_ends_without_forcing_a_diagnosis() -> None:
 
     assert state.status is InvestigationStatus.INSUFFICIENT_INFORMATION
     assert state.conclusion is None
+    status_event = state.timeline[-1]
+    assert status_event.details["to"] == "insufficient_information"
+    assert "maximal" in status_event.summary
 
 
 def test_completed_state_cannot_advance() -> None:
@@ -113,14 +118,16 @@ def test_completed_state_cannot_advance() -> None:
         engine.advance()
 
 
-def test_exhausted_mock_ends_with_insufficient_information() -> None:
+def test_exhausted_mock_is_not_converted_to_insufficient_information() -> None:
     state = InvestigationState(investigation_id="inv-1")
     engine = InvestigationEngine(state, MockAIProvider([]))
 
-    engine.advance()
+    with pytest.raises(ScriptExhaustedError):
+        engine.advance()
 
-    assert state.status is InvestigationStatus.INSUFFICIENT_INFORMATION
+    assert state.status is InvestigationStatus.INVESTIGATING
     assert state.step_count == 0
+    assert state.timeline == []
 
 
 def test_deferred_report_tool_does_not_mutate_state() -> None:

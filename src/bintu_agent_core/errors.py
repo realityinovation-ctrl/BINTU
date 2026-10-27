@@ -23,3 +23,23 @@ class ScriptExhaustedError(AgentCoreError):
 
 class UnsupportedToolError(AgentCoreError):
     """A valid contract tool is not executable in this core version."""
+
+
+class AIProviderError(AgentCoreError):
+    """An external AI provider failed without changing investigation state."""
+
+
+class ProviderConfigurationError(AIProviderError):
+    """An AI provider is missing required local configuration."""
+
+
+class ProviderHTTPError(AIProviderError):
+    """An AI provider request failed at the HTTP boundary."""
+
+
+class ProviderTimeoutError(AIProviderError):
+    """An AI provider request exceeded its configured timeout."""
+
+
+class ProviderResponseError(AIProviderError):
+    """An AI provider returned a response outside Agent Contract v0.2."""

@@ -26,8 +26,8 @@ python -m venv .venv
 - garde-fous métier et sécurité ;
 - tests sans réseau.
 
-L'intégration Meta, la vision réelle, le rendu de rapport, le frontend, la
-voix, la persistance et les services réseau sont volontairement reportés.
+La vision réelle, le rendu de rapport, le frontend, la voix et la persistance
+sont volontairement reportés.
 
 ## Frontière fournisseur
 
@@ -46,9 +46,29 @@ impact validé dont le cœur dérive seul le statut des hypothèses.
 présents dans `tests/fixtures/` sont des données de scénario, pas des règles de
 diagnostic du produit.
 
-Un futur adaptateur Meta devra rester hors du cœur : convertir l'état dans le
-format d'appel du fournisseur, traduire le `tool_call` reçu en
-`AgentDecision`, puis laisser le cœur appliquer ses propres validations.
+`MetaAIProvider` est un adaptateur mince et isolé : il envoie une copie
+sérialisée de l'état à `muse-spark-1.3`, convertit la réponse en
+`AgentDecision`, puis laisse le cœur appliquer ses validations existantes.
+Il ne modifie jamais l'état et n'exécute aucun outil.
+
+## Configuration Meta
+
+La clé est lue uniquement depuis `MODEL_API_KEY` :
+
+```powershell
+$env:MODEL_API_KEY="votre-cle-locale"
+```
+
+Le fichier `.env.example` documente le nom de la variable sans contenir de
+secret. Le package ne charge pas automatiquement les fichiers `.env`.
+
+Les tests locaux se lancent avec `python -m pytest`. Ils utilisent
+`httpx.MockTransport` et n'effectuent aucun appel à Meta, ne nécessitent aucune
+clé réelle et ne consomment aucun crédit.
+
+Une réponse JSON entourée de texte ou d'un unique bloc Markdown est acceptée si
+elle contient exactement un objet JSON. Une réponse ambiguë, invalide ou
+incompatible avec `AgentDecision` est rejetée explicitement.
 
 ## Invariants
 

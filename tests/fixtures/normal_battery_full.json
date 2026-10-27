@@ -1,0 +1,36 @@
+[
+  {
+    "tool_name": "ask_technician",
+    "arguments": {
+      "question": "La batterie indique-t-elle une charge complète ?",
+      "distinguishes": ["H0", "H3"]
+    },
+    "reason": "Vérifier si l'arrêt de charge est un fonctionnement normal."
+  },
+  {
+    "tool_name": "finish_investigation",
+    "arguments": {
+      "outcome": "diagnosed",
+      "diagnosis": "Conditions normales : la batterie est pleine.",
+      "confidence": 0.92,
+      "evidence": ["answer-full"],
+      "remaining_uncertainties": [],
+      "distinguishes": ["H0", "H3"],
+      "hypothesis_updates": [
+        {
+          "hypothesis_id": "H0",
+          "new_status": "supported",
+          "evidence_ids": ["answer-full"],
+          "evidence_relation": "supporting"
+        },
+        {
+          "hypothesis_id": "H3",
+          "new_status": "weakened",
+          "evidence_ids": ["answer-full"],
+          "evidence_relation": "contradictory"
+        }
+      ]
+    },
+    "reason": "La charge complète observée explique l'arrêt sans panne."
+  }
+]

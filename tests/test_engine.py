@@ -1,12 +1,16 @@
 import pytest
 
 from bintu_agent_core.engine import InvestigationEngine
-from bintu_agent_core.errors import InvalidStateTransitionError
+from bintu_agent_core.errors import (
+    InvalidStateTransitionError,
+    UnsupportedToolError,
+)
 from bintu_agent_core.models import (
     AgentDecision,
     AskTechnicianArguments,
     FinishInvestigationArguments,
     FinishOutcome,
+    GenerateReportArguments,
     HypothesisId,
     InvestigationState,
     InvestigationStatus,
@@ -107,3 +111,32 @@ def test_completed_state_cannot_advance() -> None:
     assert state.status is InvestigationStatus.COMPLETED
     with pytest.raises(InvalidStateTransitionError):
         engine.advance()
+
+
+def test_exhausted_mock_ends_with_insufficient_information() -> None:
+    state = InvestigationState(investigation_id="inv-1")
+    engine = InvestigationEngine(state, MockAIProvider([]))
+
+    engine.advance()
+
+    assert state.status is InvestigationStatus.INSUFFICIENT_INFORMATION
+    assert state.step_count == 0
+
+
+def test_deferred_report_tool_does_not_mutate_state() -> None:
+    state = InvestigationState(investigation_id="inv-1")
+    decision = AgentDecision(
+        tool_name=ToolName.GENERATE_REPORT,
+        arguments=GenerateReportArguments(
+            investigation_id="inv-1",
+            distinguishes=[HypothesisId.H0],
+        ),
+        reason="Produire le rapport de cette investigation.",
+    )
+    engine = InvestigationEngine(state, MockAIProvider([decision]))
+
+    with pytest.raises(UnsupportedToolError):
+        engine.advance()
+
+    assert state.step_count == 0
+    assert state.timeline == []

@@ -75,6 +75,10 @@ class InvestigationEngine:
             return self.state
 
         validate_decision(self.state, decision)
+        if isinstance(decision.arguments, GenerateReportArguments):
+            raise UnsupportedToolError(
+                "generate_report is contracted but deferred in Agent Core v0.2"
+            )
         self.state.step_count += 1
         action_id = f"action-{self.state.step_count}"
         self._event(
@@ -188,10 +192,6 @@ class InvestigationEngine:
         if isinstance(arguments, FinishInvestigationArguments):
             self._finish(arguments)
             return
-        if isinstance(arguments, GenerateReportArguments):
-            raise UnsupportedToolError(
-                "generate_report is contracted but deferred in Agent Core v0.2"
-            )
         raise UnsupportedToolError(f"unsupported tool: {decision.tool_name.value}")
 
     def _apply_hypothesis_updates(self, decision: AgentDecision) -> None:

@@ -61,9 +61,35 @@ def _normalized_text(decision: AgentDecision) -> str:
 
 def validate_safety(decision: AgentDecision) -> None:
     text = _normalized_text(decision)
-    operations = ("ouvrir", "deconnect", "disconnect", "open")
-    conductors = ("conducteur", "cable", "wire")
-    energized = ("sous tension", "energized", "live conductor", "live cable", "live wire")
+    operations = (
+        "ouvrir",
+        "deconnect",
+        "debranch",
+        "retirer",
+        "disconnect",
+        "unplug",
+        "open",
+        "remove",
+    )
+    conductors = (
+        "conducteur",
+        "cable",
+        "connecteur",
+        "borne",
+        "fil",
+        "wire",
+        "connector",
+        "terminal",
+    )
+    energized = (
+        "sous tension",
+        "alimente",
+        "energized",
+        "powered",
+        "live conductor",
+        "live cable",
+        "live wire",
+    )
     if (
         any(term in text for term in operations)
         and any(term in text for term in conductors)

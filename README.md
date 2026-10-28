@@ -105,6 +105,24 @@ Les tests utilisent exclusivement des fichiers SQLite temporaires :
 .\.venv\Scripts\python -m pytest
 ```
 
+## Backend FastAPI
+
+Le backend MVP expose la création, la consultation et la réponse textuelle à
+une investigation. Il utilise SQLite et délègue toutes les transitions métier
+à `InvestigationEngine`. Les tests remplacent systématiquement
+`MetaAIProvider` et n'appellent jamais Meta.
+
+```powershell
+$env:MODEL_API_KEY="votre-cle-locale"
+$env:BINTU_DB_PATH="data/bintu.sqlite3"
+.\.venv\Scripts\python -m uvicorn bintu_backend.app:create_app --factory --reload
+```
+
+L'API est alors disponible sur `http://127.0.0.1:8000`. Le CORS est limité aux
+origines locales courantes sur les ports 3000 et 5173. Le endpoint `message`
+répond uniquement à une action `ask_technician` ; il ne transforme jamais un
+message en mesure ou en analyse d'image.
+
 ## Invariants
 
 - une donnée d'installation inconnue reste `None` ;

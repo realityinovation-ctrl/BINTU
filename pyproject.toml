@@ -9,8 +9,10 @@ description = "Provider-neutral investigation core for BINTU"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "fastapi>=0.115,<0.116",
     "httpx>=0.28,<1",
     "pydantic>=2.10,<3",
+    "uvicorn>=0.32,<1",
 ]
 
 [project.optional-dependencies]

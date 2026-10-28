@@ -187,6 +187,8 @@ codée.
 - une donnée d'installation inconnue reste `None` ;
 - une décision ne s'exécute jamais avant validation ;
 - une élimination est dérivée uniquement d'une preuve contradictoire forte ;
+- une confiance supérieure à 0,7 exige une preuve de mesure et ne peut pas
+  reposer uniquement sur une analyse d'image ;
 - une conclusion cite au moins une preuve existante ;
 - une demande d'ouvrir ou déconnecter un conducteur sous tension est refusée ;
 - une limite d'étapes atteinte provoque un arrêt sécurisé avec raison factuelle

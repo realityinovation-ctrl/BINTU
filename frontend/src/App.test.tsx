@@ -512,4 +512,69 @@ describe("statuts d'investigation", () => {
       ).toBeInTheDocument();
     }
   });
+
+  test("affiche le rapport terminal à partir des données reçues", () => {
+    const investigation = makeInvestigation("completed");
+    investigation.state.observations = [
+      {
+        id: "observation:image-dust",
+        source_type: "image_analysis",
+        source_id: "image-panels",
+        statement:
+          "Une couche de poussière couvre une grande partie de plusieurs panneaux.",
+        value: null,
+        unit: null,
+        certainty: 0.62,
+      },
+    ];
+    investigation.state.measurements = [
+      {
+        id: "m-panels",
+        measurement_type: "dc_voltage",
+        location: "sortie panneaux",
+        value: 31.5,
+        unit: "V",
+        source_id: "action-3",
+        source_type: "measurement",
+      },
+    ];
+    investigation.state.evidence = [
+      {
+        id: "image-dust",
+        observation_id: "observation:image-dust",
+        source_type: "image_analysis",
+        source_id: "image-panels",
+        certainty: 0.62,
+      },
+    ];
+    investigation.state.hypotheses[1].status = "plausible";
+    investigation.state.conclusion = {
+      diagnosis:
+        "Une obstruction visible des panneaux est plausible, sans élément suffisant pour exclure la chaîne électrique.",
+      confidence: 0.62,
+      evidence_ids: ["image-dust"],
+      remaining_uncertainties: [
+        "La valeur mesurée ne permet pas, à elle seule, de localiser un défaut.",
+      ],
+    };
+
+    render(
+      <Investigation
+        id={investigation.investigation_id}
+        initial={investigation}
+        onHome={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText("Rapport d'enquête")).toBeInTheDocument();
+    expect(
+      screen.getByText(/obstruction visible des panneaux/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Observation visuelle")).toBeInTheDocument();
+    expect(screen.getByText(/dc_voltage : 31.5 V/i)).toBeInTheDocument();
+    expect(
+      screen.getByText("Panneaux / environnement : Plausible"),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/localiser un défaut/i)).toBeInTheDocument();
+  });
 });

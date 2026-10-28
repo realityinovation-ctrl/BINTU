@@ -13,11 +13,16 @@ from bintu_agent_core.measurement_catalog import MEASUREMENT_CATALOG
 from bintu_agent_core.models import (
     AgentDecision,
     CompareMeasurementsArguments,
+    EvidenceSourceType,
     FinishInvestigationArguments,
+    FinishOutcome,
     GenerateReportArguments,
     InvestigationState,
     RequestMeasurementArguments,
 )
+
+
+HIGH_CONFIDENCE_LIMIT = 0.7
 
 
 def _normalized_text(decision: AgentDecision) -> str:
@@ -117,6 +122,7 @@ def validate_decision(
             raise DecisionValidationError(
                 f"conclusion references unknown evidence: {sorted(unknown_evidence)}"
             )
+        _validate_diagnosis_confidence(state, arguments)
 
     if (
         isinstance(arguments, GenerateReportArguments)
@@ -127,3 +133,28 @@ def validate_decision(
         )
 
     validate_safety(decision)
+
+
+def _validate_diagnosis_confidence(
+    state: InvestigationState, arguments: FinishInvestigationArguments
+) -> None:
+    if (
+        arguments.outcome is not FinishOutcome.DIAGNOSED
+        or arguments.confidence <= HIGH_CONFIDENCE_LIMIT
+    ):
+        return
+    cited = [state.evidence[evidence_id] for evidence_id in arguments.evidence]
+    if all(
+        evidence.source_type is EvidenceSourceType.IMAGE_ANALYSIS
+        for evidence in cited
+    ):
+        raise DecisionValidationError(
+            "high-confidence diagnosis cannot rely only on image analysis"
+        )
+    if not any(
+        evidence.source_type is EvidenceSourceType.MEASUREMENT
+        for evidence in cited
+    ):
+        raise DecisionValidationError(
+            "high-confidence diagnosis requires measurement evidence"
+        )

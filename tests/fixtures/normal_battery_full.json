@@ -12,7 +12,7 @@
     "arguments": {
       "outcome": "diagnosed",
       "diagnosis": "Conditions normales : la batterie est pleine.",
-      "confidence": 0.92,
+      "confidence": 0.7,
       "evidence": ["answer-full"],
       "remaining_uncertainties": [],
       "distinguishes": ["H0", "H3"]

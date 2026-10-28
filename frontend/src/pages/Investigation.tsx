@@ -5,6 +5,7 @@ import { Header } from "../components/Header";
 import { HypothesesPanel } from "../components/HypothesesPanel";
 import { ImageInput } from "../components/ImageInput";
 import { InvestigationFlow } from "../components/InvestigationFlow";
+import { InvestigationReport } from "../components/InvestigationReport";
 import { LoadingState } from "../components/LoadingState";
 import { MeasurementInput } from "../components/MeasurementInput";
 import { NextAction } from "../components/NextAction";
@@ -163,27 +164,12 @@ export function Investigation({ id, initial, onHome }: InvestigationProps) {
             />
           )}
 
-          {status === "completed" && state.conclusion && (
-            <section className="result-card completed-card">
-              <p className="eyebrow">Conclusion</p>
-              <h2>Diagnostic terminé</h2>
-              <p className="diagnosis">{state.conclusion.diagnosis}</p>
-              <span>
-                Confiance fournie :{" "}
-                {Math.round(state.conclusion.confidence * 100)} %
-              </span>
-            </section>
-          )}
-
-          {status === "insufficient_information" && (
-            <section className="result-card insufficient-card" role="status">
-              <p className="eyebrow">Conclusion de l&apos;enquête</p>
-              <h2>Informations insuffisantes</h2>
-              <p>
-                BINTU ne possède pas assez d&apos;éléments vérifiés pour
-                établir un diagnostic.
-              </p>
-            </section>
+          {(status === "completed" ||
+            status === "insufficient_information") && (
+            <InvestigationReport
+              state={state}
+              insufficient={status === "insufficient_information"}
+            />
           )}
 
           {error && (

@@ -34,6 +34,7 @@ describe("architecture frontend", () => {
       .map((path) => readFileSync(path, "utf-8"))
       .join("\n");
 
+    expect(source).not.toContain("hypothesis.status =");
     expect(source).not.toContain("MODEL_API_KEY");
     expect(source).not.toContain("api.meta.ai");
     expect(source).not.toContain("muse-spark");

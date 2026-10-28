@@ -388,7 +388,7 @@ Décision réelle du provider scripté :
     ],
     "outcome": "diagnosed",
     "diagnosis": "Conditions normales : la batterie est pleine.",
-    "confidence": 0.92,
+    "confidence": 0.7,
     "evidence": [
       "answer-full"
     ],
@@ -743,7 +743,7 @@ Preuves justifiant ces changements :
   ],
   "conclusion": {
     "diagnosis": "Conditions normales : la batterie est pleine.",
-    "confidence": 0.92,
+    "confidence": 0.7,
     "evidence_ids": [
       "answer-full"
     ],

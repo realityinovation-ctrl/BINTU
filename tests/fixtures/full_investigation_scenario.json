@@ -1,0 +1,43 @@
+[
+  {
+    "tool_name": "ask_technician",
+    "arguments": {
+      "question": "L'installation fonctionnait-elle normalement avant cette baisse ?",
+      "distinguishes": ["H0", "H1"]
+    },
+    "reason": "Établir si la baisse est nouvelle avant de choisir une vérification."
+  },
+  {
+    "tool_name": "analyze_image",
+    "arguments": {
+      "image_id": "image-panels",
+      "focus": "Décrire uniquement les dépôts visibles sur les panneaux.",
+      "distinguishes": ["H1", "H2"]
+    },
+    "reason": "Chercher un indice visuel sans le transformer en mesure."
+  },
+  {
+    "tool_name": "request_measurement",
+    "arguments": {
+      "measurement_type": "dc_voltage",
+      "location": "sortie panneaux",
+      "unit": "V",
+      "distinguishes": ["H1", "H2"]
+    },
+    "reason": "Ajouter une mesure électrique réelle aux observations déjà recueillies."
+  },
+  {
+    "tool_name": "finish_investigation",
+    "arguments": {
+      "outcome": "diagnosed",
+      "diagnosis": "Une obstruction visible des panneaux est plausible, sans élément suffisant pour exclure la chaîne électrique.",
+      "confidence": 0.62,
+      "evidence": ["answer-history", "image-dust", "m-panels"],
+      "remaining_uncertainties": [
+        "La valeur mesurée ne permet pas, à elle seule, de localiser un défaut."
+      ],
+      "distinguishes": ["H1", "H2"]
+    },
+    "reason": "Conclure uniquement à partir des trois preuves recueillies."
+  }
+]

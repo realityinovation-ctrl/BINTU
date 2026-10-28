@@ -858,6 +858,22 @@ h2 {
   background: var(--orange-light);
 }
 
+.report-card h3 {
+  margin: 18px 0 8px;
+  color: var(--navy);
+  font-size: 0.95rem;
+}
+
+.report-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.report-list li {
+  margin: 6px 0;
+  line-height: 1.45;
+}
+
 .diagnosis {
   color: var(--navy);
   font-size: 1.08rem;

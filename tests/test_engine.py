@@ -102,7 +102,7 @@ def test_completed_state_cannot_advance() -> None:
                 arguments=FinishInvestigationArguments(
                     outcome=FinishOutcome.DIAGNOSED,
                     diagnosis="Conditions normales : batterie pleine.",
-                    confidence=0.9,
+                        confidence=0.7,
                     evidence=["answer-1"],
                     distinguishes=[HypothesisId.H0, HypothesisId.H3],
                 ),

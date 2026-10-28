@@ -4,7 +4,7 @@ const SOURCE_LABELS: Record<Observation["source_type"], string> = {
   observation: "Observation",
   measurement: "Mesure reçue",
   technician_answer: "Réponse du technicien",
-  image_analysis: "Analyse d'image",
+  image_analysis: "Observation visuelle",
 };
 
 export function InvestigationFlow({

@@ -26,8 +26,8 @@ python -m venv .venv
 - garde-fous métier et sécurité ;
 - tests sans réseau.
 
-La vision réelle, le rendu de rapport, le frontend, la voix et la persistance
-sont volontairement reportés.
+La segmentation d'image, le rendu de rapport et les traitements visuels
+avancés restent hors périmètre.
 
 ## Frontière fournisseur
 
@@ -154,6 +154,19 @@ confirmation.
 
 Seule la transcription fichier HTTP est utilisée. Aucun WebSocket vocal,
 synthèse vocale ou enregistrement permanent n'est inclus.
+
+### Entrée image
+
+Lorsque le Core demande explicitement `analyze_image`, le technicien peut
+prendre ou sélectionner une image JPEG, PNG ou WebP de 10 Mo maximum, vérifier
+son aperçu, puis déclencher l'analyse. FastAPI envoie alors l'image à
+`muse-spark-1.3` via l'interface multimodale de Meta.
+
+Le résultat accepté contient uniquement une description visuelle et une
+certitude. Le Core l'enregistre comme `Observation` et `Evidence` avec
+`source_type=image_analysis`, sans créer de mesure ni modifier une hypothèse.
+L'image n'est pas conservée après la requête. Les tests utilisent un transport
+HTTP local et n'appellent jamais Meta.
 
 ## Invariants
 

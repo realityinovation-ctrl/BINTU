@@ -228,6 +228,103 @@ describe("parcours principal", () => {
       }),
     );
   });
+
+  test("prévisualise puis analyse une image uniquement après confirmation", async () => {
+    const user = userEvent.setup();
+    Object.defineProperty(URL, "createObjectURL", {
+      configurable: true,
+      value: vi.fn(() => "blob:panel-preview"),
+    });
+    Object.defineProperty(URL, "revokeObjectURL", {
+      configurable: true,
+      value: vi.fn(),
+    });
+    const pendingImage = {
+      ...makeInvestigation(),
+      state: {
+        ...makeInvestigation().state,
+        pending_action: {
+          action_id: "action-1",
+          tool_name: "analyze_image" as const,
+          arguments: {
+            image_id: "image-action-1",
+            focus: "Vérifier les obstructions visibles.",
+            distinguishes: ["H1", "H2"],
+          },
+          reason: "Rechercher un indice visuel.",
+        },
+      },
+    };
+    const afterAnalysis: InvestigationData = {
+      ...pendingImage,
+      state: {
+        ...pendingImage.state,
+        observations: [
+          {
+            id: "observation:image-analysis-1",
+            source_type: "image_analysis",
+            source_id: "image-action-1",
+            statement:
+              "Une partie du panneau semble couverte par des dépôts visibles.",
+            value: null,
+            unit: null,
+            certainty: 0.76,
+          },
+        ],
+        pending_action: {
+          action_id: "action-2",
+          tool_name: "ask_technician",
+          arguments: {
+            question: "Une autre zone est-elle masquée ?",
+            distinguishes: ["H1", "H2"],
+          },
+          reason: "Poursuivre la vérification.",
+        },
+      },
+    };
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonResponse(afterAnalysis));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <Investigation
+        id={pendingImage.investigation_id}
+        initial={pendingImage}
+        onHome={() => undefined}
+      />,
+    );
+
+    const file = new File(["image"], "panneau.png", {
+      type: "image/png",
+    });
+    await user.upload(
+      screen.getByLabelText(/ajouter une photo/i),
+      file,
+    );
+
+    expect(
+      screen.getByAltText("Aperçu de la photo sélectionnée"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Supprimer" }),
+    ).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    await user.click(
+      screen.getByRole("button", { name: "Analyser avec BINTU" }),
+    );
+
+    expect(
+      await screen.findByText(
+        "Une partie du panneau semble couverte par des dépôts visibles.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Observation visuelle")).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(String(fetchMock.mock.calls[0][0])).toContain("/image");
+    expect(fetchMock.mock.calls[0][1]?.body).toBeInstanceOf(FormData);
+  });
 });
 
 describe("statuts d'investigation", () => {

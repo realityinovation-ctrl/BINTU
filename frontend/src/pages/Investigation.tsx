@@ -3,6 +3,7 @@ import { APIError, getInvestigation, sendMessage } from "../api/client";
 import { ErrorState } from "../components/ErrorState";
 import { Header } from "../components/Header";
 import { HypothesesPanel } from "../components/HypothesesPanel";
+import { ImageInput } from "../components/ImageInput";
 import { InvestigationFlow } from "../components/InvestigationFlow";
 import { LoadingState } from "../components/LoadingState";
 import { NextAction } from "../components/NextAction";
@@ -236,8 +237,18 @@ export function Investigation({ id, initial, onHome }: InvestigationProps) {
 
           {!sending &&
             status === "waiting_for_technician" &&
+            pending?.tool_name === "analyze_image" && (
+              <ImageInput
+                investigationId={investigation.investigation_id}
+                onAnalyzed={setInvestigation}
+              />
+            )}
+
+          {!sending &&
+            status === "waiting_for_technician" &&
             pending &&
-            !canReply(pending) && (
+            !canReply(pending) &&
+            pending.tool_name !== "analyze_image" && (
               <div className="unsupported-action" role="status">
                 Cette action ne peut pas encore être fournie depuis
                 l&apos;interface texte du MVP.

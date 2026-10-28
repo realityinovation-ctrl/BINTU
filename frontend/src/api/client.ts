@@ -90,3 +90,22 @@ export async function transcribeAudio(
   }
   return body.transcription.trim();
 }
+
+export async function analyzeImage(
+  id: string,
+  image: File,
+): Promise<Investigation> {
+  const form = new FormData();
+  form.append("image", image, image.name);
+  const response = await fetch(
+    `${API_BASE_URL}/api/investigations/${encodeURIComponent(id)}/image`,
+    {
+      method: "POST",
+      body: form,
+    },
+  );
+  if (!response.ok) {
+    throw new APIError(response.status, "L'analyse de l'image a échoué.");
+  }
+  return (await response.json()) as Investigation;
+}

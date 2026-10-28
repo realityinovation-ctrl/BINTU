@@ -26,6 +26,7 @@ from bintu_agent_core.errors import (
 )
 from bintu_agent_core.meta_provider import MetaAIProvider
 from bintu_agent_core.models import (
+    AnalyzeImageArguments,
     AskTechnicianArguments,
     InvestigationState,
     Problem,
@@ -40,15 +41,19 @@ from bintu_backend.schemas import (
     MessageRequest,
     TranscriptionResponse,
 )
+from bintu_backend.image import ImageAnalyzer, MetaImageAnalyzer
 from bintu_backend.voice import MuseVoiceTranscriber, VoiceTranscriber
 
 
 ProviderFactory = Callable[[], AIProvider]
 TranscriberFactory = Callable[[], VoiceTranscriber]
+ImageAnalyzerFactory = Callable[[], ImageAnalyzer]
 
 MAX_AUDIO_BYTES = 32 * 1024 * 1024
 MAX_AUDIO_DURATION_SECONDS = 10 * 60
 ACCEPTED_AUDIO_TYPES = {"audio/wav", "audio/x-wav", "audio/wave"}
+MAX_IMAGE_BYTES = 10 * 1024 * 1024
+ACCEPTED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
 DEFAULT_CORS_ORIGINS = [
     "http://localhost:3000",
@@ -63,12 +68,14 @@ def create_app(
     database_path: str | Path | None = None,
     provider_factory: ProviderFactory | None = None,
     transcriber_factory: TranscriberFactory | None = None,
+    image_analyzer_factory: ImageAnalyzerFactory | None = None,
 ) -> FastAPI:
     store = SQLiteInvestigationStore(
         database_path or os.environ.get("BINTU_DB_PATH", "data/bintu.sqlite3")
     )
     make_provider = provider_factory or MetaAIProvider
     make_transcriber = transcriber_factory or MuseVoiceTranscriber
+    make_image_analyzer = image_analyzer_factory or MetaImageAnalyzer
     app = FastAPI(title="BINTU API", version="0.1.0")
     app.add_middleware(
         CORSMiddleware,
@@ -250,6 +257,67 @@ def create_app(
             _close_transcriber(transcriber)
         return TranscriptionResponse(transcription=transcription)
 
+    @app.post(
+        "/api/investigations/{investigation_id}/image",
+        response_model=InvestigationResponse,
+    )
+    def analyze_image(
+        investigation_id: str,
+        image: UploadFile = File(...),
+    ) -> InvestigationResponse:
+        state = store.get_investigation(investigation_id)
+        pending = state.pending_action
+        if pending is None or not isinstance(
+            pending.decision.arguments, AnalyzeImageArguments
+        ):
+            image.file.close()
+            raise InvalidStateTransitionError(
+                "investigation is not waiting for an image"
+            )
+
+        content_type = (image.content_type or "").lower()
+        if content_type not in ACCEPTED_IMAGE_TYPES:
+            image.file.close()
+            raise HTTPException(
+                status_code=415,
+                detail="Only JPEG, PNG and WebP images are accepted",
+            )
+        try:
+            content = image.file.read(MAX_IMAGE_BYTES + 1)
+        finally:
+            image.file.close()
+        if len(content) > MAX_IMAGE_BYTES:
+            raise HTTPException(
+                status_code=413,
+                detail="Image file exceeds the 10 MB limit",
+            )
+        _validate_image(content, content_type)
+
+        analyzer = make_image_analyzer()
+        try:
+            analysis = analyzer.analyze(
+                content,
+                content_type,
+                pending.decision.arguments.focus,
+            )
+        finally:
+            _close_image_analyzer(analyzer)
+
+        provider = make_provider()
+        evidence_id = f"image-analysis-{uuid4()}"
+        try:
+            engine = InvestigationEngine(state, provider)
+            engine.submit_image_analysis(
+                evidence_id,
+                analysis.description,
+                analysis.certainty,
+            )
+            engine.advance()
+        finally:
+            _close_provider(provider)
+        store.save_investigation(state)
+        return _present(state)
+
     return app
 
 
@@ -271,6 +339,12 @@ def _close_provider(provider: AIProvider) -> None:
 
 def _close_transcriber(transcriber: VoiceTranscriber) -> None:
     close = getattr(transcriber, "close", None)
+    if callable(close):
+        close()
+
+
+def _close_image_analyzer(analyzer: ImageAnalyzer) -> None:
+    close = getattr(analyzer, "close", None)
     if callable(close):
         close()
 
@@ -301,6 +375,25 @@ def _validate_wav(content: bytes) -> None:
         raise HTTPException(
             status_code=413,
             detail="Audio duration exceeds the 10 minute limit",
+        )
+
+
+def _validate_image(content: bytes, content_type: str) -> None:
+    signatures = {
+        "image/jpeg": (
+            content.startswith(b"\xff\xd8\xff") and content.endswith(b"\xff\xd9")
+        ),
+        "image/png": content.startswith(b"\x89PNG\r\n\x1a\n"),
+        "image/webp": (
+            len(content) >= 12
+            and content.startswith(b"RIFF")
+            and content[8:12] == b"WEBP"
+        ),
+    }
+    if not content or not signatures[content_type]:
+        raise HTTPException(
+            status_code=422,
+            detail="Image content does not match its declared format",
         )
 
 

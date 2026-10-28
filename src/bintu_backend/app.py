@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import os
+import wave
+from io import BytesIO
 from collections.abc import Callable
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -20,6 +22,7 @@ from bintu_agent_core.errors import (
     InvestigationNotFoundError,
     InvalidStateTransitionError,
     PersistenceError,
+    ProviderTimeoutError,
 )
 from bintu_agent_core.meta_provider import MetaAIProvider
 from bintu_agent_core.models import (
@@ -35,10 +38,17 @@ from bintu_backend.schemas import (
     HealthResponse,
     InvestigationResponse,
     MessageRequest,
+    TranscriptionResponse,
 )
+from bintu_backend.voice import MuseVoiceTranscriber, VoiceTranscriber
 
 
 ProviderFactory = Callable[[], AIProvider]
+TranscriberFactory = Callable[[], VoiceTranscriber]
+
+MAX_AUDIO_BYTES = 32 * 1024 * 1024
+MAX_AUDIO_DURATION_SECONDS = 10 * 60
+ACCEPTED_AUDIO_TYPES = {"audio/wav", "audio/x-wav", "audio/wave"}
 
 DEFAULT_CORS_ORIGINS = [
     "http://localhost:3000",
@@ -52,11 +62,13 @@ def create_app(
     *,
     database_path: str | Path | None = None,
     provider_factory: ProviderFactory | None = None,
+    transcriber_factory: TranscriberFactory | None = None,
 ) -> FastAPI:
     store = SQLiteInvestigationStore(
         database_path or os.environ.get("BINTU_DB_PATH", "data/bintu.sqlite3")
     )
     make_provider = provider_factory or MetaAIProvider
+    make_transcriber = transcriber_factory or MuseVoiceTranscriber
     app = FastAPI(title="BINTU API", version="0.1.0")
     app.add_middleware(
         CORSMiddleware,
@@ -82,6 +94,15 @@ def create_app(
         del request, exc
         return JSONResponse(
             status_code=502, content={"detail": "AI provider unavailable"}
+        )
+
+    @app.exception_handler(ProviderTimeoutError)
+    async def provider_timed_out(
+        request: Request, exc: ProviderTimeoutError
+    ) -> JSONResponse:
+        del request, exc
+        return JSONResponse(
+            status_code=504, content={"detail": "AI provider timed out"}
         )
 
     @app.exception_handler(DecisionValidationError)
@@ -193,6 +214,42 @@ def create_app(
         store.save_investigation(state)
         return _present(state)
 
+    @app.post(
+        "/api/investigations/{investigation_id}/transcribe",
+        response_model=TranscriptionResponse,
+    )
+    def transcribe_audio(
+        investigation_id: str,
+        audio: UploadFile = File(...),
+    ) -> TranscriptionResponse:
+        store.get_investigation(investigation_id)
+        content_type = (audio.content_type or "").lower()
+        if content_type not in ACCEPTED_AUDIO_TYPES:
+            audio.file.close()
+            raise HTTPException(
+                status_code=415,
+                detail="Only mono PCM WAV audio is accepted",
+            )
+        try:
+            content = audio.file.read(MAX_AUDIO_BYTES + 1)
+        finally:
+            audio.file.close()
+        if len(content) > MAX_AUDIO_BYTES:
+            raise HTTPException(
+                status_code=413,
+                detail="Audio file exceeds the 32 MB limit",
+            )
+        _validate_wav(content)
+
+        transcriber = make_transcriber()
+        try:
+            transcription = transcriber.transcribe(
+                content, audio.filename or "recording.wav"
+            )
+        finally:
+            _close_transcriber(transcriber)
+        return TranscriptionResponse(transcription=transcription)
+
     return app
 
 
@@ -210,6 +267,41 @@ def _close_provider(provider: AIProvider) -> None:
     close = getattr(provider, "close", None)
     if callable(close):
         close()
+
+
+def _close_transcriber(transcriber: VoiceTranscriber) -> None:
+    close = getattr(transcriber, "close", None)
+    if callable(close):
+        close()
+
+
+def _validate_wav(content: bytes) -> None:
+    try:
+        with wave.open(BytesIO(content), "rb") as recording:
+            channels = recording.getnchannels()
+            sample_width = recording.getsampwidth()
+            sample_rate = recording.getframerate()
+            frame_count = recording.getnframes()
+            compression = recording.getcomptype()
+    except (EOFError, wave.Error) as exc:
+        raise HTTPException(
+            status_code=422, detail="Audio is not a valid WAV file"
+        ) from exc
+    if (
+        channels != 1
+        or sample_width != 2
+        or sample_rate not in {16000, 24000}
+        or compression != "NONE"
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail="WAV must be mono 16-bit PCM at 16 kHz or 24 kHz",
+        )
+    if frame_count / sample_rate > MAX_AUDIO_DURATION_SECONDS:
+        raise HTTPException(
+            status_code=413,
+            detail="Audio duration exceeds the 10 minute limit",
+        )
 
 
 def _present(state: InvestigationState) -> InvestigationResponse:

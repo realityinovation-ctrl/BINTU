@@ -143,6 +143,18 @@ npm run typecheck
 npm run build
 ```
 
+### Entrée vocale
+
+Pour une question textuelle, le technicien peut enregistrer une réponse,
+relire et corriger la transcription, puis la confirmer. Le navigateur encode
+directement un WAV mono PCM 16-bit à 16 kHz. FastAPI valide le format, la durée
+et la taille avant d'appeler `muse-voice-transcribe-1.0`. L'audio reste
+temporaire et la transcription n'est jamais envoyée au moteur avant
+confirmation.
+
+Seule la transcription fichier HTTP est utilisée. Aucun WebSocket vocal,
+synthèse vocale ou enregistrement permanent n'est inclus.
+
 ## Invariants
 
 - une donnée d'installation inconnue reste `None` ;

@@ -31,3 +31,7 @@ class InvestigationResponse(APIModel):
 
 class HealthResponse(APIModel):
     status: str
+
+
+class TranscriptionResponse(APIModel):
+    transcription: str

@@ -2,12 +2,17 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import App from "./App";
+import { startWavRecording } from "./audio/recorder";
 import { Investigation } from "./pages/Investigation";
 import { makeInvestigation } from "./test/fixtures";
 import type {
   Investigation as InvestigationData,
   InvestigationStatus,
 } from "./types/investigation";
+
+vi.mock("./audio/recorder", () => ({
+  startWavRecording: vi.fn(),
+}));
 
 function jsonResponse(body: unknown, status = 200) {
   return {
@@ -20,6 +25,7 @@ function jsonResponse(body: unknown, status = 200) {
 describe("parcours principal", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.mocked(startWavRecording).mockReset();
     window.history.replaceState({}, "", "/");
   });
 
@@ -142,6 +148,85 @@ describe("parcours principal", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getByText("Hypothèses suivies")).toBeInTheDocument();
+  });
+
+  test("ne transmet la transcription qu'après confirmation", async () => {
+    const user = userEvent.setup();
+    const created = makeInvestigation();
+    const afterMessage = {
+      ...created,
+      state: {
+        ...created.state,
+        observations: [
+          {
+            id: "voice-answer",
+            source_type: "technician_answer" as const,
+            source_id: "action-1",
+            statement: "Aucun défaut affiché après vérification.",
+            value: null,
+            unit: null,
+            certainty: null,
+          },
+        ],
+      },
+    };
+    vi.mocked(startWavRecording).mockResolvedValue({
+      stop: vi
+        .fn()
+        .mockResolvedValue(new Blob(["wav"], { type: "audio/wav" })),
+      cancel: vi.fn().mockResolvedValue(undefined),
+    });
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse(created, 201))
+      .mockResolvedValueOnce(
+        jsonResponse({ transcription: "Aucun défaut affiché." }),
+      )
+      .mockResolvedValueOnce(jsonResponse(afterMessage));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<App />);
+    await user.click(
+      screen.getByRole("button", { name: /nouvelle investigation/i }),
+    );
+    await user.type(
+      screen.getByLabelText(/problème rencontré/i),
+      "Production solaire faible.",
+    );
+    await user.click(
+      screen.getByRole("button", { name: /commencer l'investigation/i }),
+    );
+    await screen.findByText("Quel état est affiché par l'onduleur ?");
+
+    await user.click(screen.getByRole("button", { name: /parler/i }));
+    await user.click(
+      await screen.findByRole("button", { name: /enregistrement.*arrêter/i }),
+    );
+
+    const transcription = await screen.findByLabelText(
+      "Transcription à vérifier",
+    );
+    expect(transcription).toHaveValue("Aucun défaut affiché.");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(String(fetchMock.mock.calls[1][0])).toContain("/transcribe");
+
+    await user.clear(transcription);
+    await user.type(
+      transcription,
+      "Aucun défaut affiché après vérification.",
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    await user.click(
+      screen.getByRole("button", { name: "Utiliser cette réponse" }),
+    );
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    expect(String(fetchMock.mock.calls[2][0])).toContain("/message");
+    expect(fetchMock.mock.calls[2][1]?.body).toBe(
+      JSON.stringify({
+        message: "Aucun défaut affiché après vérification.",
+      }),
+    );
   });
 });
 

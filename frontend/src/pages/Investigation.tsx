@@ -8,6 +8,7 @@ import { LoadingState } from "../components/LoadingState";
 import { NextAction } from "../components/NextAction";
 import { ProblemCard } from "../components/ProblemCard";
 import { Timeline } from "../components/Timeline";
+import { VoiceInput } from "../components/VoiceInput";
 import type {
   Investigation as InvestigationData,
   PendingAction,
@@ -74,9 +75,7 @@ export function Investigation({ id, initial, onHome }: InvestigationProps) {
     [investigation],
   );
 
-  async function submit(event: FormEvent) {
-    event.preventDefault();
-    const message = answer.trim();
+  async function deliverAnswer(message: string) {
     if (!message || !investigation) return;
     setSending(true);
     setError(null);
@@ -94,6 +93,12 @@ export function Investigation({ id, initial, onHome }: InvestigationProps) {
     } finally {
       setSending(false);
     }
+  }
+
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    const message = answer.trim();
+    if (message) void deliverAnswer(message);
   }
 
   if (loading) {
@@ -220,6 +225,12 @@ export function Investigation({ id, initial, onHome }: InvestigationProps) {
                     Envoyer
                   </button>
                 </div>
+                {pending?.tool_name === "ask_technician" && (
+                  <VoiceInput
+                    investigationId={investigation.investigation_id}
+                    onUse={(text) => void deliverAnswer(text)}
+                  />
+                )}
               </form>
             )}
 

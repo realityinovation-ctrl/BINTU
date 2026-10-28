@@ -64,3 +64,29 @@ export function sendMessage(
 export function getHealth(): Promise<{ status: string }> {
   return request<{ status: string }>("/api/health");
 }
+
+export async function transcribeAudio(
+  id: string,
+  audio: Blob,
+): Promise<string> {
+  const form = new FormData();
+  form.append("audio", audio, "recording.wav");
+  const response = await fetch(
+    `${API_BASE_URL}/api/investigations/${encodeURIComponent(id)}/transcribe`,
+    {
+      method: "POST",
+      body: form,
+    },
+  );
+  if (!response.ok) {
+    throw new APIError(response.status, "La transcription a échoué.");
+  }
+  const body = (await response.json()) as { transcription?: unknown };
+  if (
+    typeof body.transcription !== "string" ||
+    !body.transcription.trim()
+  ) {
+    throw new APIError(502, "La transcription reçue est invalide.");
+  }
+  return body.transcription.trim();
+}

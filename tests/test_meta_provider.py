@@ -22,7 +22,7 @@ from bintu_agent_core.models import (
 VALID_DECISION = {
     "tool_name": "request_measurement",
     "arguments": {
-        "measurement_type": "voltage",
+        "measurement_type": "dc_voltage",
         "location": "entrée DC de l'onduleur",
         "unit": "V",
         "distinguishes": ["H1", "H2"],

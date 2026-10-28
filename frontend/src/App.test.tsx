@@ -51,7 +51,7 @@ describe("parcours principal", () => {
           action_id: "action-2",
           tool_name: "request_measurement",
           arguments: {
-            measurement_type: "voltage",
+            measurement_type: "dc_voltage",
             location: "bornes de la batterie",
             unit: "V",
             distinguishes: ["H2", "H3"],
@@ -90,7 +90,9 @@ describe("parcours principal", () => {
     await user.click(screen.getByRole("button", { name: "Envoyer" }));
 
     expect(
-      await screen.findByText("Fournissez la mesure demandée"),
+      await screen.findByText(
+        "BINTU a besoin d'une mesure pour poursuivre l'enquête",
+      ),
     ).toBeInTheDocument();
     expect(screen.getByText(/bornes de la batterie/i)).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(2);
@@ -324,6 +326,156 @@ describe("parcours principal", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(String(fetchMock.mock.calls[0][0])).toContain("/image");
     expect(fetchMock.mock.calls[0][1]?.body).toBeInstanceOf(FormData);
+  });
+
+  test("saisit une mesure du catalogue, affiche l'unité et la persiste", async () => {
+    const user = userEvent.setup();
+    const requested = {
+      ...makeInvestigation(),
+      state: {
+        ...makeInvestigation().state,
+        pending_action: {
+          action_id: "action-1",
+          tool_name: "request_measurement" as const,
+          arguments: {
+            measurement_type: "ac_power",
+            location: "sortie onduleur",
+            unit: "W",
+            distinguishes: ["H1", "H2"],
+          },
+          reason: "Obtenir une mesure électrique réelle.",
+        },
+      },
+    };
+    const afterMeasurement: InvestigationData = {
+      ...requested,
+      state: {
+        ...requested.state,
+        observations: [
+          {
+            id: "observation:measurement-1",
+            source_type: "measurement",
+            source_id: "measurement-1",
+            statement: "ac_power mesurée à sortie onduleur",
+            value: 842.5,
+            unit: "W",
+            certainty: null,
+          },
+        ],
+        measurements: [
+          {
+            id: "measurement-1",
+            measurement_type: "ac_power",
+            value: 842.5,
+            unit: "W",
+            location: "sortie onduleur",
+            source_id: "action-1",
+            source_type: "measurement",
+          },
+        ],
+        pending_action: {
+          action_id: "action-2",
+          tool_name: "ask_technician",
+          arguments: {
+            question: "La valeur est-elle stable ?",
+            distinguishes: ["H1", "H2"],
+          },
+          reason: "Qualifier la mesure.",
+        },
+      },
+    };
+    let resolveRequest!: (response: Response) => void;
+    const fetchMock = vi.fn(
+      (_url: string, _init?: RequestInit) =>
+        new Promise<Response>((resolve) => {
+          resolveRequest = resolve;
+        }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <Investigation
+        id={requested.investigation_id}
+        initial={requested}
+        onHome={() => undefined}
+      />,
+    );
+
+    const type = screen.getByLabelText("Type de mesure");
+    expect(type).toHaveValue("ac_power");
+    expect(screen.getByLabelText("Unité")).toHaveTextContent("W");
+    await user.selectOptions(type, "dc_current");
+    expect(screen.getByLabelText("Unité")).toHaveTextContent("A");
+    await user.selectOptions(type, "ac_power");
+
+    await user.type(screen.getByLabelText("Valeur"), "842,5");
+    const location = screen.getByLabelText("Emplacement");
+    await user.clear(location);
+    await user.type(location, "sortie onduleur");
+    await user.click(
+      screen.getByRole("button", { name: "Ajouter la mesure" }),
+    );
+
+    expect(screen.getByText("Ajout de la mesure…")).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(String(fetchMock.mock.calls[0][0])).toContain("/measurement");
+    expect(fetchMock.mock.calls[0][1]?.body).toBe(
+      JSON.stringify({
+        measurement_type: "ac_power",
+        value: 842.5,
+        unit: "W",
+        location: "sortie onduleur",
+      }),
+    );
+
+    resolveRequest(jsonResponse(afterMeasurement));
+    expect(
+      await screen.findByText("ac_power mesurée à sortie onduleur"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("842.5 W")).toBeInTheDocument();
+  });
+
+  test("affiche une erreur si l'API refuse la mesure", async () => {
+    const user = userEvent.setup();
+    const requested = {
+      ...makeInvestigation(),
+      state: {
+        ...makeInvestigation().state,
+        pending_action: {
+          action_id: "action-1",
+          tool_name: "request_measurement" as const,
+          arguments: {
+            measurement_type: "dc_voltage",
+            location: "sortie panneaux",
+            unit: "V",
+            distinguishes: ["H1"],
+          },
+          reason: "Mesurer la tension.",
+        },
+      },
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValue(jsonResponse({ detail: "Invalid measurement" }, 422)),
+    );
+
+    render(
+      <Investigation
+        id={requested.investigation_id}
+        initial={requested}
+        onHome={() => undefined}
+      />,
+    );
+    await user.type(screen.getByLabelText("Valeur"), "38.4");
+    await user.click(
+      screen.getByRole("button", { name: "Ajouter la mesure" }),
+    );
+
+    expect(
+      await screen.findByText(/la mesure n'a pas été enregistrée/i),
+    ).toBeInTheDocument();
   });
 });
 

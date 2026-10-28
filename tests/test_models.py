@@ -61,7 +61,7 @@ def test_decision_arguments_must_match_tool() -> None:
         AgentDecision(
             tool_name=ToolName.ASK_TECHNICIAN,
             arguments=RequestMeasurementArguments(
-                measurement_type="voltage",
+                measurement_type="dc_voltage",
                 location="sortie panneau",
                 unit="V",
                 distinguishes=[HypothesisId.H1, HypothesisId.H2],

@@ -958,7 +958,7 @@ Décision réelle du provider scripté :
       "H1",
       "H2"
     ],
-    "measurement_type": "voltage",
+    "measurement_type": "dc_voltage",
     "location": "sortie du champ PV",
     "unit": "V"
   },
@@ -989,7 +989,7 @@ Observations réellement créées :
     "id": "observation:m-array",
     "source_type": "measurement",
     "source_id": "m-array",
-    "statement": "voltage mesurée à sortie du champ PV",
+    "statement": "dc_voltage mesurée à sortie du champ PV",
     "value": 400.0,
     "unit": "V",
     "certainty": null
@@ -1165,7 +1165,7 @@ Décision réelle du provider scripté :
       "H1",
       "H2"
     ],
-    "measurement_type": "voltage",
+    "measurement_type": "dc_voltage",
     "location": "entrée PV de l'onduleur",
     "unit": "V"
   },
@@ -1196,7 +1196,7 @@ Observations réellement créées :
     "id": "observation:m-inverter",
     "source_type": "measurement",
     "source_id": "m-inverter",
-    "statement": "voltage mesurée à entrée PV de l'onduleur",
+    "statement": "dc_voltage mesurée à entrée PV de l'onduleur",
     "value": 315.0,
     "unit": "V",
     "certainty": null
@@ -1842,7 +1842,7 @@ Preuves justifiant ces changements :
       "id": "observation:m-array",
       "source_type": "measurement",
       "source_id": "m-array",
-      "statement": "voltage mesurée à sortie du champ PV",
+      "statement": "dc_voltage mesurée à sortie du champ PV",
       "value": 400.0,
       "unit": "V",
       "certainty": null
@@ -1851,7 +1851,7 @@ Preuves justifiant ces changements :
       "id": "observation:m-inverter",
       "source_type": "measurement",
       "source_id": "m-inverter",
-      "statement": "voltage mesurée à entrée PV de l'onduleur",
+      "statement": "dc_voltage mesurée à entrée PV de l'onduleur",
       "value": 315.0,
       "unit": "V",
       "certainty": null
@@ -1950,7 +1950,7 @@ Preuves justifiant ces changements :
   "measurements": {
     "m-array": {
       "id": "m-array",
-      "measurement_type": "voltage",
+      "measurement_type": "dc_voltage",
       "location": "sortie du champ PV",
       "value": 400.0,
       "unit": "V",
@@ -1958,7 +1958,7 @@ Preuves justifiant ces changements :
     },
     "m-inverter": {
       "id": "m-inverter",
-      "measurement_type": "voltage",
+      "measurement_type": "dc_voltage",
       "location": "entrée PV de l'onduleur",
       "value": 315.0,
       "unit": "V",
@@ -2855,7 +2855,7 @@ Décision réelle du provider scripté :
       "H1",
       "H2"
     ],
-    "measurement_type": "voltage",
+    "measurement_type": "dc_voltage",
     "location": "sortie du champ PV",
     "unit": "V"
   },
@@ -2886,7 +2886,7 @@ Observations réellement créées :
     "id": "observation:m-array",
     "source_type": "measurement",
     "source_id": "m-array",
-    "statement": "voltage mesurée à sortie du champ PV",
+    "statement": "dc_voltage mesurée à sortie du champ PV",
     "value": 398.0,
     "unit": "V",
     "certainty": null
@@ -3064,7 +3064,7 @@ Décision réelle du provider scripté :
       "H1",
       "H2"
     ],
-    "measurement_type": "voltage",
+    "measurement_type": "dc_voltage",
     "location": "entrée PV de l'onduleur",
     "unit": "V"
   },
@@ -3095,7 +3095,7 @@ Observations réellement créées :
     "id": "observation:m-inverter",
     "source_type": "measurement",
     "source_id": "m-inverter",
-    "statement": "voltage mesurée à entrée PV de l'onduleur",
+    "statement": "dc_voltage mesurée à entrée PV de l'onduleur",
     "value": 300.0,
     "unit": "V",
     "certainty": null
@@ -3759,7 +3759,7 @@ Preuves justifiant ces changements :
       "id": "observation:m-array",
       "source_type": "measurement",
       "source_id": "m-array",
-      "statement": "voltage mesurée à sortie du champ PV",
+      "statement": "dc_voltage mesurée à sortie du champ PV",
       "value": 398.0,
       "unit": "V",
       "certainty": null
@@ -3768,7 +3768,7 @@ Preuves justifiant ces changements :
       "id": "observation:m-inverter",
       "source_type": "measurement",
       "source_id": "m-inverter",
-      "statement": "voltage mesurée à entrée PV de l'onduleur",
+      "statement": "dc_voltage mesurée à entrée PV de l'onduleur",
       "value": 300.0,
       "unit": "V",
       "certainty": null
@@ -3895,7 +3895,7 @@ Preuves justifiant ces changements :
   "measurements": {
     "m-array": {
       "id": "m-array",
-      "measurement_type": "voltage",
+      "measurement_type": "dc_voltage",
       "location": "sortie du champ PV",
       "value": 398.0,
       "unit": "V",
@@ -3903,7 +3903,7 @@ Preuves justifiant ces changements :
     },
     "m-inverter": {
       "id": "m-inverter",
-      "measurement_type": "voltage",
+      "measurement_type": "dc_voltage",
       "location": "entrée PV de l'onduleur",
       "value": 300.0,
       "unit": "V",

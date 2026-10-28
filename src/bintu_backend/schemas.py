@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated, Any
 
-from pydantic import BaseModel, ConfigDict, StringConstraints
+from pydantic import BaseModel, ConfigDict, FiniteFloat, StringConstraints
 
 
 class APIModel(BaseModel):
@@ -20,6 +20,19 @@ class MessageRequest(APIModel):
 class CreateInvestigationRequest(APIModel):
     problem: Annotated[
         str, StringConstraints(strip_whitespace=True, min_length=1)
+    ]
+
+
+class MeasurementRequest(APIModel):
+    measurement_type: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1)
+    ]
+    value: FiniteFloat
+    unit: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1)
+    ]
+    location: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)
     ]
 
 

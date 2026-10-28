@@ -49,7 +49,7 @@ class MeasurementThenQuestionProvider:
             return AgentDecision(
                 tool_name=ToolName.REQUEST_MEASUREMENT,
                 arguments=RequestMeasurementArguments(
-                    measurement_type="voltage",
+                    measurement_type="dc_voltage",
                     location="bornes de la batterie",
                     unit="V",
                     distinguishes=[HypothesisId.H2, HypothesisId.H3],

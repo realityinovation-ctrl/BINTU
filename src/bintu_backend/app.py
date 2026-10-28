@@ -12,6 +12,7 @@ from typing import Any
 from uuid import uuid4
 
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -25,6 +26,7 @@ from bintu_agent_core.errors import (
     ProviderTimeoutError,
 )
 from bintu_agent_core.meta_provider import MetaAIProvider
+from bintu_agent_core.measurement_catalog import MEASUREMENT_CATALOG
 from bintu_agent_core.models import (
     AnalyzeImageArguments,
     AskTechnicianArguments,
@@ -38,6 +40,7 @@ from bintu_backend.schemas import (
     CreateInvestigationRequest,
     HealthResponse,
     InvestigationResponse,
+    MeasurementRequest,
     MessageRequest,
     TranscriptionResponse,
 )
@@ -141,6 +144,27 @@ def create_app(
             status_code=500, content={"detail": "Persistence operation failed"}
         )
 
+    @app.exception_handler(RequestValidationError)
+    async def invalid_request(
+        request: Request, exc: RequestValidationError
+    ) -> JSONResponse:
+        del request
+        errors = exc.errors()
+        value_error = any(
+            error.get("loc", ())[-1:] == ("value",)
+            for error in errors
+        )
+        return JSONResponse(
+            status_code=422,
+            content={
+                "detail": (
+                    "A finite numeric measurement is required"
+                    if value_error
+                    else "Invalid request"
+                )
+            },
+        )
+
     @app.get("/api/health", response_model=HealthResponse)
     def health() -> HealthResponse:
         return HealthResponse(status="ok")
@@ -215,6 +239,58 @@ def create_app(
                 raise InvalidStateTransitionError(
                     "this action cannot be completed with a text message"
                 )
+            engine.advance()
+        finally:
+            _close_provider(provider)
+        store.save_investigation(state)
+        return _present(state)
+
+    @app.post(
+        "/api/investigations/{investigation_id}/measurement",
+        response_model=InvestigationResponse,
+    )
+    def submit_measurement(
+        investigation_id: str,
+        request: MeasurementRequest,
+    ) -> InvestigationResponse:
+        state = store.get_investigation(investigation_id)
+        pending = state.pending_action
+        if pending is None or not isinstance(
+            pending.decision.arguments, RequestMeasurementArguments
+        ):
+            raise InvalidStateTransitionError(
+                "investigation is not waiting for a measurement"
+            )
+
+        spec = MEASUREMENT_CATALOG.get(request.measurement_type)
+        if spec is None:
+            raise HTTPException(
+                status_code=422,
+                detail="Unknown measurement type",
+            )
+        if request.unit != spec.unit:
+            raise HTTPException(
+                status_code=422,
+                detail="Unit does not match measurement type",
+            )
+
+        expected = pending.decision.arguments
+        if (
+            request.measurement_type != expected.measurement_type
+            or request.unit != expected.unit
+            or request.location.casefold() != expected.location.strip().casefold()
+        ):
+            raise HTTPException(
+                status_code=422,
+                detail="Measurement does not match the requested action",
+            )
+
+        provider = make_provider()
+        try:
+            engine = InvestigationEngine(state, provider)
+            engine.submit_measurement(
+                f"measurement-{uuid4()}", float(request.value)
+            )
             engine.advance()
         finally:
             _close_provider(provider)
@@ -414,12 +490,23 @@ def _present(state: InvestigationState) -> InvestigationResponse:
                 else None
             ),
             "installation": state.installation.model_dump(mode="json"),
+            "measurement_catalog": [
+                {
+                    "measurement_type": spec.measurement_type,
+                    "label": spec.label,
+                    "unit": spec.unit,
+                }
+                for spec in MEASUREMENT_CATALOG.values()
+            ],
             "observations": [
                 observation.model_dump(mode="json")
                 for observation in state.observations.values()
             ],
             "measurements": [
-                measurement.model_dump(mode="json")
+                {
+                    **measurement.model_dump(mode="json"),
+                    "source_type": "measurement",
+                }
                 for measurement in state.measurements.values()
             ],
             "hypotheses": [

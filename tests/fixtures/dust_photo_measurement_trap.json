@@ -11,7 +11,7 @@
   {
     "tool_name": "request_measurement",
     "arguments": {
-      "measurement_type": "voltage",
+      "measurement_type": "dc_voltage",
       "location": "sortie du champ PV",
       "unit": "V",
       "distinguishes": ["H1", "H2"]
@@ -21,7 +21,7 @@
   {
     "tool_name": "request_measurement",
     "arguments": {
-      "measurement_type": "voltage",
+      "measurement_type": "dc_voltage",
       "location": "entrée PV de l'onduleur",
       "unit": "V",
       "distinguishes": ["H1", "H2"]

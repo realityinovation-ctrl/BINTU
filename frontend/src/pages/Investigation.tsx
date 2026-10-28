@@ -6,6 +6,7 @@ import { HypothesesPanel } from "../components/HypothesesPanel";
 import { ImageInput } from "../components/ImageInput";
 import { InvestigationFlow } from "../components/InvestigationFlow";
 import { LoadingState } from "../components/LoadingState";
+import { MeasurementInput } from "../components/MeasurementInput";
 import { NextAction } from "../components/NextAction";
 import { ProblemCard } from "../components/ProblemCard";
 import { Timeline } from "../components/Timeline";
@@ -22,10 +23,7 @@ interface InvestigationProps {
 }
 
 function canReply(action: PendingAction | null): boolean {
-  return (
-    action?.tool_name === "ask_technician" ||
-    action?.tool_name === "request_measurement"
-  );
+  return action?.tool_name === "ask_technician";
 }
 
 export function Investigation({ id, initial, onHome }: InvestigationProps) {
@@ -130,10 +128,14 @@ export function Investigation({ id, initial, onHome }: InvestigationProps) {
 
   const { state, status } = investigation;
   const pending = state.pending_action;
-  const measurementUnit =
+  const requestedMeasurement =
     pending?.tool_name === "request_measurement" &&
-    typeof pending.arguments.unit === "string"
-      ? pending.arguments.unit
+    typeof pending.arguments.measurement_type === "string" &&
+    typeof pending.arguments.location === "string"
+      ? {
+          type: pending.arguments.measurement_type,
+          location: pending.arguments.location,
+        }
       : null;
 
   return (
@@ -154,7 +156,12 @@ export function Investigation({ id, initial, onHome }: InvestigationProps) {
             />
           )}
 
-          {pending && <NextAction action={pending} />}
+          {pending && (
+            <NextAction
+              action={pending}
+              measurementCatalog={state.measurement_catalog}
+            />
+          )}
 
           {status === "completed" && state.conclusion && (
             <section className="result-card completed-card">
@@ -192,30 +199,16 @@ export function Investigation({ id, initial, onHome }: InvestigationProps) {
             canReply(pending) && (
               <form className="reply-form" onSubmit={submit}>
                 <label htmlFor="technician-answer">
-                  {pending?.tool_name === "request_measurement"
-                    ? `Valeur mesurée${measurementUnit ? ` (${measurementUnit})` : ""}`
-                    : "Votre réponse"}
+                  Votre réponse
                 </label>
                 <div className="reply-row">
                   <input
                     id="technician-answer"
-                    type={
-                      pending?.tool_name === "request_measurement"
-                        ? "text"
-                        : "text"
-                    }
-                    inputMode={
-                      pending?.tool_name === "request_measurement"
-                        ? "decimal"
-                        : "text"
-                    }
+                    type="text"
+                    inputMode="text"
                     value={answer}
                     onChange={(event) => setAnswer(event.target.value)}
-                    placeholder={
-                      pending?.tool_name === "request_measurement"
-                        ? "Saisissez uniquement la valeur mesurée"
-                        : "Écrivez votre réponse…"
-                    }
+                    placeholder="Écrivez votre réponse…"
                     autoComplete="off"
                   />
                   <button
@@ -226,13 +219,23 @@ export function Investigation({ id, initial, onHome }: InvestigationProps) {
                     Envoyer
                   </button>
                 </div>
-                {pending?.tool_name === "ask_technician" && (
-                  <VoiceInput
-                    investigationId={investigation.investigation_id}
-                    onUse={(text) => void deliverAnswer(text)}
-                  />
-                )}
+                <VoiceInput
+                  investigationId={investigation.investigation_id}
+                  onUse={(text) => void deliverAnswer(text)}
+                />
               </form>
+            )}
+
+          {!sending &&
+            status === "waiting_for_technician" &&
+            requestedMeasurement && (
+              <MeasurementInput
+                investigationId={investigation.investigation_id}
+                catalog={state.measurement_catalog}
+                requestedType={requestedMeasurement.type}
+                requestedLocation={requestedMeasurement.location}
+                onSubmitted={setInvestigation}
+              />
             )}
 
           {!sending &&
@@ -248,7 +251,8 @@ export function Investigation({ id, initial, onHome }: InvestigationProps) {
             status === "waiting_for_technician" &&
             pending &&
             !canReply(pending) &&
-            pending.tool_name !== "analyze_image" && (
+            pending.tool_name !== "analyze_image" &&
+            !requestedMeasurement && (
               <div className="unsupported-action" role="status">
                 Cette action ne peut pas encore être fournie depuis
                 l&apos;interface texte du MVP.

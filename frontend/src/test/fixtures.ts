@@ -31,6 +31,33 @@ export function makeInvestigation(
         battery_capacity_kwh: null,
         system_voltage_v: null,
       },
+      measurement_catalog: [
+        {
+          measurement_type: "dc_voltage",
+          label: "Tension DC",
+          unit: "V",
+        },
+        {
+          measurement_type: "dc_current",
+          label: "Courant DC",
+          unit: "A",
+        },
+        {
+          measurement_type: "ac_voltage",
+          label: "Tension AC",
+          unit: "V",
+        },
+        {
+          measurement_type: "ac_current",
+          label: "Courant AC",
+          unit: "A",
+        },
+        {
+          measurement_type: "ac_power",
+          label: "Puissance AC",
+          unit: "W",
+        },
+      ],
       observations: [],
       measurements: [],
       hypotheses: [

@@ -17,6 +17,7 @@ from bintu_agent_core.models import (
     HypothesisStatus,
     InvestigationState,
     Observation,
+    RequestMeasurementArguments,
     ToolName,
     Verification,
 )
@@ -202,6 +203,38 @@ def test_dangerous_energized_conductor_request_is_rejected() -> None:
     )
 
     with pytest.raises(SafetyViolationError):
+        validate_decision(InvestigationState(investigation_id="inv-1"), decision)
+
+
+def test_measurement_decision_must_use_closed_catalog() -> None:
+    decision = AgentDecision(
+        tool_name=ToolName.REQUEST_MEASUREMENT,
+        arguments=RequestMeasurementArguments(
+            measurement_type="voltage",
+            location="sortie panneaux",
+            unit="V",
+            distinguishes=[HypothesisId.H1],
+        ),
+        reason="Demander une mesure catalogue.",
+    )
+
+    with pytest.raises(DecisionValidationError, match="unknown measurement_type"):
+        validate_decision(InvestigationState(investigation_id="inv-1"), decision)
+
+
+def test_measurement_decision_rejects_mismatched_unit() -> None:
+    decision = AgentDecision(
+        tool_name=ToolName.REQUEST_MEASUREMENT,
+        arguments=RequestMeasurementArguments(
+            measurement_type="dc_voltage",
+            location="sortie panneaux",
+            unit="A",
+            distinguishes=[HypothesisId.H1],
+        ),
+        reason="Demander une mesure catalogue.",
+    )
+
+    with pytest.raises(DecisionValidationError, match="requires unit"):
         validate_decision(InvestigationState(investigation_id="inv-1"), decision)
 
 

@@ -400,6 +400,7 @@ h2 {
 .result-card,
 .reply-form,
 .image-input,
+.measurement-form,
 .state-panel {
   padding: 20px;
   border: 1px solid var(--line);
@@ -643,6 +644,67 @@ h2 {
 }
 
 .image-preview .primary-button .spinner {
+  border-color: rgba(255, 255, 255, 0.35);
+  border-top-color: white;
+}
+
+.measurement-form {
+  display: grid;
+  gap: 10px;
+  box-shadow: 0 12px 34px rgba(11, 31, 51, 0.12);
+}
+
+.measurement-form h2 {
+  margin-bottom: 6px;
+  font-size: 1.2rem;
+}
+
+.measurement-form label {
+  margin-top: 4px;
+  color: var(--navy);
+  font-size: 0.86rem;
+  font-weight: 750;
+}
+
+.measurement-form select,
+.measurement-form input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 14px;
+  border: 1px solid #bdc9d2;
+  border-radius: 9px;
+  background: #fbfcfd;
+  color: var(--ink);
+}
+
+.measurement-form select:focus,
+.measurement-form input:focus {
+  border-color: var(--green);
+  background: white;
+}
+
+.measurement-value-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 62px;
+  gap: 8px;
+}
+
+.measurement-unit {
+  min-height: 50px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: #edf2f5;
+  color: var(--navy);
+  font-weight: 800;
+}
+
+.measurement-form .primary-button {
+  margin-top: 8px;
+}
+
+.measurement-form .primary-button .spinner {
   border-color: rgba(255, 255, 255, 0.35);
   border-top-color: white;
 }
@@ -1005,6 +1067,7 @@ h2 {
   .next-action,
   .reply-form,
   .image-input,
+  .measurement-form,
   .result-card {
     padding: 26px;
   }

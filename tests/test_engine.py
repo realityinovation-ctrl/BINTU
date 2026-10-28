@@ -55,7 +55,7 @@ def test_measurement_uses_requested_metadata_without_inventing_installation() ->
     decision = AgentDecision(
         tool_name=ToolName.REQUEST_MEASUREMENT,
         arguments=RequestMeasurementArguments(
-            measurement_type="voltage",
+            measurement_type="dc_voltage",
             location="sortie chaîne PV",
             unit="V",
             distinguishes=[HypothesisId.H1, HypothesisId.H2],

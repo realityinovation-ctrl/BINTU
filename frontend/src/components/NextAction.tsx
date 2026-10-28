@@ -1,4 +1,7 @@
-import type { PendingAction } from "../types/investigation";
+import type {
+  MeasurementCatalogItem,
+  PendingAction,
+} from "../types/investigation";
 
 function textArgument(
   arguments_: Record<string, unknown>,
@@ -8,7 +11,10 @@ function textArgument(
   return typeof value === "string" ? value : null;
 }
 
-export function actionPresentation(action: PendingAction) {
+export function actionPresentation(
+  action: PendingAction,
+  measurementCatalog: MeasurementCatalogItem[] = [],
+) {
   const args = action.arguments;
   switch (action.tool_name) {
     case "ask_technician":
@@ -19,12 +25,15 @@ export function actionPresentation(action: PendingAction) {
     case "request_measurement": {
       const type = textArgument(args, "measurement_type");
       const location = textArgument(args, "location");
-      const unit = textArgument(args, "unit");
+      const label =
+        measurementCatalog.find(
+          (item) => item.measurement_type === type,
+        )?.label ?? type;
       return {
-        label: "Fournissez la mesure demandée",
-        instruction: [type, location && `à ${location}`, unit && `en ${unit}`]
+        label: "BINTU a besoin d'une mesure pour poursuivre l'enquête",
+        instruction: [label, location]
           .filter(Boolean)
-          .join(" "),
+          .join(" — "),
       };
     }
     case "analyze_image":
@@ -45,8 +54,14 @@ export function actionPresentation(action: PendingAction) {
   }
 }
 
-export function NextAction({ action }: { action: PendingAction }) {
-  const presentation = actionPresentation(action);
+export function NextAction({
+  action,
+  measurementCatalog = [],
+}: {
+  action: PendingAction;
+  measurementCatalog?: MeasurementCatalogItem[];
+}) {
+  const presentation = actionPresentation(action, measurementCatalog);
   return (
     <section className="next-action" aria-labelledby="next-action-title">
       <div className="next-action-heading">

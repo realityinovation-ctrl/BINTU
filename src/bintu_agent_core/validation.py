@@ -9,12 +9,14 @@ from bintu_agent_core.errors import (
     DecisionValidationError,
     SafetyViolationError,
 )
+from bintu_agent_core.measurement_catalog import MEASUREMENT_CATALOG
 from bintu_agent_core.models import (
     AgentDecision,
     CompareMeasurementsArguments,
     FinishInvestigationArguments,
     GenerateReportArguments,
     InvestigationState,
+    RequestMeasurementArguments,
 )
 
 
@@ -82,6 +84,17 @@ def validate_decision(
         raise DecisionValidationError("distinguishes must not contain duplicates")
 
     arguments = decision.arguments
+    if isinstance(arguments, RequestMeasurementArguments):
+        spec = MEASUREMENT_CATALOG.get(arguments.measurement_type)
+        if spec is None:
+            raise DecisionValidationError(
+                f"unknown measurement_type: {arguments.measurement_type!r}"
+            )
+        if arguments.unit != spec.unit:
+            raise DecisionValidationError(
+                f"{arguments.measurement_type} requires unit {spec.unit!r}"
+            )
+
     if isinstance(arguments, CompareMeasurementsArguments):
         unknown_measurements = set(arguments.measurement_ids) - set(state.measurements)
         if unknown_measurements:

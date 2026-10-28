@@ -61,6 +61,26 @@ export function sendMessage(
   );
 }
 
+export interface MeasurementSubmission {
+  measurement_type: string;
+  value: number;
+  unit: string;
+  location: string;
+}
+
+export function submitMeasurement(
+  id: string,
+  measurement: MeasurementSubmission,
+): Promise<Investigation> {
+  return request<Investigation>(
+    `/api/investigations/${encodeURIComponent(id)}/measurement`,
+    {
+      method: "POST",
+      body: JSON.stringify(measurement),
+    },
+  );
+}
+
 export function getHealth(): Promise<{ status: string }> {
   return request<{ status: string }>("/api/health");
 }

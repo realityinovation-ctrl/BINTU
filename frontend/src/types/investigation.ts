@@ -37,6 +37,13 @@ export interface Measurement {
   value: number;
   unit: string;
   source_id: string;
+  source_type: "measurement";
+}
+
+export interface MeasurementCatalogItem {
+  measurement_type: string;
+  label: string;
+  unit: string;
 }
 
 export interface Hypothesis {
@@ -78,6 +85,7 @@ export interface TimelineEvent {
 export interface InvestigationStateView {
   problem: Problem | null;
   installation: Record<string, string | number | boolean | null>;
+  measurement_catalog: MeasurementCatalogItem[];
   observations: Observation[];
   measurements: Measurement[];
   hypotheses: Hypothesis[];

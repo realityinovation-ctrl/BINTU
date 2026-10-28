@@ -120,9 +120,15 @@ $env:BINTU_DB_PATH="data/bintu.sqlite3"
 
 L'API est alors disponible sur `http://127.0.0.1:8000`. Le CORS est limité aux
 origines locales courantes sur les ports 3000 et 5173. Le endpoint `message`
-répond à `ask_technician` et accepte une valeur numérique lorsque le Core
-demande explicitement `request_measurement`. Il ne transforme jamais une
-réponse libre en analyse d'image.
+répond à `ask_technician`. Une mesure passe par
+`POST /api/investigations/{id}/measurement` uniquement lorsque le Core attend
+`request_measurement`.
+
+Le catalogue fermé est défini dans `measurement_catalog.py` : tension DC/AC,
+courant DC/AC et puissance AC, avec leur unité imposée. Le frontend affiche ce
+catalogue mais ne peut ni l'étendre ni imposer une unité. La valeur devient un
+`Measurement`, une observation factuelle et une `Evidence` de type
+`measurement`. Elle ne modifie aucune hypothèse et ne produit aucune conclusion.
 
 ## Frontend React
 
@@ -167,6 +173,14 @@ certitude. Le Core l'enregistre comme `Observation` et `Evidence` avec
 `source_type=image_analysis`, sans créer de mesure ni modifier une hypothèse.
 L'image n'est pas conservée après la requête. Les tests utilisent un transport
 HTTP local et n'appellent jamais Meta.
+
+### Mesures électriques
+
+Quand BINTU demande une mesure, le formulaire mobile reprend le type et
+l'emplacement demandés, affiche l'unité du catalogue et envoie la valeur
+confirmée. Le rechargement de l'investigation restitue cette mesure depuis
+SQLite. Aucune règle du type « 38,4 V signifie un panneau défectueux » n'est
+codée.
 
 ## Invariants
 

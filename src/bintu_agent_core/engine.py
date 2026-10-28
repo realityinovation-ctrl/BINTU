@@ -219,6 +219,20 @@ class InvestigationEngine:
             raise DecisionValidationError(
                 f"verification impacts already applied: {verification_id}"
             )
+        unknown_evidence = set(verification.evidence_ids) - set(self.state.evidence)
+        if unknown_evidence:
+            raise DecisionValidationError(
+                "verification references unknown evidence: "
+                f"{sorted(unknown_evidence)}"
+            )
+        unknown_observations = set(verification.observation_ids) - set(
+            self.state.observations
+        )
+        if unknown_observations:
+            raise DecisionValidationError(
+                "verification references unknown observations: "
+                f"{sorted(unknown_observations)}"
+            )
         self._validate_impacts(verification, impacts)
         updated = verification.model_copy(deep=True)
         updated.impacts = list(impacts)

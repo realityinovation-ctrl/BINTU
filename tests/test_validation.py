@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 
 from bintu_agent_core.engine import InvestigationEngine
 from bintu_agent_core.errors import DecisionValidationError, SafetyViolationError
@@ -17,6 +18,7 @@ from bintu_agent_core.models import (
     InvestigationState,
     Observation,
     ToolName,
+    Verification,
 )
 from bintu_agent_core.provider import MockAIProvider
 from bintu_agent_core.validation import validate_decision
@@ -143,6 +145,50 @@ def test_invalid_tool_result_is_rejected_before_observation_or_evidence() -> Non
     assert state.observations == {}
     assert state.evidence == {}
     assert state.verifications == {}
+
+
+def test_impact_with_unknown_evidence_is_rejected_without_state_change() -> None:
+    state = InvestigationState(investigation_id="inv-1")
+    state.verifications["verification:action-1"] = Verification(
+        id="verification:action-1",
+        action_id="action-1",
+        distinguishes=[HypothesisId.H0],
+        observation_ids=["observation:missing"],
+        evidence_ids=["evidence:missing"],
+    )
+    engine = InvestigationEngine(state, MockAIProvider([]))
+    before = state.model_dump(mode="json")
+
+    with pytest.raises(DecisionValidationError, match="unknown evidence"):
+        engine.apply_verification_impacts(
+            "verification:action-1",
+            [
+                HypothesisImpact(
+                    hypothesis_id=HypothesisId.H0,
+                    relation=EvidenceRelation.SUPPORTING,
+                    strength=EvidenceStrength.STRONG,
+                )
+            ],
+        )
+
+    assert state.model_dump(mode="json") == before
+
+
+def test_direct_elimination_without_contradiction_is_rejected_unchanged() -> None:
+    state = InvestigationState(investigation_id="inv-1")
+    before = state.model_dump(mode="json")
+
+    with pytest.raises(ValidationError, match="new_status"):
+        HypothesisImpact.model_validate(
+            {
+                "hypothesis_id": "H0",
+                "relation": "supporting",
+                "strength": "strong",
+                "new_status": "eliminated",
+            }
+        )
+
+    assert state.model_dump(mode="json") == before
 
 
 def test_dangerous_energized_conductor_request_is_rejected() -> None:

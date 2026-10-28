@@ -70,6 +70,18 @@ Une réponse JSON entourée de texte ou d'un unique bloc Markdown est acceptée 
 elle contient exactement un objet JSON. Une réponse ambiguë, invalide ou
 incompatible avec `AgentDecision` est rejetée explicitement.
 
+## Rapport de validation fonctionnelle
+
+Les quatre scénarios scriptés peuvent être réellement rejoués par le moteur et
+le rapport régénéré en une commande :
+
+```powershell
+.\.venv\Scripts\python scripts\generate_validation_report.py
+```
+
+La sortie est écrite dans `docs/validation/agent-core-scenarios.md`. Ces
+scénarios démontrent la mécanique du Core, pas l'intelligence diagnostique.
+
 ## Invariants
 
 - une donnée d'installation inconnue reste `None` ;

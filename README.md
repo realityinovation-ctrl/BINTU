@@ -187,6 +187,9 @@ codée.
 - une donnée d'installation inconnue reste `None` ;
 - une décision ne s'exécute jamais avant validation ;
 - une élimination est dérivée uniquement d'une preuve contradictoire forte ;
+- une proposition `hypothesis_updates` est refusée si une preuve est absente,
+  si le statut proposé ne correspond pas à la dérivation du Core, ou si une
+  élimination n'est pas contradictoire et forte ;
 - une confiance supérieure à 0,7 exige une preuve de mesure et ne peut pas
   reposer uniquement sur une analyse d'image ;
 - une conclusion cite au moins une preuve existante ;

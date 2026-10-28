@@ -5,7 +5,7 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Annotated, Any
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
 
 class ContractModel(BaseModel):
@@ -150,6 +150,17 @@ class HypothesisImpact(ContractModel):
     strength: EvidenceStrength
 
 
+class HypothesisUpdate(ContractModel):
+    """A provider proposal. The Core alone derives and applies the status."""
+
+    hypothesis_id: HypothesisId
+    relation: EvidenceRelation
+    strength: EvidenceStrength
+    status: HypothesisStatus
+    evidence_ids: list[str]
+    reason: str = Field(min_length=1)
+
+
 class ActionArguments(ContractModel):
     distinguishes: Annotated[list[HypothesisId], Field(min_length=1)]
 
@@ -222,6 +233,7 @@ class AgentDecision(ContractModel):
     tool_name: ToolName
     arguments: DecisionArguments
     reason: str = Field(min_length=1)
+    hypothesis_updates: list[HypothesisUpdate] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def validate_arguments_match_tool(self) -> AgentDecision:
@@ -231,6 +243,13 @@ class AgentDecision(ContractModel):
                 f"{self.tool_name.value} requires {expected.__name__} arguments"
             )
         return self
+
+    @model_serializer(mode="wrap")
+    def serialize_decision(self, handler):
+        payload = handler(self)
+        if not payload.get("hypothesis_updates"):
+            payload.pop("hypothesis_updates", None)
+        return payload
 
 
 class PendingAction(ContractModel):

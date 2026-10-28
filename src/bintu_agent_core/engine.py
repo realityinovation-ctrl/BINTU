@@ -21,6 +21,7 @@ from bintu_agent_core.models import (
     FinishOutcome,
     GenerateReportArguments,
     HypothesisImpact,
+    HypothesisUpdate,
     HypothesisStatus,
     InvestigationState,
     InvestigationStatus,
@@ -90,6 +91,7 @@ class InvestigationEngine:
                 ],
             },
         )
+        self._apply_hypothesis_updates(action_id, decision.hypothesis_updates)
         self._dispatch(action_id, decision)
         return self.state
 
@@ -395,6 +397,34 @@ class InvestigationEngine:
             },
         )
         self._apply_impacts(verification)
+
+    def _apply_hypothesis_updates(
+        self, action_id: str, updates: list[HypothesisUpdate]
+    ) -> None:
+        for update in updates:
+            verification_id = (
+                f"hypothesis-update:{action_id}:{update.hypothesis_id.value}"
+            )
+            observation_ids = [
+                self.state.evidence[evidence_id].observation_id
+                for evidence_id in update.evidence_ids
+            ]
+            verification = Verification(
+                id=verification_id,
+                action_id=action_id,
+                distinguishes=[update.hypothesis_id],
+                observation_ids=observation_ids,
+                evidence_ids=list(update.evidence_ids),
+                impacts=[
+                    HypothesisImpact(
+                        hypothesis_id=update.hypothesis_id,
+                        relation=update.relation,
+                        strength=update.strength,
+                    )
+                ],
+            )
+            self.state.verifications[verification.id] = verification
+            self._apply_impacts(verification)
 
     def _validate_impacts(
         self, verification: Verification, impacts: list[HypothesisImpact]

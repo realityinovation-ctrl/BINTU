@@ -13,10 +13,15 @@ from bintu_agent_core.measurement_catalog import MEASUREMENT_CATALOG
 from bintu_agent_core.models import (
     AgentDecision,
     CompareMeasurementsArguments,
+    EvidenceRelation,
     EvidenceSourceType,
+    EvidenceStrength,
     FinishInvestigationArguments,
     FinishOutcome,
     GenerateReportArguments,
+    HypothesisImpact,
+    HypothesisStatus,
+    HypothesisUpdate,
     InvestigationState,
     RequestMeasurementArguments,
 )
@@ -132,7 +137,58 @@ def validate_decision(
             "report investigation_id does not match the current investigation"
         )
 
+    _validate_hypothesis_updates(state, decision)
     validate_safety(decision)
+
+
+def _validate_hypothesis_updates(
+    state: InvestigationState, decision: AgentDecision
+) -> None:
+    updates = decision.hypothesis_updates
+    hypothesis_ids = [update.hypothesis_id for update in updates]
+    if len(hypothesis_ids) != len(set(hypothesis_ids)):
+        raise DecisionValidationError(
+            "a decision cannot update the same hypothesis twice"
+        )
+    allowed = set(decision.arguments.distinguishes)
+    from bintu_agent_core.engine import InvestigationEngine
+
+    for update in updates:
+        if update.hypothesis_id not in allowed:
+            raise DecisionValidationError(
+                "hypothesis update is outside distinguishes: "
+                f"{update.hypothesis_id.value}"
+            )
+        if not update.evidence_ids:
+            raise DecisionValidationError(
+                "hypothesis update requires evidence_ids"
+            )
+        unknown = set(update.evidence_ids) - set(state.evidence)
+        if unknown:
+            raise DecisionValidationError(
+                "hypothesis update references unknown evidence: "
+                f"{sorted(unknown)}"
+            )
+        if update.status is HypothesisStatus.ELIMINATED and (
+            update.relation is not EvidenceRelation.CONTRADICTORY
+            or update.strength is not EvidenceStrength.STRONG
+        ):
+            raise DecisionValidationError(
+                "hypothesis elimination requires strong contradictory evidence"
+            )
+        derived = InvestigationEngine._derive_hypothesis_status(
+            state.hypotheses[update.hypothesis_id].status,
+            HypothesisImpact(
+                hypothesis_id=update.hypothesis_id,
+                relation=update.relation,
+                strength=update.strength,
+            ),
+        )
+        if update.status is not derived:
+            raise DecisionValidationError(
+                "proposed hypothesis status does not match core derivation: "
+                f"{update.hypothesis_id.value} -> {derived.value}"
+            )
 
 
 def _validate_diagnosis_confidence(

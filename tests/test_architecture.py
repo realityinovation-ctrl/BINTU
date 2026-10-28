@@ -8,7 +8,6 @@ FORBIDDEN_IMPORTS = {
     "meta",
     "openai",
     "requests",
-    "sqlite3",
 }
 
 
@@ -41,3 +40,13 @@ def test_http_client_is_isolated_to_meta_adapter() -> None:
     }
 
     assert importing_httpx == {"meta_provider.py"}
+
+
+def test_sqlite_is_isolated_to_persistence_adapter() -> None:
+    importing_sqlite = {
+        source_file.name
+        for source_file in CORE.glob("*.py")
+        if "sqlite3" in imported_roots(source_file)
+    }
+
+    assert importing_sqlite == {"sqlite_store.py"}

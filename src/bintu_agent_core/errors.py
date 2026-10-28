@@ -43,3 +43,15 @@ class ProviderTimeoutError(AIProviderError):
 
 class ProviderResponseError(AIProviderError):
     """An AI provider returned a response outside Agent Contract v0.2."""
+
+
+class PersistenceError(AgentCoreError):
+    """A SQLite persistence operation failed."""
+
+
+class InvestigationNotFoundError(PersistenceError):
+    """The requested investigation does not exist."""
+
+
+class StateCorruptionError(PersistenceError):
+    """Persisted state cannot be restored without reconstruction or data loss."""

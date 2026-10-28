@@ -82,6 +82,29 @@ le rapport régénéré en une commande :
 La sortie est écrite dans `docs/validation/agent-core-scenarios.md`. Ces
 scénarios démontrent la mécanique du Core, pas l'intelligence diagnostique.
 
+## Persistance SQLite
+
+`SQLiteInvestigationStore` sauvegarde localement un instantané complet de
+`InvestigationState` dans une table `investigations`. Le JSON persistant est
+versionné avec `schema_version: 1` et conserve exactement le contrat actuel du
+Core, y compris les valeurs `null`, les preuves, vérifications, actions en
+attente, conclusions et événements de timeline.
+
+```python
+from bintu_agent_core import SQLiteInvestigationStore
+
+store = SQLiteInvestigationStore("data/bintu.sqlite3")
+state = store.create_investigation()
+store.save_investigation(state)
+restored = store.get_investigation(state.investigation_id)
+```
+
+Les tests utilisent exclusivement des fichiers SQLite temporaires :
+
+```powershell
+.\.venv\Scripts\python -m pytest
+```
+
 ## Invariants
 
 - une donnée d'installation inconnue reste `None` ;

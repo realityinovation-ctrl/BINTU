@@ -6,12 +6,15 @@ from bintu_agent_core.errors import (
     AgentCoreError,
     DecisionValidationError,
     InvalidStateTransitionError,
+    InvestigationNotFoundError,
+    PersistenceError,
     ProviderConfigurationError,
     ProviderHTTPError,
     ProviderResponseError,
     ProviderTimeoutError,
     SafetyViolationError,
     ScriptExhaustedError,
+    StateCorruptionError,
     UnsupportedToolError,
 )
 from bintu_agent_core.meta_provider import MetaAIProvider
@@ -24,6 +27,10 @@ from bintu_agent_core.models import (
     Verification,
 )
 from bintu_agent_core.provider import AIProvider, MockAIProvider
+from bintu_agent_core.sqlite_store import (
+    InvestigationSummary,
+    SQLiteInvestigationStore,
+)
 
 __all__ = [
     "AIProvider",
@@ -35,16 +42,21 @@ __all__ = [
     "HypothesisImpact",
     "InvalidStateTransitionError",
     "InvestigationEngine",
+    "InvestigationNotFoundError",
     "InvestigationState",
+    "InvestigationSummary",
     "MockAIProvider",
     "MetaAIProvider",
     "Observation",
+    "PersistenceError",
     "ProviderConfigurationError",
     "ProviderHTTPError",
     "ProviderResponseError",
     "ProviderTimeoutError",
     "SafetyViolationError",
     "ScriptExhaustedError",
+    "SQLiteInvestigationStore",
+    "StateCorruptionError",
     "UnsupportedToolError",
     "Verification",
 ]

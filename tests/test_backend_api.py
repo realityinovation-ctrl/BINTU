@@ -9,6 +9,7 @@ from bintu_agent_core.models import (
     AskTechnicianArguments,
     HypothesisId,
     InvestigationState,
+    RequestMeasurementArguments,
     ToolName,
 )
 from bintu_agent_core.sqlite_store import SQLiteInvestigationStore
@@ -37,6 +38,29 @@ class FailingProvider:
         raise ProviderHTTPError(self.detail)
 
 
+class MeasurementThenQuestionProvider:
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def decide_next(self, state: InvestigationState) -> AgentDecision:
+        del state
+        self.calls += 1
+        if self.calls == 1:
+            return AgentDecision(
+                tool_name=ToolName.REQUEST_MEASUREMENT,
+                arguments=RequestMeasurementArguments(
+                    measurement_type="voltage",
+                    location="bornes de la batterie",
+                    unit="V",
+                    distinguishes=[HypothesisId.H2, HypothesisId.H3],
+                ),
+                reason="Vérifier la tension réellement disponible.",
+            )
+        return AskingProvider().decide_next(
+            InvestigationState(investigation_id="provider-context")
+        )
+
+
 @pytest.fixture
 def api(tmp_path: Path) -> tuple[TestClient, Path]:
     database = tmp_path / "api.sqlite3"
@@ -48,7 +72,10 @@ def api(tmp_path: Path) -> tuple[TestClient, Path]:
 
 
 def create_investigation(client: TestClient) -> dict:
-    response = client.post("/api/investigations")
+    response = client.post(
+        "/api/investigations",
+        json={"problem": "Production solaire anormalement faible."},
+    )
     assert response.status_code == 201
     return response.json()
 
@@ -88,6 +115,9 @@ def test_create_investigation_returns_initial_action(
 
     assert body["investigation_id"]
     assert body["status"] == "waiting_for_technician"
+    assert body["state"]["problem"]["description"] == (
+        "Production solaire anormalement faible."
+    )
     assert body["state"]["pending_action"]["tool_name"] == "ask_technician"
     assert all(
         value is None for value in body["state"]["installation"].values()
@@ -172,6 +202,28 @@ def test_message_result_is_persisted(
     assert len(state.evidence) == 1
 
 
+def test_numeric_message_records_requested_measurement(tmp_path: Path) -> None:
+    database = tmp_path / "api.sqlite3"
+    provider = MeasurementThenQuestionProvider()
+    client = TestClient(
+        create_app(
+            database_path=database,
+            provider_factory=lambda: provider,
+        )
+    )
+    created = create_investigation(client)
+
+    response = client.post(
+        f"/api/investigations/{created['investigation_id']}/message",
+        json={"message": "12,7"},
+    )
+
+    assert response.status_code == 200
+    measurements = response.json()["state"]["measurements"]
+    assert measurements[0]["value"] == 12.7
+    assert measurements[0]["unit"] == "V"
+
+
 def test_investigations_are_isolated(api: tuple[TestClient, Path]) -> None:
     client, _ = api
     first = create_investigation(client)
@@ -200,7 +252,9 @@ def test_provider_error_returns_clean_502(tmp_path: Path) -> None:
     )
     client = TestClient(app)
 
-    response = client.post("/api/investigations")
+    response = client.post(
+        "/api/investigations", json={"problem": "Test provider."}
+    )
 
     assert response.status_code == 502
     assert response.json() == {"detail": "AI provider unavailable"}
@@ -218,7 +272,9 @@ def test_api_key_is_never_exposed(
     )
     client = TestClient(app)
 
-    response = client.post("/api/investigations")
+    response = client.post(
+        "/api/investigations", json={"problem": "Test secret."}
+    )
 
     assert response.status_code == 502
     assert secret not in response.text

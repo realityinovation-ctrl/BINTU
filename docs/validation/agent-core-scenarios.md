@@ -22,6 +22,7 @@ Fixture de décisions : `normal_battery_full.json`.
   "status": "investigating",
   "step_count": 0,
   "max_steps": 20,
+  "problem": null,
   "installation": {
     "nominal_power_kwp": null,
     "panel_count": null,
@@ -519,6 +520,7 @@ Preuves justifiant ces changements :
   "status": "completed",
   "step_count": 2,
   "max_steps": 20,
+  "problem": null,
   "installation": {
     "nominal_power_kwp": null,
     "panel_count": null,
@@ -899,6 +901,7 @@ Fixture de décisions : `degraded_cable.json`.
   "status": "investigating",
   "step_count": 0,
   "max_steps": 20,
+  "problem": null,
   "installation": {
     "nominal_power_kwp": null,
     "panel_count": null,
@@ -1795,6 +1798,7 @@ Preuves justifiant ces changements :
   "status": "completed",
   "step_count": 4,
   "max_steps": 20,
+  "problem": null,
   "installation": {
     "nominal_power_kwp": null,
     "panel_count": null,
@@ -2534,6 +2538,7 @@ Fixture de décisions : `dust_photo_measurement_trap.json`.
   "status": "investigating",
   "step_count": 0,
   "max_steps": 20,
+  "problem": null,
   "installation": {
     "nominal_power_kwp": null,
     "panel_count": null,
@@ -3699,6 +3704,7 @@ Preuves justifiant ces changements :
   "status": "completed",
   "step_count": 5,
   "max_steps": 20,
+  "problem": null,
   "installation": {
     "nominal_power_kwp": null,
     "panel_count": null,
@@ -4666,6 +4672,7 @@ Fixture de décisions : `insufficient_information.json`.
   "status": "investigating",
   "step_count": 0,
   "max_steps": 20,
+  "problem": null,
   "installation": {
     "nominal_power_kwp": null,
     "panel_count": null,
@@ -5070,6 +5077,7 @@ Preuves justifiant ces changements :
   "status": "insufficient_information",
   "step_count": 2,
   "max_steps": 20,
+  "problem": null,
   "installation": {
     "nominal_power_kwp": null,
     "panel_count": null,

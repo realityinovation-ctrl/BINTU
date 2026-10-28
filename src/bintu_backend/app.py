@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -24,10 +25,13 @@ from bintu_agent_core.meta_provider import MetaAIProvider
 from bintu_agent_core.models import (
     AskTechnicianArguments,
     InvestigationState,
+    Problem,
+    RequestMeasurementArguments,
 )
 from bintu_agent_core.provider import AIProvider
 from bintu_agent_core.sqlite_store import SQLiteInvestigationStore
 from bintu_backend.schemas import (
+    CreateInvestigationRequest,
     HealthResponse,
     InvestigationResponse,
     MessageRequest,
@@ -118,8 +122,11 @@ def create_app(
         response_model=InvestigationResponse,
         status_code=201,
     )
-    def create_investigation() -> InvestigationResponse:
+    def create_investigation(
+        request: CreateInvestigationRequest,
+    ) -> InvestigationResponse:
         state = store.create_investigation()
+        state.problem = Problem(description=request.problem)
         try:
             _advance_once(state, make_provider)
             store.save_investigation(state)
@@ -144,19 +151,42 @@ def create_app(
     ) -> InvestigationResponse:
         state = store.get_investigation(investigation_id)
         pending = state.pending_action
-        if pending is None or not isinstance(
-            pending.decision.arguments, AskTechnicianArguments
-        ):
+        if pending is None:
             raise InvalidStateTransitionError(
-                "investigation is not waiting for a technician answer"
+                "investigation is not waiting for technician input"
             )
 
         provider = make_provider()
         try:
             engine = InvestigationEngine(state, provider)
-            engine.submit_technician_answer(
-                f"technician-answer-{uuid4()}", request.message
-            )
+            if isinstance(
+                pending.decision.arguments, AskTechnicianArguments
+            ):
+                engine.submit_technician_answer(
+                    f"technician-answer-{uuid4()}", request.message
+                )
+            elif isinstance(
+                pending.decision.arguments, RequestMeasurementArguments
+            ):
+                try:
+                    value = Decimal(request.message.replace(",", "."))
+                except InvalidOperation as exc:
+                    raise HTTPException(
+                        status_code=422,
+                        detail="A numeric measurement is required",
+                    ) from exc
+                if not value.is_finite():
+                    raise HTTPException(
+                        status_code=422,
+                        detail="A finite numeric measurement is required",
+                    )
+                engine.submit_measurement(
+                    f"measurement-{uuid4()}", float(value)
+                )
+            else:
+                raise InvalidStateTransitionError(
+                    "this action cannot be completed with a text message"
+                )
             engine.advance()
         finally:
             _close_provider(provider)
@@ -193,6 +223,11 @@ def _present(state: InvestigationState) -> InvestigationResponse:
         investigation_id=state.investigation_id,
         status=state.status.value,
         state={
+            "problem": (
+                state.problem.model_dump(mode="json")
+                if state.problem is not None
+                else None
+            ),
             "installation": state.installation.model_dump(mode="json"),
             "observations": [
                 observation.model_dump(mode="json")

@@ -120,8 +120,28 @@ $env:BINTU_DB_PATH="data/bintu.sqlite3"
 
 L'API est alors disponible sur `http://127.0.0.1:8000`. Le CORS est limité aux
 origines locales courantes sur les ports 3000 et 5173. Le endpoint `message`
-répond uniquement à une action `ask_technician` ; il ne transforme jamais un
-message en mesure ou en analyse d'image.
+répond à `ask_technician` et accepte une valeur numérique lorsque le Core
+demande explicitement `request_measurement`. Il ne transforme jamais une
+réponse libre en analyse d'image.
+
+## Frontend React
+
+Le frontend mobile-first se trouve dans `frontend/`. En développement, Vite
+redirige `/api` vers FastAPI sur le port 8000.
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+L'interface est disponible sur `http://localhost:5173`. Pour la validation :
+
+```powershell
+npm test
+npm run typecheck
+npm run build
+```
 
 ## Invariants
 

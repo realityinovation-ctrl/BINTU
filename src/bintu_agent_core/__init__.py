@@ -24,6 +24,7 @@ from bintu_agent_core.models import (
     HypothesisImpact,
     InvestigationState,
     Observation,
+    Problem,
     Verification,
 )
 from bintu_agent_core.provider import AIProvider, MockAIProvider
@@ -53,6 +54,7 @@ __all__ = [
     "ProviderHTTPError",
     "ProviderResponseError",
     "ProviderTimeoutError",
+    "Problem",
     "SafetyViolationError",
     "ScriptExhaustedError",
     "SQLiteInvestigationStore",

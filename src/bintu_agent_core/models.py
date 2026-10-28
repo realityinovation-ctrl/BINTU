@@ -85,6 +85,10 @@ class InstallationData(ContractModel):
     system_voltage_v: float | None = None
 
 
+class Problem(ContractModel):
+    description: str = Field(min_length=1)
+
+
 EvidenceValue = str | int | float | bool
 
 
@@ -269,6 +273,7 @@ class InvestigationState(ContractModel):
     status: InvestigationStatus = InvestigationStatus.INVESTIGATING
     step_count: int = Field(default=0, ge=0)
     max_steps: int = Field(default=20, ge=1)
+    problem: Problem | None = None
     installation: InstallationData = Field(default_factory=InstallationData)
     hypotheses: dict[HypothesisId, HypothesisState] = Field(
         default_factory=initial_hypotheses

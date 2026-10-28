@@ -1,0 +1,269 @@
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { APIError, getInvestigation, sendMessage } from "../api/client";
+import { ErrorState } from "../components/ErrorState";
+import { Header } from "../components/Header";
+import { HypothesesPanel } from "../components/HypothesesPanel";
+import { InvestigationFlow } from "../components/InvestigationFlow";
+import { LoadingState } from "../components/LoadingState";
+import { NextAction } from "../components/NextAction";
+import { ProblemCard } from "../components/ProblemCard";
+import { Timeline } from "../components/Timeline";
+import type {
+  Investigation as InvestigationData,
+  PendingAction,
+} from "../types/investigation";
+
+interface InvestigationProps {
+  id: string;
+  initial?: InvestigationData;
+  onHome: () => void;
+}
+
+function canReply(action: PendingAction | null): boolean {
+  return (
+    action?.tool_name === "ask_technician" ||
+    action?.tool_name === "request_measurement"
+  );
+}
+
+export function Investigation({ id, initial, onHome }: InvestigationProps) {
+  const [investigation, setInvestigation] = useState<
+    InvestigationData | undefined
+  >(initial?.investigation_id === id ? initial : undefined);
+  const [loading, setLoading] = useState(!investigation);
+  const [sending, setSending] = useState(false);
+  const [answer, setAnswer] = useState("");
+  const [error, setError] = useState<{
+    title: string;
+    message: string;
+  } | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      setInvestigation(await getInvestigation(id));
+    } catch (caught) {
+      if (caught instanceof APIError && caught.status === 404) {
+        setError({
+          title: "Investigation introuvable",
+          message:
+            "Cette investigation n'existe pas ou n'est plus disponible.",
+        });
+      } else {
+        setError({
+          title: "Connexion impossible",
+          message:
+            "Le backend BINTU ne répond pas. Vérifiez le serveur puis réessayez.",
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (!investigation) void load();
+  }, [investigation, load]);
+
+  const knownInstallation = useMemo(
+    () =>
+      Object.entries(investigation?.state.installation ?? {}).filter(
+        ([, value]) => value !== null,
+      ),
+    [investigation],
+  );
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    const message = answer.trim();
+    if (!message || !investigation) return;
+    setSending(true);
+    setError(null);
+    try {
+      setInvestigation(
+        await sendMessage(investigation.investigation_id, message),
+      );
+      setAnswer("");
+    } catch (caught) {
+      const messageText =
+        caught instanceof APIError && caught.status === 422
+          ? "La valeur fournie n'est pas valide pour l'action demandée."
+          : "La réponse n'a pas pu être transmise. Vous pouvez réessayer.";
+      setError({ title: "Envoi impossible", message: messageText });
+    } finally {
+      setSending(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="page-shell">
+        <Header onHome={onHome} />
+        <main className="centered-main">
+          <LoadingState />
+        </main>
+      </div>
+    );
+  }
+
+  if (!investigation) {
+    return (
+      <div className="page-shell">
+        <Header onHome={onHome} />
+        <main className="centered-main">
+          <ErrorState
+            title={error?.title ?? "Investigation indisponible"}
+            message={error?.message ?? "Aucune donnée n'a été reçue."}
+            onRetry={load}
+          />
+        </main>
+      </div>
+    );
+  }
+
+  const { state, status } = investigation;
+  const pending = state.pending_action;
+  const measurementUnit =
+    pending?.tool_name === "request_measurement" &&
+    typeof pending.arguments.unit === "string"
+      ? pending.arguments.unit
+      : null;
+
+  return (
+    <div className="page-shell investigation-page">
+      <Header
+        status={status}
+        investigationId={investigation.investigation_id}
+        onHome={onHome}
+      />
+      <main className="investigation-layout">
+        <div className="investigation-main">
+          {state.problem ? (
+            <ProblemCard description={state.problem.description} />
+          ) : (
+            <ErrorState
+              title="Problème indisponible"
+              message="Le backend n'a fourni aucune description du problème."
+            />
+          )}
+
+          {pending && <NextAction action={pending} />}
+
+          {status === "completed" && state.conclusion && (
+            <section className="result-card completed-card">
+              <p className="eyebrow">Conclusion</p>
+              <h2>Diagnostic terminé</h2>
+              <p className="diagnosis">{state.conclusion.diagnosis}</p>
+              <span>
+                Confiance fournie :{" "}
+                {Math.round(state.conclusion.confidence * 100)} %
+              </span>
+            </section>
+          )}
+
+          {status === "insufficient_information" && (
+            <section className="result-card insufficient-card" role="status">
+              <p className="eyebrow">Conclusion de l&apos;enquête</p>
+              <h2>Informations insuffisantes</h2>
+              <p>
+                BINTU ne possède pas assez d&apos;éléments vérifiés pour
+                établir un diagnostic.
+              </p>
+            </section>
+          )}
+
+          {error && (
+            <ErrorState title={error.title} message={error.message} />
+          )}
+
+          {sending && (
+            <LoadingState message="BINTU traite les informations envoyées…" />
+          )}
+
+          {!sending &&
+            status === "waiting_for_technician" &&
+            canReply(pending) && (
+              <form className="reply-form" onSubmit={submit}>
+                <label htmlFor="technician-answer">
+                  {pending?.tool_name === "request_measurement"
+                    ? `Valeur mesurée${measurementUnit ? ` (${measurementUnit})` : ""}`
+                    : "Votre réponse"}
+                </label>
+                <div className="reply-row">
+                  <input
+                    id="technician-answer"
+                    type={
+                      pending?.tool_name === "request_measurement"
+                        ? "text"
+                        : "text"
+                    }
+                    inputMode={
+                      pending?.tool_name === "request_measurement"
+                        ? "decimal"
+                        : "text"
+                    }
+                    value={answer}
+                    onChange={(event) => setAnswer(event.target.value)}
+                    placeholder={
+                      pending?.tool_name === "request_measurement"
+                        ? "Saisissez uniquement la valeur mesurée"
+                        : "Écrivez votre réponse…"
+                    }
+                    autoComplete="off"
+                  />
+                  <button
+                    className="primary-button send-button"
+                    type="submit"
+                    disabled={!answer.trim()}
+                  >
+                    Envoyer
+                  </button>
+                </div>
+              </form>
+            )}
+
+          {!sending &&
+            status === "waiting_for_technician" &&
+            pending &&
+            !canReply(pending) && (
+              <div className="unsupported-action" role="status">
+                Cette action ne peut pas encore être fournie depuis
+                l&apos;interface texte du MVP.
+              </div>
+            )}
+
+          {status === "investigating" && !pending && !sending && (
+            <div className="neutral-notice" role="status">
+              BINTU poursuit son enquête. Aucune action externe n&apos;est
+              demandée pour le moment.
+            </div>
+          )}
+
+          <InvestigationFlow observations={state.observations} />
+          <HypothesesPanel hypotheses={state.hypotheses} />
+
+          <section className="card installation-card">
+            <p className="eyebrow">Installation connue</p>
+            <h2>Données disponibles</h2>
+            {knownInstallation.length === 0 ? (
+              <p className="empty-copy">
+                Aucune donnée d&apos;installation renseignée.
+              </p>
+            ) : (
+              <dl>
+                {knownInstallation.map(([key, value]) => (
+                  <div key={key}>
+                    <dt>{key.replaceAll("_", " ")}</dt>
+                    <dd>{String(value)}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </section>
+        </div>
+        <Timeline events={state.timeline} />
+      </main>
+    </div>
+  );
+}

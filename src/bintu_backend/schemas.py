@@ -17,6 +17,12 @@ class MessageRequest(APIModel):
     ]
 
 
+class CreateInvestigationRequest(APIModel):
+    problem: Annotated[
+        str, StringConstraints(strip_whitespace=True, min_length=1)
+    ]
+
+
 class InvestigationResponse(APIModel):
     investigation_id: str
     status: str

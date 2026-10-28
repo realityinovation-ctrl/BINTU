@@ -9,3 +9,5 @@ __pycache__/
 .venv/
 coverage.xml
 htmlcov/
+frontend/dist/
+frontend/node_modules/

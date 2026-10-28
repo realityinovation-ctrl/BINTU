@@ -287,7 +287,7 @@ class InvestigationEngine:
     def _finish(self, arguments: FinishInvestigationArguments) -> None:
         if arguments.outcome is FinishOutcome.INSUFFICIENT_INFORMATION:
             self._finish_insufficient(
-                "Les preuves disponibles ne permettent pas de conclure."
+                "Informations insuffisantes pour établir un diagnostic fiable."
             )
             return
         assert arguments.diagnosis is not None

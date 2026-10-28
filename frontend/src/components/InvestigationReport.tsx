@@ -43,10 +43,7 @@ export function InvestigationReport({
       </h2>
       {state.problem && <p>{state.problem.description}</p>}
       {insufficient ? (
-        <p>
-          BINTU ne possède pas assez d&apos;éléments vérifiés pour établir un
-          diagnostic.
-        </p>
+        <p>Informations insuffisantes pour établir un diagnostic fiable.</p>
       ) : (
         conclusion && (
           <>

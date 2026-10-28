@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from bintu_agent_core.models import InvestigationState
+from bintu_agent_core.models import EvidenceSourceType, InvestigationState
 
 
 def investigation_report(state: InvestigationState) -> dict[str, Any]:
@@ -31,9 +31,18 @@ def investigation_report(state: InvestigationState) -> dict[str, Any]:
             state.problem.description if state.problem is not None else None
         ),
         "status": state.status.value,
+        "collected_information": [
+            observation.model_dump(mode="json")
+            for observation in state.observations.values()
+            if observation.source_type is EvidenceSourceType.TECHNICIAN_ANSWER
+        ],
         "observations": [
             observation.model_dump(mode="json")
             for observation in state.observations.values()
+        ],
+        "evidence": [
+            evidence.model_dump(mode="json")
+            for evidence in state.evidence.values()
         ],
         "measurements": [
             measurement.model_dump(mode="json")

@@ -5060,7 +5060,7 @@ Preuves justifiant ces changements :
   {
     "sequence": 10,
     "event_type": "status_changed",
-    "summary": "Les preuves disponibles ne permettent pas de conclure.",
+    "summary": "Informations insuffisantes pour établir un diagnostic fiable.",
     "details": {
       "from": "investigating",
       "to": "insufficient_information"
@@ -5254,7 +5254,7 @@ Preuves justifiant ces changements :
     {
       "sequence": 10,
       "event_type": "status_changed",
-      "summary": "Les preuves disponibles ne permettent pas de conclure.",
+      "summary": "Informations insuffisantes pour établir un diagnostic fiable.",
       "details": {
         "from": "investigating",
         "to": "insufficient_information"
@@ -5369,7 +5369,7 @@ Preuves justifiant ces changements :
   {
     "sequence": 10,
     "event_type": "status_changed",
-    "summary": "Les preuves disponibles ne permettent pas de conclure.",
+    "summary": "Informations insuffisantes pour établir un diagnostic fiable.",
     "details": {
       "from": "investigating",
       "to": "insufficient_information"

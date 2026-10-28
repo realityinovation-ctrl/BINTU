@@ -506,9 +506,14 @@ describe("statuts d'investigation", () => {
     await waitFor(() =>
       expect(screen.getAllByText(expected).length).toBeGreaterThan(0),
     );
+    expect(
+      screen.queryByRole("button", { name: /terminer|conclure/i }),
+    ).not.toBeInTheDocument();
     if (status === "insufficient_information") {
       expect(
-        screen.getByText(/ne possède pas assez d'éléments vérifiés/i),
+        screen.getByText(
+          "Informations insuffisantes pour établir un diagnostic fiable.",
+        ),
       ).toBeInTheDocument();
     }
   });
@@ -570,6 +575,7 @@ describe("statuts d'investigation", () => {
     expect(
       screen.getByText(/obstruction visible des panneaux/i),
     ).toBeInTheDocument();
+    expect(screen.getByText("Confiance fournie : 62 %")).toBeInTheDocument();
     expect(screen.getByText("Observation visuelle")).toBeInTheDocument();
     expect(screen.getByText(/dc_voltage : 31.5 V/i)).toBeInTheDocument();
     expect(

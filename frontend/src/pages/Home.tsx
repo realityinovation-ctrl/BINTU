@@ -1,6 +1,37 @@
+import { useEffect, useState } from "react";
 import { Header } from "../components/Header";
+import { listInvestigations, type SavedInvestigation } from "../api/client";
 
-export function Home({ onNew }: { onNew: () => void }) {
+const STATUS_LABELS: Record<string, string> = {
+  investigating: "Enquête en cours",
+  waiting_for_technician: "En attente de votre réponse",
+  completed: "Diagnostic terminé",
+  insufficient_information: "Informations insuffisantes",
+};
+
+export function Home({
+  onNew,
+  onOpen,
+}: {
+  onNew: () => void;
+  onOpen: (investigationId: string) => void;
+}) {
+  const [saved, setSaved] = useState<SavedInvestigation[]>([]);
+  const [savedUnavailable, setSavedUnavailable] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    listInvestigations()
+      .then((items) => {
+        if (active) setSaved(items);
+      })
+      .catch(() => {
+        if (active) setSavedUnavailable(true);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
   return (
     <div className="page-shell home-page">
       <Header />
@@ -17,6 +48,7 @@ export function Home({ onNew }: { onNew: () => void }) {
           <p className="hero-description">
             Décrivez un problème, répondez aux questions de BINTU et
             laissez-le guider l&apos;investigation jusqu&apos;au diagnostic.
+            BINTU choisit la prochaine vérification utile.
           </p>
           <button className="primary-button hero-cta" type="button" onClick={onNew}>
             Nouvelle investigation
@@ -39,6 +71,35 @@ export function Home({ onNew }: { onNew: () => void }) {
             <h2>Diagnostic fondé sur les preuves</h2>
             <p>BINTU peut aussi conclure que les informations manquent.</p>
           </article>
+        </section>
+        <section className="saved-investigations" aria-labelledby="saved-title">
+          <h2 id="saved-title">Investigations enregistrées</h2>
+          {savedUnavailable ? (
+            <p className="empty-copy">
+              Les investigations enregistrées ne sont pas disponibles pour
+              le moment.
+            </p>
+          ) : saved.length === 0 ? (
+            <p className="empty-copy">
+              Aucune investigation enregistrée sur cet appareil.
+            </p>
+          ) : (
+            <ul>
+              {saved.map((item) => (
+                <li key={item.investigation_id}>
+                  <button
+                    type="button"
+                    onClick={() => onOpen(item.investigation_id)}
+                  >
+                    <span>{item.problem ?? "Investigation sans problème"}</span>
+                    <span>
+                      {STATUS_LABELS[item.status] ?? item.status}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
         <p className="central-promise">
           « BINTU ne répond pas seulement. BINTU enquête. »

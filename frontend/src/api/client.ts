@@ -12,6 +12,28 @@ export class APIError extends Error {
   }
 }
 
+const DECISION_REJECTED = "Provider decision rejected by Agent Core";
+
+export function decisionFailureMessage(error: unknown): string | null {
+  if (error instanceof TypeError) {
+    return "Le service IA n'est pas disponible. Réessayez.";
+  }
+  if (!(error instanceof APIError)) return null;
+  if (error.status === 504) {
+    return "La décision IA a pris trop de temps. Réessayez.";
+  }
+  if (error.status === 502) {
+    return "Le service IA n'est pas disponible. Réessayez.";
+  }
+  if (error.status === 500) {
+    return "Une erreur interne est survenue.";
+  }
+  if (error.status === 422 && error.message === DECISION_REJECTED) {
+    return "La décision proposée par l'IA n'est pas valide. L'enquête reste inchangée.";
+  }
+  return null;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
@@ -81,6 +103,17 @@ export function submitMeasurement(
   );
 }
 
+export interface SavedInvestigation {
+  investigation_id: string;
+  status: string;
+  updated_at: string;
+  problem: string | null;
+}
+
+export function listInvestigations(): Promise<SavedInvestigation[]> {
+  return request<SavedInvestigation[]>("/api/investigations");
+}
+
 export function getHealth(): Promise<{ status: string }> {
   return request<{ status: string }>("/api/health");
 }
@@ -125,7 +158,16 @@ export async function analyzeImage(
     },
   );
   if (!response.ok) {
-    throw new APIError(response.status, "L'analyse de l'image a échoué.");
+    let detail = "L'analyse de l'image a échoué.";
+    try {
+      const body = (await response.json()) as { detail?: unknown };
+      if (typeof body.detail === "string" && body.detail.trim()) {
+        detail = body.detail;
+      }
+    } catch {
+      // Keep the status so the screen can choose a safe message.
+    }
+    throw new APIError(response.status, detail);
   }
   return (await response.json()) as Investigation;
 }

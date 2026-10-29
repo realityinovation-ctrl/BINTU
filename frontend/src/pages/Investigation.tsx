@@ -1,5 +1,10 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { APIError, getInvestigation, sendMessage } from "../api/client";
+import {
+  APIError,
+  decisionFailureMessage,
+  getInvestigation,
+  sendMessage,
+} from "../api/client";
 import { ErrorState } from "../components/ErrorState";
 import { Header } from "../components/Header";
 import { HypothesesPanel } from "../components/HypothesesPanel";
@@ -85,10 +90,12 @@ export function Investigation({ id, initial, onHome }: InvestigationProps) {
       );
       setAnswer("");
     } catch (caught) {
+      const decisionMessage = decisionFailureMessage(caught);
       const messageText =
-        caught instanceof APIError && caught.status === 422
+        decisionMessage ??
+        (caught instanceof APIError && caught.status === 422
           ? "La valeur fournie n'est pas valide pour l'action demandée."
-          : "La réponse n'a pas pu être transmise. Vous pouvez réessayer.";
+          : "La réponse n'a pas pu être transmise. Vous pouvez réessayer.");
       setError({ title: "Envoi impossible", message: messageText });
     } finally {
       setSending(false);
@@ -245,11 +252,11 @@ export function Investigation({ id, initial, onHome }: InvestigationProps) {
               </div>
             )}
 
-          {status === "investigating" && !pending && !sending && (
-            <div className="neutral-notice" role="status">
-              BINTU poursuit son enquête. Aucune action externe n&apos;est
-              demandée pour le moment.
-            </div>
+          {!sending && !error && status === "investigating" && !pending && (
+            <ErrorState
+              title="Décision IA insuffisante"
+              message="La décision IA n'a pas permis de poursuivre l'enquête."
+            />
           )}
 
           <InvestigationFlow observations={state.observations} />

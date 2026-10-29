@@ -56,5 +56,13 @@ export default function App() {
     );
   }
 
-  return <Home onNew={() => navigate("/new")} />;
+  return (
+    <Home
+      onNew={() => navigate("/new")}
+      onOpen={(investigationId) => {
+        setInitialInvestigation(undefined);
+        navigate(`/investigations/${investigationId}`);
+      }}
+    />
+  );
 }

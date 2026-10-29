@@ -62,6 +62,7 @@ describe("parcours principal", () => {
     };
     const fetchMock = vi
       .fn()
+      .mockResolvedValueOnce(jsonResponse([]))
       .mockResolvedValueOnce(jsonResponse(created, 201))
       .mockResolvedValueOnce(jsonResponse(afterMessage));
     vi.stubGlobal("fetch", fetchMock);
@@ -95,8 +96,8 @@ describe("parcours principal", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getByText(/bornes de la batterie/i)).toBeInTheDocument();
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(fetchMock.mock.calls[0][1]?.body).toBe(
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(fetchMock.mock.calls[1][1]?.body).toBe(
       JSON.stringify({
         problem: "La production solaire est anormalement faible.",
       }),
@@ -180,6 +181,7 @@ describe("parcours principal", () => {
     });
     const fetchMock = vi
       .fn()
+      .mockResolvedValueOnce(jsonResponse([]))
       .mockResolvedValueOnce(jsonResponse(created, 201))
       .mockResolvedValueOnce(
         jsonResponse({ transcription: "Aucun défaut affiché." }),
@@ -209,22 +211,22 @@ describe("parcours principal", () => {
       "Transcription à vérifier",
     );
     expect(transcription).toHaveValue("Aucun défaut affiché.");
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(String(fetchMock.mock.calls[1][0])).toContain("/transcribe");
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(String(fetchMock.mock.calls[2][0])).toContain("/transcribe");
 
     await user.clear(transcription);
     await user.type(
       transcription,
       "Aucun défaut affiché après vérification.",
     );
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
     await user.click(
       screen.getByRole("button", { name: "Utiliser cette réponse" }),
     );
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
-    expect(String(fetchMock.mock.calls[2][0])).toContain("/message");
-    expect(fetchMock.mock.calls[2][1]?.body).toBe(
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(4));
+    expect(String(fetchMock.mock.calls[3][0])).toContain("/message");
+    expect(fetchMock.mock.calls[3][1]?.body).toBe(
       JSON.stringify({
         message: "Aucun défaut affiché après vérification.",
       }),
@@ -518,6 +520,26 @@ describe("statuts d'investigation", () => {
     }
   });
 
+  test("signale une enquête sans prochaine action au lieu de rester silencieuse", () => {
+    const investigation = makeInvestigation("investigating", null);
+
+    render(
+      <Investigation
+        id={investigation.investigation_id}
+        initial={investigation}
+        onHome={() => undefined}
+      />,
+    );
+
+    expect(screen.queryByText(/poursuit son enquête/i)).not.toBeInTheDocument();
+    expect(
+      screen.getByText("La décision IA n'a pas permis de poursuivre l'enquête."),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /réessayer/i }),
+    ).not.toBeInTheDocument();
+  });
+
   test("affiche le rapport terminal à partir des données reçues", () => {
     const investigation = makeInvestigation("completed");
     investigation.state.observations = [
@@ -582,5 +604,76 @@ describe("statuts d'investigation", () => {
       screen.getByText("Panneaux / environnement : Plausible"),
     ).toBeInTheDocument();
     expect(screen.getByText(/localiser un défaut/i)).toBeInTheDocument();
+  });
+});
+
+describe("accueil et erreurs de décision", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    window.history.replaceState({}, "", "/");
+  });
+
+  test("rouvre une investigation terminée sans relancer l'enquête", async () => {
+    const user = userEvent.setup();
+    const saved = makeInvestigation("completed");
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        jsonResponse([
+          {
+            investigation_id: saved.investigation_id,
+            status: "completed",
+            updated_at: "2026-10-29T00:00:00+00:00",
+            problem: saved.state.problem?.description,
+          },
+        ]),
+      )
+      .mockResolvedValueOnce(jsonResponse(saved));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<App />);
+
+    expect(
+      await screen.findByText(/BINTU ne répond pas seulement\. BINTU enquête/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/BINTU choisit la prochaine vérification utile/),
+    ).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: /production solaire/i }),
+    );
+
+    expect(
+      await screen.findByText("Conditions normales confirmées."),
+    ).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[1][1]?.method ?? "GET").not.toBe("POST");
+  });
+
+  test.each([
+    [502, "Le service IA n'est pas disponible. Réessayez."],
+    [504, "La décision IA a pris trop de temps. Réessayez."],
+    [422, "La décision proposée par l'IA n'est pas valide. L'enquête reste inchangée."],
+    [500, "Une erreur interne est survenue."],
+  ])("affiche l'erreur de création %s", async (status, message) => {
+    const user = userEvent.setup();
+    window.history.replaceState({}, "", "/new");
+    const detail =
+      status === 422
+        ? "Provider decision rejected by Agent Core"
+        : "private secret that must stay hidden";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(jsonResponse({ detail }, status)),
+    );
+
+    render(<App />);
+    await user.type(screen.getByLabelText(/problème rencontré/i), "Production faible.");
+    await user.click(
+      screen.getByRole("button", { name: /commencer l'investigation/i }),
+    );
+
+    expect(await screen.findByText(message)).toBeInTheDocument();
+    expect(screen.queryByText(/private secret/i)).not.toBeInTheDocument();
   });
 });

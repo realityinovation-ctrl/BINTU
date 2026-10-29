@@ -1,5 +1,5 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
-import { analyzeImage } from "../api/client";
+import { analyzeImage, decisionFailureMessage } from "../api/client";
 import type { Investigation } from "../types/investigation";
 
 interface ImageInputProps {
@@ -47,9 +47,10 @@ export function ImageInput({
       setAnalyzing(false);
       setFile(null);
       onAnalyzed(updated);
-    } catch {
+    } catch (caught) {
       setError(
-        "L'analyse de l'image a échoué. Vous pouvez remplacer la photo et réessayer.",
+        decisionFailureMessage(caught) ??
+          "L'analyse de l'image a échoué. Vous pouvez remplacer la photo et réessayer.",
       );
       setAnalyzing(false);
     }

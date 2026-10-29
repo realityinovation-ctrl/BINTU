@@ -294,6 +294,44 @@ h2 {
   font-weight: 700;
 }
 
+.saved-investigations {
+  margin-top: 42px;
+}
+
+.saved-investigations h2 {
+  margin-bottom: 12px;
+  font-size: 1.05rem;
+}
+
+.saved-investigations ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.saved-investigations li + li {
+  margin-top: 8px;
+}
+
+.saved-investigations button {
+  width: 100%;
+  min-height: 64px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  text-align: left;
+  color: var(--navy);
+}
+
+.saved-investigations button span:last-child {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 .central-promise {
   margin: 44px 0 0;
   color: var(--navy);

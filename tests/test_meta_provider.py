@@ -10,7 +10,13 @@ from bintu_agent_core.errors import (
     ProviderResponseError,
     ProviderTimeoutError,
 )
-from bintu_agent_core.meta_provider import META_ENDPOINT, MetaAIProvider
+from bintu_agent_core.meta_provider import (
+    DEFAULT_TIMEOUT_SECONDS,
+    MAX_DECISION_TIMEOUT_SECONDS,
+    META_ENDPOINT,
+    MetaAIProvider,
+    resolve_decision_timeout,
+)
 from bintu_agent_core.models import (
     HypothesisId,
     InvestigationState,
@@ -215,3 +221,50 @@ def test_provider_does_not_mutate_investigation_state(
     provider_with_handler(monkeypatch, transport).decide_next(state)
 
     assert state.model_dump() == before
+
+
+def test_decision_timeout_defaults_above_observed_latency(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("MODEL_API_KEY", "test-key-not-real")
+    monkeypatch.delenv("META_DECISION_TIMEOUT_SECONDS", raising=False)
+
+    provider = MetaAIProvider()
+    try:
+        assert provider._timeout_seconds == DEFAULT_TIMEOUT_SECONDS
+        assert provider._timeout_seconds == 60
+        assert provider._client.timeout.read == 60
+    finally:
+        provider.close()
+
+
+def test_decision_timeout_reads_environment(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("MODEL_API_KEY", "test-key-not-real")
+    monkeypatch.setenv("META_DECISION_TIMEOUT_SECONDS", "75")
+
+    provider = MetaAIProvider()
+    try:
+        assert provider._timeout_seconds == 75
+        assert provider._client.timeout.read == 75
+    finally:
+        provider.close()
+
+
+def test_decision_timeout_rejects_unbounded_values(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("META_DECISION_TIMEOUT_SECONDS", raising=False)
+
+    assert resolve_decision_timeout(None) == 60
+    with pytest.raises(ProviderConfigurationError, match="at most"):
+        resolve_decision_timeout(MAX_DECISION_TIMEOUT_SECONDS + 1)
+    with pytest.raises(ProviderConfigurationError, match="at most"):
+        resolve_decision_timeout(float("inf"))
+    monkeypatch.setenv("META_DECISION_TIMEOUT_SECONDS", "slow")
+    with pytest.raises(ProviderConfigurationError, match="positive"):
+        resolve_decision_timeout(None)
+    monkeypatch.setenv("META_DECISION_TIMEOUT_SECONDS", "0")
+    with pytest.raises(ProviderConfigurationError, match="greater than 0"):
+        resolve_decision_timeout(None)

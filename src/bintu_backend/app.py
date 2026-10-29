@@ -13,6 +13,7 @@ from uuid import uuid4
 
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -23,7 +24,9 @@ from bintu_agent_core.errors import (
     InvestigationNotFoundError,
     InvalidStateTransitionError,
     PersistenceError,
+    ProviderResponseError,
     ProviderTimeoutError,
+    UnsupportedToolError,
 )
 from bintu_agent_core.meta_provider import MetaAIProvider
 from bintu_agent_core.measurement_catalog import MEASUREMENT_CATALOG
@@ -40,6 +43,7 @@ from bintu_backend.schemas import (
     CreateInvestigationRequest,
     HealthResponse,
     InvestigationResponse,
+    InvestigationSummaryResponse,
     MeasurementRequest,
     MessageRequest,
     TranscriptionResponse,
@@ -115,6 +119,16 @@ def create_app(
             status_code=504, content={"detail": "AI provider timed out"}
         )
 
+    @app.exception_handler(ProviderResponseError)
+    async def provider_response_rejected(
+        request: Request, exc: ProviderResponseError
+    ) -> JSONResponse:
+        del request, exc
+        return JSONResponse(
+            status_code=422,
+            content={"detail": "Provider decision rejected by Agent Core"},
+        )
+
     @app.exception_handler(DecisionValidationError)
     async def decision_rejected(
         request: Request, exc: DecisionValidationError
@@ -123,6 +137,26 @@ def create_app(
         return JSONResponse(
             status_code=422,
             content={"detail": "Provider decision rejected by Agent Core"},
+        )
+
+    @app.exception_handler(UnsupportedToolError)
+    async def unsupported_tool(
+        request: Request, exc: UnsupportedToolError
+    ) -> JSONResponse:
+        del request, exc
+        return JSONResponse(
+            status_code=422,
+            content={"detail": "Provider decision rejected by Agent Core"},
+        )
+
+    @app.exception_handler(Exception)
+    async def unexpected_error(request: Request, exc: Exception) -> JSONResponse:
+        del request
+        if isinstance(exc, (HTTPException, StarletteHTTPException, RequestValidationError)):
+            raise exc
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Unexpected server error"},
         )
 
     @app.exception_handler(InvalidStateTransitionError)
@@ -168,6 +202,28 @@ def create_app(
     @app.get("/api/health", response_model=HealthResponse)
     def health() -> HealthResponse:
         return HealthResponse(status="ok")
+
+    @app.get(
+        "/api/investigations",
+        response_model=list[InvestigationSummaryResponse],
+    )
+    def list_saved_investigations() -> list[InvestigationSummaryResponse]:
+        summaries = []
+        for item in store.list_investigations(limit=20):
+            state = store.get_investigation(item.id)
+            summaries.append(
+                InvestigationSummaryResponse(
+                    investigation_id=item.id,
+                    status=item.status,
+                    updated_at=item.updated_at,
+                    problem=(
+                        state.problem.description
+                        if state.problem is not None
+                        else None
+                    ),
+                )
+            )
+        return summaries
 
     @app.post(
         "/api/investigations",

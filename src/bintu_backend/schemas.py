@@ -42,6 +42,13 @@ class InvestigationResponse(APIModel):
     state: dict[str, Any]
 
 
+class InvestigationSummaryResponse(APIModel):
+    investigation_id: str
+    status: str
+    updated_at: str
+    problem: str | None
+
+
 class HealthResponse(APIModel):
     status: str
 

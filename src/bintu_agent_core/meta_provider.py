@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 from typing import Any
 
@@ -20,7 +21,9 @@ from bintu_agent_core.models import AgentDecision, InvestigationState, ToolName
 
 META_ENDPOINT = "https://api.meta.ai/v1/chat/completions"
 META_MODEL = "muse-spark-1.3"
-DEFAULT_TIMEOUT_SECONDS = 30.0
+DEFAULT_TIMEOUT_SECONDS = 60.0
+MAX_DECISION_TIMEOUT_SECONDS = 120.0
+DECISION_TIMEOUT_ENV = "META_DECISION_TIMEOUT_SECONDS"
 
 SYSTEM_PROMPT = """\
 You select exactly one next action for a BINTU photovoltaic investigation.
@@ -35,6 +38,33 @@ Do not include chain-of-thought. The reason must be a short operational reason.
 """
 
 
+def resolve_decision_timeout(explicit: float | None = None) -> float:
+    """Return a finite decision timeout, never an unbounded wait."""
+
+    if explicit is None:
+        raw = os.environ.get(DECISION_TIMEOUT_ENV, "").strip()
+        if not raw:
+            return DEFAULT_TIMEOUT_SECONDS
+        try:
+            explicit = float(raw)
+        except ValueError as exc:
+            raise ProviderConfigurationError(
+                f"{DECISION_TIMEOUT_ENV} must be a positive number of seconds"
+            ) from exc
+    if (
+        isinstance(explicit, bool)
+        or not isinstance(explicit, (int, float))
+        or not math.isfinite(explicit)
+        or explicit <= 0
+        or explicit > MAX_DECISION_TIMEOUT_SECONDS
+    ):
+        raise ProviderConfigurationError(
+            f"{DECISION_TIMEOUT_ENV} must be greater than 0 and at most "
+            f"{MAX_DECISION_TIMEOUT_SECONDS:g}"
+        )
+    return float(explicit)
+
+
 class MetaAIProvider:
     """Translate one Muse Spark completion into one AgentDecision."""
 
@@ -42,7 +72,7 @@ class MetaAIProvider:
         self,
         *,
         client: httpx.Client | None = None,
-        timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+        timeout_seconds: float | None = None,
     ) -> None:
         api_key = os.environ.get("MODEL_API_KEY")
         if not api_key or not api_key.strip():
@@ -50,8 +80,14 @@ class MetaAIProvider:
                 "MODEL_API_KEY environment variable is required"
             )
         self._api_key = api_key
-        self._client = client or httpx.Client(timeout=timeout_seconds)
-        self._owns_client = client is None
+        if client is None:
+            timeout_seconds = resolve_decision_timeout(timeout_seconds)
+            self._client = httpx.Client(timeout=timeout_seconds)
+            self._owns_client = True
+        else:
+            self._client = client
+            self._owns_client = False
+        self._timeout_seconds = timeout_seconds
 
     def decide_next(self, state: InvestigationState) -> AgentDecision:
         request_body = {

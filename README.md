@@ -62,6 +62,30 @@ $env:MODEL_API_KEY="votre-cle-locale"
 Le fichier `.env.example` documente le nom de la variable sans contenir de
 secret. Le package ne charge pas automatiquement les fichiers `.env`.
 
+Une décision Meta attend au plus `META_DECISION_TIMEOUT_SECONDS` secondes.
+La valeur par défaut est 60, le maximum accepté est 120. Passé ce délai, le
+fournisseur renvoie une erreur de timeout. L'attente n'est jamais illimitée.
+La voix et l'analyse d'image conservent leur propre plafond de 60 secondes.
+
+## Trois contextes distincts
+
+1. Runtime réel : `uvicorn` construit `MetaAIProvider`. Chaque décision vient
+   de Meta. BINTU choisit la prochaine vérification utile. L'ordre question,
+   image, mesure, puis diagnostic n'est pas garanti.
+2. Démonstration déterministe : `MockAIProvider` rejoue
+   `tests/fixtures/full_investigation_scenario.json` et l'enregistre dans
+   SQLite. Ce parcours contrôlé ne prétend pas que Meta produit cette séquence.
+
+```powershell
+$env:BINTU_DB_PATH="data/bintu.sqlite3"
+.\.venv\Scripts\python scripts\replay_demo_scenario.py
+```
+
+L'adresse affichée ouvre l'investigation déjà terminée. La consultation ne
+relance pas l'enquête.
+3. Tests automatisés : le Core et les API sont exercés avec `MockAIProvider`,
+   sans réseau et sans crédit Meta.
+
 Les tests locaux se lancent avec `python -m pytest`. Ils utilisent
 `httpx.MockTransport` et n'effectuent aucun appel à Meta, ne nécessitent aucune
 clé réelle et ne consomment aucun crédit.
@@ -202,5 +226,5 @@ codée.
   de chaîne de pensée.
 
 `generate_report` appartient au contrat v0.2 pour stabiliser l'interface, mais
-son exécution est refusée sans modifier l'état. Le rendu du rapport reste hors
-du périmètre de cette version.
+son exécution est refusée sans modifier l'état. L'écran de rapport lit
+uniquement l'état déjà enregistré.

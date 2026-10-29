@@ -3,12 +3,19 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from bintu_agent_core.errors import ProviderHTTPError
+from bintu_agent_core.errors import (
+    ProviderHTTPError,
+    ProviderResponseError,
+    ProviderTimeoutError,
+)
 from bintu_agent_core.models import (
     AgentDecision,
     AskTechnicianArguments,
+    Conclusion,
     HypothesisId,
     InvestigationState,
+    InvestigationStatus,
+    Problem,
     RequestMeasurementArguments,
     ToolName,
 )
@@ -278,3 +285,109 @@ def test_api_key_is_never_exposed(
 
     assert response.status_code == 502
     assert secret not in response.text
+
+
+class TimeoutProvider:
+    def decide_next(self, state: InvestigationState) -> AgentDecision:
+        del state
+        raise ProviderTimeoutError("private timeout detail")
+
+
+class InvalidDecisionProvider:
+    def decide_next(self, state: InvestigationState) -> AgentDecision:
+        del state
+        raise ProviderResponseError("private model payload")
+
+
+class ExplodingProvider:
+    def decide_next(self, state: InvestigationState) -> AgentDecision:
+        del state
+        raise RuntimeError("private traceback detail")
+
+
+def _terminal_state(
+    database: Path, status: InvestigationStatus
+) -> InvestigationState:
+    store = SQLiteInvestigationStore(database)
+    state = store.create_investigation()
+    state.problem = Problem(description="Production photovoltaïque faible.")
+    state.status = status
+    if status is InvestigationStatus.COMPLETED:
+        state.conclusion = Conclusion(
+            diagnosis="Diagnostic déjà enregistré.",
+            confidence=0.62,
+            evidence_ids=["answer-history"],
+            remaining_uncertainties=[],
+        )
+    store.save_investigation(state)
+    return state
+
+
+def test_completed_investigation_reloads_without_a_new_decision(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "saved.sqlite3"
+    completed = _terminal_state(database, InvestigationStatus.COMPLETED)
+    insufficient = _terminal_state(
+        database, InvestigationStatus.INSUFFICIENT_INFORMATION
+    )
+    calls = {"count": 0}
+
+    def provider() -> ExplodingProvider:
+        calls["count"] += 1
+        return ExplodingProvider()
+
+    client = TestClient(
+        create_app(database_path=database, provider_factory=provider)
+    )
+
+    listed = client.get("/api/investigations")
+    completed_body = client.get(
+        f"/api/investigations/{completed.investigation_id}"
+    )
+    insufficient_body = client.get(
+        f"/api/investigations/{insufficient.investigation_id}"
+    )
+    again = client.get(f"/api/investigations/{completed.investigation_id}")
+
+    assert calls["count"] == 0
+    assert listed.status_code == 200
+    assert {item["status"] for item in listed.json()} == {
+        "completed",
+        "insufficient_information",
+    }
+    assert completed_body.status_code == 200
+    assert completed_body.json()["state"]["conclusion"]["diagnosis"] == (
+        "Diagnostic déjà enregistré."
+    )
+    assert completed_body.json() == again.json()
+    assert insufficient_body.status_code == 200
+    assert insufficient_body.json()["status"] == "insufficient_information"
+    assert insufficient_body.json()["state"]["conclusion"] is None
+
+
+def test_meta_failures_are_distinguishable_without_private_details(
+    tmp_path: Path,
+) -> None:
+    cases = (
+        (TimeoutProvider, 504, "AI provider timed out", "private timeout"),
+        (
+            InvalidDecisionProvider,
+            422,
+            "Provider decision rejected by Agent Core",
+            "private model",
+        ),
+        (ExplodingProvider, 500, "Unexpected server error", "private traceback"),
+    )
+    for provider, status, detail, secret in cases:
+        app = create_app(
+            database_path=tmp_path / f"{status}.sqlite3",
+            provider_factory=provider,
+        )
+        response = TestClient(app, raise_server_exceptions=False).post(
+            "/api/investigations",
+            json={"problem": "Production faible."},
+        )
+        assert response.status_code == status
+        assert response.json() == {"detail": detail}
+        assert secret not in response.text

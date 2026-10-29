@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { createInvestigation } from "../api/client";
+import { createInvestigation, decisionFailureMessage } from "../api/client";
 import { ErrorState } from "../components/ErrorState";
 import { Header } from "../components/Header";
 import { LoadingState } from "../components/LoadingState";
@@ -26,9 +26,10 @@ export function NewInvestigation({
     setError(null);
     try {
       onCreated(await createInvestigation(description));
-    } catch {
+    } catch (caught) {
       setError(
-        "Impossible de créer l'investigation. Vérifiez que le backend est disponible.",
+        decisionFailureMessage(caught) ??
+          "Impossible de créer l'investigation. Vérifiez que le backend est disponible.",
       );
       setSubmitting(false);
     }

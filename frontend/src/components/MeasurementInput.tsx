@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { submitMeasurement } from "../api/client";
+import { decisionFailureMessage, submitMeasurement } from "../api/client";
 import type {
   Investigation,
   MeasurementCatalogItem,
@@ -60,10 +60,11 @@ export function MeasurementInput({
         location: location.trim(),
       });
       onSubmitted(updated);
-    } catch {
+    } catch (caught) {
       setSubmitting(false);
       setError(
-        "La mesure n'a pas été enregistrée. Vérifiez le type, la valeur et l'emplacement.",
+        decisionFailureMessage(caught) ??
+          "La mesure n'a pas été enregistrée. Vérifiez le type, la valeur et l'emplacement.",
       );
     }
   }

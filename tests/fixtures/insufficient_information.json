@@ -1,0 +1,26 @@
+[
+  {
+    "tool_name": "ask_technician",
+    "arguments": {
+      "question": "Pouvez-vous relever l'état affiché par l'onduleur ?",
+      "distinguishes": ["H0", "H1", "H2", "H3"]
+    },
+    "reason": "Obtenir une observation minimale avant toute conclusion."
+  },
+  {
+    "tool_name": "finish_investigation",
+    "arguments": {
+      "outcome": "insufficient_information",
+      "diagnosis": null,
+      "confidence": 0.0,
+      "evidence": ["answer-unavailable"],
+      "remaining_uncertainties": [
+        "État de l'onduleur inconnu.",
+        "Aucune mesure électrique disponible.",
+        "État du stockage inconnu."
+      ],
+      "distinguishes": ["H0", "H1", "H2", "H3"]
+    },
+    "reason": "La seule réponse reçue ne permet pas de départager les hypothèses."
+  }
+]

@@ -1,0 +1,43 @@
+[
+  {
+    "tool_name": "request_measurement",
+    "arguments": {
+      "measurement_type": "dc_voltage",
+      "location": "sortie du champ PV",
+      "unit": "V",
+      "distinguishes": ["H1", "H2"]
+    },
+    "reason": "Établir la tension disponible avant la chaîne de raccordement."
+  },
+  {
+    "tool_name": "request_measurement",
+    "arguments": {
+      "measurement_type": "dc_voltage",
+      "location": "entrée PV de l'onduleur",
+      "unit": "V",
+      "distinguishes": ["H1", "H2"]
+    },
+    "reason": "Établir la tension reçue après la chaîne de raccordement."
+  },
+  {
+    "tool_name": "compare_measurements",
+    "arguments": {
+      "measurement_ids": ["m-array", "m-inverter"],
+      "comparison_reason": "Quantifier la chute entre le champ et l'onduleur.",
+      "distinguishes": ["H1", "H2"]
+    },
+    "reason": "Une chute localisée permet de distinguer le champ de la liaison."
+  },
+  {
+    "tool_name": "finish_investigation",
+    "arguments": {
+      "outcome": "diagnosed",
+      "diagnosis": "Connexion ou câble dégradé entre le champ PV et l'onduleur.",
+      "confidence": 0.88,
+      "evidence": ["m-array", "m-inverter", "comparison-3"],
+      "remaining_uncertainties": ["Le point exact de dégradation reste à localiser selon les procédures de sécurité."],
+      "distinguishes": ["H1", "H2"]
+    },
+    "reason": "La chute mesurée localise l'anomalie dans la chaîne électrique."
+  }
+]

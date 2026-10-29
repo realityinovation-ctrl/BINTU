@@ -1,0 +1,393 @@
+from pathlib import Path
+
+import pytest
+from fastapi.testclient import TestClient
+
+from bintu_agent_core.errors import (
+    ProviderHTTPError,
+    ProviderResponseError,
+    ProviderTimeoutError,
+)
+from bintu_agent_core.models import (
+    AgentDecision,
+    AskTechnicianArguments,
+    Conclusion,
+    HypothesisId,
+    InvestigationState,
+    InvestigationStatus,
+    Problem,
+    RequestMeasurementArguments,
+    ToolName,
+)
+from bintu_agent_core.sqlite_store import SQLiteInvestigationStore
+from bintu_backend.app import create_app
+
+
+class AskingProvider:
+    def decide_next(self, state: InvestigationState) -> AgentDecision:
+        del state
+        return AgentDecision(
+            tool_name=ToolName.ASK_TECHNICIAN,
+            arguments=AskTechnicianArguments(
+                question="Quel état est affiché par l'onduleur ?",
+                distinguishes=[HypothesisId.H0, HypothesisId.H2],
+            ),
+            reason="Obtenir une observation du technicien.",
+        )
+
+
+class FailingProvider:
+    def __init__(self, detail: str = "simulated provider failure") -> None:
+        self.detail = detail
+
+    def decide_next(self, state: InvestigationState) -> AgentDecision:
+        del state
+        raise ProviderHTTPError(self.detail)
+
+
+class MeasurementThenQuestionProvider:
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def decide_next(self, state: InvestigationState) -> AgentDecision:
+        del state
+        self.calls += 1
+        if self.calls == 1:
+            return AgentDecision(
+                tool_name=ToolName.REQUEST_MEASUREMENT,
+                arguments=RequestMeasurementArguments(
+                    measurement_type="dc_voltage",
+                    location="bornes de la batterie",
+                    unit="V",
+                    distinguishes=[HypothesisId.H2, HypothesisId.H3],
+                ),
+                reason="Vérifier la tension réellement disponible.",
+            )
+        return AskingProvider().decide_next(
+            InvestigationState(investigation_id="provider-context")
+        )
+
+
+@pytest.fixture
+def api(tmp_path: Path) -> tuple[TestClient, Path]:
+    database = tmp_path / "api.sqlite3"
+    app = create_app(
+        database_path=database,
+        provider_factory=AskingProvider,
+    )
+    return TestClient(app), database
+
+
+def create_investigation(client: TestClient) -> dict:
+    response = client.post(
+        "/api/investigations",
+        json={"problem": "Production solaire anormalement faible."},
+    )
+    assert response.status_code == 201
+    return response.json()
+
+
+def test_health_works(api: tuple[TestClient, Path]) -> None:
+    client, _ = api
+
+    response = client.get("/api/health")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
+def test_local_frontend_cors_is_allowed(api: tuple[TestClient, Path]) -> None:
+    client, _ = api
+
+    response = client.options(
+        "/api/health",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == (
+        "http://localhost:5173"
+    )
+
+
+def test_create_investigation_returns_initial_action(
+    api: tuple[TestClient, Path],
+) -> None:
+    client, _ = api
+
+    body = create_investigation(client)
+
+    assert body["investigation_id"]
+    assert body["status"] == "waiting_for_technician"
+    assert body["state"]["problem"]["description"] == (
+        "Production solaire anormalement faible."
+    )
+    assert body["state"]["pending_action"]["tool_name"] == "ask_technician"
+    assert all(
+        value is None for value in body["state"]["installation"].values()
+    )
+
+
+def test_get_existing_investigation(api: tuple[TestClient, Path]) -> None:
+    client, _ = api
+    created = create_investigation(client)
+
+    response = client.get(
+        f"/api/investigations/{created['investigation_id']}"
+    )
+
+    assert response.status_code == 200
+    assert response.json() == created
+
+
+def test_get_missing_investigation_returns_404(
+    api: tuple[TestClient, Path],
+) -> None:
+    client, _ = api
+
+    response = client.get("/api/investigations/missing")
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Investigation not found"}
+
+
+def test_message_updates_existing_investigation(
+    api: tuple[TestClient, Path],
+) -> None:
+    client, _ = api
+    created = create_investigation(client)
+
+    response = client.post(
+        f"/api/investigations/{created['investigation_id']}/message",
+        json={"message": "Aucun code défaut n'est affiché."},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "waiting_for_technician"
+    assert body["state"]["observations"][0]["statement"] == (
+        "Aucun code défaut n'est affiché."
+    )
+    assert body["state"]["pending_action"]["tool_name"] == "ask_technician"
+
+
+def test_message_for_missing_investigation_returns_404(
+    api: tuple[TestClient, Path],
+) -> None:
+    client, _ = api
+
+    response = client.post(
+        "/api/investigations/missing/message",
+        json={"message": "Réponse."},
+    )
+
+    assert response.status_code == 404
+
+
+def test_message_result_is_persisted(
+    api: tuple[TestClient, Path],
+) -> None:
+    client, database = api
+    created = create_investigation(client)
+    investigation_id = created["investigation_id"]
+    client.post(
+        f"/api/investigations/{investigation_id}/message",
+        json={"message": "Onduleur allumé sans alarme."},
+    )
+
+    state = SQLiteInvestigationStore(database).get_investigation(
+        investigation_id
+    )
+
+    assert len(state.observations) == 1
+    assert next(iter(state.observations.values())).statement == (
+        "Onduleur allumé sans alarme."
+    )
+    assert len(state.evidence) == 1
+
+
+def test_numeric_message_records_requested_measurement(tmp_path: Path) -> None:
+    database = tmp_path / "api.sqlite3"
+    provider = MeasurementThenQuestionProvider()
+    client = TestClient(
+        create_app(
+            database_path=database,
+            provider_factory=lambda: provider,
+        )
+    )
+    created = create_investigation(client)
+
+    response = client.post(
+        f"/api/investigations/{created['investigation_id']}/message",
+        json={"message": "12,7"},
+    )
+
+    assert response.status_code == 200
+    measurements = response.json()["state"]["measurements"]
+    assert measurements[0]["value"] == 12.7
+    assert measurements[0]["unit"] == "V"
+
+
+def test_investigations_are_isolated(api: tuple[TestClient, Path]) -> None:
+    client, _ = api
+    first = create_investigation(client)
+    second = create_investigation(client)
+    client.post(
+        f"/api/investigations/{first['investigation_id']}/message",
+        json={"message": "Observation propre à la première."},
+    )
+
+    first_state = client.get(
+        f"/api/investigations/{first['investigation_id']}"
+    ).json()
+    second_state = client.get(
+        f"/api/investigations/{second['investigation_id']}"
+    ).json()
+
+    assert len(first_state["state"]["observations"]) == 1
+    assert second_state["state"]["observations"] == []
+
+
+def test_provider_error_returns_clean_502(tmp_path: Path) -> None:
+    database = tmp_path / "api.sqlite3"
+    app = create_app(
+        database_path=database,
+        provider_factory=FailingProvider,
+    )
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/investigations", json={"problem": "Test provider."}
+    )
+
+    assert response.status_code == 502
+    assert response.json() == {"detail": "AI provider unavailable"}
+    assert SQLiteInvestigationStore(database).list_investigations() == []
+
+
+def test_api_key_is_never_exposed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    secret = "secret-value-that-must-not-leak"
+    monkeypatch.setenv("MODEL_API_KEY", secret)
+    app = create_app(
+        database_path=tmp_path / "api.sqlite3",
+        provider_factory=lambda: FailingProvider(f"failure with {secret}"),
+    )
+    client = TestClient(app)
+
+    response = client.post(
+        "/api/investigations", json={"problem": "Test secret."}
+    )
+
+    assert response.status_code == 502
+    assert secret not in response.text
+
+
+class TimeoutProvider:
+    def decide_next(self, state: InvestigationState) -> AgentDecision:
+        del state
+        raise ProviderTimeoutError("private timeout detail")
+
+
+class InvalidDecisionProvider:
+    def decide_next(self, state: InvestigationState) -> AgentDecision:
+        del state
+        raise ProviderResponseError("private model payload")
+
+
+class ExplodingProvider:
+    def decide_next(self, state: InvestigationState) -> AgentDecision:
+        del state
+        raise RuntimeError("private traceback detail")
+
+
+def _terminal_state(
+    database: Path, status: InvestigationStatus
+) -> InvestigationState:
+    store = SQLiteInvestigationStore(database)
+    state = store.create_investigation()
+    state.problem = Problem(description="Production photovoltaïque faible.")
+    state.status = status
+    if status is InvestigationStatus.COMPLETED:
+        state.conclusion = Conclusion(
+            diagnosis="Diagnostic déjà enregistré.",
+            confidence=0.62,
+            evidence_ids=["answer-history"],
+            remaining_uncertainties=[],
+        )
+    store.save_investigation(state)
+    return state
+
+
+def test_completed_investigation_reloads_without_a_new_decision(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "saved.sqlite3"
+    completed = _terminal_state(database, InvestigationStatus.COMPLETED)
+    insufficient = _terminal_state(
+        database, InvestigationStatus.INSUFFICIENT_INFORMATION
+    )
+    calls = {"count": 0}
+
+    def provider() -> ExplodingProvider:
+        calls["count"] += 1
+        return ExplodingProvider()
+
+    client = TestClient(
+        create_app(database_path=database, provider_factory=provider)
+    )
+
+    listed = client.get("/api/investigations")
+    completed_body = client.get(
+        f"/api/investigations/{completed.investigation_id}"
+    )
+    insufficient_body = client.get(
+        f"/api/investigations/{insufficient.investigation_id}"
+    )
+    again = client.get(f"/api/investigations/{completed.investigation_id}")
+
+    assert calls["count"] == 0
+    assert listed.status_code == 200
+    assert {item["status"] for item in listed.json()} == {
+        "completed",
+        "insufficient_information",
+    }
+    assert completed_body.status_code == 200
+    assert completed_body.json()["state"]["conclusion"]["diagnosis"] == (
+        "Diagnostic déjà enregistré."
+    )
+    assert completed_body.json() == again.json()
+    assert insufficient_body.status_code == 200
+    assert insufficient_body.json()["status"] == "insufficient_information"
+    assert insufficient_body.json()["state"]["conclusion"] is None
+
+
+def test_meta_failures_are_distinguishable_without_private_details(
+    tmp_path: Path,
+) -> None:
+    cases = (
+        (TimeoutProvider, 504, "AI provider timed out", "private timeout"),
+        (
+            InvalidDecisionProvider,
+            422,
+            "Provider decision rejected by Agent Core",
+            "private model",
+        ),
+        (ExplodingProvider, 500, "Unexpected server error", "private traceback"),
+    )
+    for provider, status, detail, secret in cases:
+        app = create_app(
+            database_path=tmp_path / f"{status}.sqlite3",
+            provider_factory=provider,
+        )
+        response = TestClient(app, raise_server_exceptions=False).post(
+            "/api/investigations",
+            json={"problem": "Production faible."},
+        )
+        assert response.status_code == status
+        assert response.json() == {"detail": detail}
+        assert secret not in response.text

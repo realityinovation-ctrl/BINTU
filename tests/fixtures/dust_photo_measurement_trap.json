@@ -1,0 +1,52 @@
+[
+  {
+    "tool_name": "analyze_image",
+    "arguments": {
+      "image_id": "panel-photo",
+      "focus": "Rechercher des dépôts ou ombrages visibles.",
+      "distinguishes": ["H0", "H1"]
+    },
+    "reason": "Documenter l'état visuel du champ sans en déduire seul la cause."
+  },
+  {
+    "tool_name": "request_measurement",
+    "arguments": {
+      "measurement_type": "dc_voltage",
+      "location": "sortie du champ PV",
+      "unit": "V",
+      "distinguishes": ["H1", "H2"]
+    },
+    "reason": "Vérifier par une mesure l'hypothèse suggérée par l'image."
+  },
+  {
+    "tool_name": "request_measurement",
+    "arguments": {
+      "measurement_type": "dc_voltage",
+      "location": "entrée PV de l'onduleur",
+      "unit": "V",
+      "distinguishes": ["H1", "H2"]
+    },
+    "reason": "Comparer la tension avant et après la liaison électrique."
+  },
+  {
+    "tool_name": "compare_measurements",
+    "arguments": {
+      "measurement_ids": ["m-array", "m-inverter"],
+      "comparison_reason": "Tester si la perte apparaît après le champ PV.",
+      "distinguishes": ["H1", "H2"]
+    },
+    "reason": "Les mesures doivent primer sur une apparence visuelle incertaine."
+  },
+  {
+    "tool_name": "finish_investigation",
+    "arguments": {
+      "outcome": "diagnosed",
+      "diagnosis": "Anomalie de chaîne électrique malgré la poussière visible.",
+      "confidence": 0.86,
+      "evidence": ["image-dust", "m-array", "m-inverter", "comparison-4"],
+      "remaining_uncertainties": ["Le composant précis de la liaison reste à localiser en sécurité."],
+      "distinguishes": ["H1", "H2"]
+    },
+    "reason": "La chute électrique mesurée contredit l'explication limitée à la poussière."
+  }
+]

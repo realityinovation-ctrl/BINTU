@@ -14,6 +14,44 @@ export class APIError extends Error {
 
 const DECISION_REJECTED = "Provider decision rejected by Agent Core";
 
+type TokenGetter = () => Promise<string | null>;
+type UnauthorizedHandler = () => void;
+
+let tokenGetter: TokenGetter | null = null;
+let onUnauthorized: UnauthorizedHandler | null = null;
+
+export function setSessionTokenGetter(getter: TokenGetter | null) {
+  tokenGetter = getter;
+}
+
+export function setUnauthorizedHandler(handler: UnauthorizedHandler | null) {
+  onUnauthorized = handler;
+}
+
+async function authorizationHeader(): Promise<Record<string, string>> {
+  if (!tokenGetter) return {};
+  let token: string | null;
+  try {
+    token = await tokenGetter();
+  } catch {
+    onUnauthorized?.();
+    throw new APIError(401, "Votre session n'est plus valide.");
+  }
+  if (!token) return {};
+  return { Authorization: `Bearer ${token}` };
+}
+
+function rejectStatus(status: number, detail: string): never {
+  if (status === 401) {
+    onUnauthorized?.();
+    throw new APIError(status, "Votre session n'est plus valide.");
+  }
+  if (status === 403) {
+    throw new APIError(status, "Cette action n'est pas autorisée.");
+  }
+  throw new APIError(status, detail);
+}
+
 export function decisionFailureMessage(error: unknown): string | null {
   if (error instanceof TypeError) {
     return "Le service IA n'est pas disponible. Réessayez.";
@@ -29,7 +67,7 @@ export function decisionFailureMessage(error: unknown): string | null {
     return "Une erreur interne est survenue.";
   }
   if (error.status === 422 && error.message === DECISION_REJECTED) {
-    return "La décision proposée par l'IA n'est pas valide. L'enquête reste inchangée.";
+    return "La décision proposée n'est pas valide. Le diagnostic reste inchangé.";
   }
   return null;
 }
@@ -39,6 +77,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
     headers: {
       "Content-Type": "application/json",
+      ...(await authorizationHeader()),
       ...init?.headers,
     },
   });
@@ -51,7 +90,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     } catch {
       // The status code remains the source of truth when no JSON is returned.
     }
-    throw new APIError(response.status, detail);
+    rejectStatus(response.status, detail);
   }
 
   return (await response.json()) as T;
@@ -129,10 +168,11 @@ export async function transcribeAudio(
     {
       method: "POST",
       body: form,
+      headers: await authorizationHeader(),
     },
   );
   if (!response.ok) {
-    throw new APIError(response.status, "La transcription a échoué.");
+    rejectStatus(response.status, "La transcription a échoué.");
   }
   const body = (await response.json()) as { transcription?: unknown };
   if (
@@ -155,6 +195,7 @@ export async function analyzeImage(
     {
       method: "POST",
       body: form,
+      headers: await authorizationHeader(),
     },
   );
   if (!response.ok) {
@@ -167,7 +208,7 @@ export async function analyzeImage(
     } catch {
       // Keep the status so the screen can choose a safe message.
     }
-    throw new APIError(response.status, detail);
+    rejectStatus(response.status, detail);
   }
   return (await response.json()) as Investigation;
 }

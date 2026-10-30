@@ -4,6 +4,7 @@ from pathlib import Path
 
 CORE = Path(__file__).parents[1] / "src" / "bintu_agent_core"
 FORBIDDEN_IMPORTS = {
+    "clerk_backend_api",
     "fastapi",
     "meta",
     "openai",

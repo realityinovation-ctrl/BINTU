@@ -62,6 +62,10 @@ $env:MODEL_API_KEY="votre-cle-locale"
 Le fichier `.env.example` documente le nom de la variable sans contenir de
 secret. Le package ne charge pas automatiquement les fichiers `.env`.
 
+L'identité, la session et l'organisation active viennent de Clerk. Le détail
+de lancement local est dans `docs/authentication.md`. La clé secrète Clerk
+reste une variable du backend. Elle ne va jamais dans `VITE_`.
+
 Une décision Meta attend au plus `META_DECISION_TIMEOUT_SECONDS` secondes.
 La valeur par défaut est 60, le maximum accepté est 120. Passé ce délai, le
 fournisseur renvoie une erreur de timeout. L'attente n'est jamais illimitée.

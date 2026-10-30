@@ -30,7 +30,8 @@ from bintu_agent_core.models import (
 from bintu_agent_core.provider import MockAIProvider
 from bintu_agent_core.report import investigation_report
 from bintu_agent_core.sqlite_store import SQLiteInvestigationStore
-from bintu_backend.app import create_app
+from tests.auth_support import authenticated_app as create_app
+from tests.auth_support import bind_investigation
 
 
 PROBLEM = (
@@ -288,7 +289,12 @@ def test_measured_investigation_can_be_completed(tmp_path: Path) -> None:
         "updated_at",
         "status",
         "state_json",
+        "organization_id",
+        "created_by_user_id",
+        "state_schema_version",
+        "state_revision",
     ]
+    bind_investigation(database, state.investigation_id)
 
     client = TestClient(
         create_app(
@@ -361,6 +367,7 @@ def test_insufficient_evidence_does_not_invent_a_diagnosis(
     store.save_investigation(state)
     restored = store.get_investigation(state.investigation_id)
     assert restored.model_dump(mode="json") == state.model_dump(mode="json")
+    bind_investigation(database, state.investigation_id)
     client = TestClient(
         create_app(
             database_path=database,

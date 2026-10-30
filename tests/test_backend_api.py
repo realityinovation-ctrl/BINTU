@@ -20,7 +20,8 @@ from bintu_agent_core.models import (
     ToolName,
 )
 from bintu_agent_core.sqlite_store import SQLiteInvestigationStore
-from bintu_backend.app import create_app
+from tests.auth_support import authenticated_app as create_app
+from tests.auth_support import bind_investigation
 
 
 class AskingProvider:
@@ -320,6 +321,7 @@ def _terminal_state(
             remaining_uncertainties=[],
         )
     store.save_investigation(state)
+    bind_investigation(database, state.investigation_id)
     return state
 
 

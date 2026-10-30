@@ -16,7 +16,7 @@ from bintu_agent_core.models import (
     InvestigationState,
     ToolName,
 )
-from bintu_backend.app import create_app
+from tests.auth_support import authenticated_app as create_app
 from bintu_backend.voice import MuseVoiceTranscriber
 
 

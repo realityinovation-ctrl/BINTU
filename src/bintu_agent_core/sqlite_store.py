@@ -47,10 +47,15 @@ class SQLiteInvestigationStore:
                         created_at TEXT NOT NULL,
                         updated_at TEXT NOT NULL,
                         status TEXT NOT NULL,
-                        state_json TEXT NOT NULL
+                        state_json TEXT NOT NULL,
+                        organization_id TEXT,
+                        created_by_user_id TEXT,
+                        state_schema_version INTEGER NOT NULL DEFAULT 1,
+                        state_revision INTEGER NOT NULL DEFAULT 1
                     )
                     """
                 )
+                _ensure_ownership_columns(connection)
         except (OSError, sqlite3.Error) as exc:
             raise PersistenceError("failed to initialize SQLite store") from exc
 
@@ -72,6 +77,41 @@ class SQLiteInvestigationStore:
                         timestamp,
                         state.status.value,
                         state_json,
+                    ),
+                )
+        except sqlite3.Error as exc:
+            raise PersistenceError("failed to create investigation") from exc
+        return state
+
+    def create_in_organization(
+        self, organization_id: str, created_by_user_id: str
+    ) -> InvestigationState:
+        if not organization_id or not created_by_user_id:
+            raise PersistenceError("investigation owner is required")
+        state = InvestigationState(investigation_id=str(uuid4()))
+        timestamp = _utc_now()
+        state_json = _serialize_state(state)
+        try:
+            with self._connection() as connection:
+                connection.execute(
+                    """
+                    INSERT INTO investigations (
+                        id, created_at, updated_at, status, state_json,
+                        organization_id, created_by_user_id,
+                        state_schema_version, state_revision
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        state.investigation_id,
+                        timestamp,
+                        timestamp,
+                        state.status.value,
+                        state_json,
+                        organization_id,
+                        created_by_user_id,
+                        SCHEMA_VERSION,
+                        1,
                     ),
                 )
         except sqlite3.Error as exc:
@@ -101,23 +141,77 @@ class SQLiteInvestigationStore:
             expected_status=row["status"],
         )
 
-    def save_investigation(self, state: InvestigationState) -> None:
-        state_json = _serialize_state(state)
+    def get_in_organization(
+        self, investigation_id: str, organization_id: str
+    ) -> InvestigationState:
         try:
             with self._connection() as connection:
-                cursor = connection.execute(
+                row = connection.execute(
                     """
-                    UPDATE investigations
-                    SET updated_at = ?, status = ?, state_json = ?
-                    WHERE id = ?
+                    SELECT id, status, state_json
+                    FROM investigations
+                    WHERE id = ? AND organization_id = ?
                     """,
-                    (
-                        _utc_now(),
-                        state.status.value,
-                        state_json,
-                        state.investigation_id,
-                    ),
-                )
+                    (investigation_id, organization_id),
+                ).fetchone()
+        except sqlite3.Error as exc:
+            raise PersistenceError("failed to read investigation") from exc
+        if row is None:
+            raise InvestigationNotFoundError(
+                f"investigation not found: {investigation_id}"
+            )
+        return _deserialize_state(
+            state_json=row["state_json"],
+            expected_id=row["id"],
+            expected_status=row["status"],
+        )
+
+    def save_investigation(self, state: InvestigationState) -> None:
+        self._save(state, organization_id=None)
+
+    def save_in_organization(
+        self, state: InvestigationState, organization_id: str
+    ) -> None:
+        self._save(state, organization_id=organization_id)
+
+    def _save(
+        self, state: InvestigationState, *, organization_id: str | None
+    ) -> None:
+        state_json = _serialize_state(state)
+        if organization_id is None:
+            statement = """
+                UPDATE investigations
+                SET updated_at = ?, status = ?, state_json = ?,
+                    state_schema_version = ?,
+                    state_revision = state_revision + 1
+                WHERE id = ?
+            """
+            parameters: tuple[object, ...] = (
+                _utc_now(),
+                state.status.value,
+                state_json,
+                SCHEMA_VERSION,
+                state.investigation_id,
+            )
+        else:
+            statement = """
+                UPDATE investigations
+                SET updated_at = ?, status = ?, state_json = ?,
+                    state_schema_version = ?,
+                    state_revision = state_revision + 1
+                WHERE id = ? AND organization_id = ?
+            """
+            parameters = (
+                _utc_now(),
+                state.status.value,
+                state_json,
+                SCHEMA_VERSION,
+                state.investigation_id,
+                organization_id,
+            )
+        try:
+            with self._connection() as connection:
+                cursor = connection.execute(statement, parameters)
         except sqlite3.Error as exc:
             raise PersistenceError("failed to save investigation") from exc
         if cursor.rowcount == 0:
@@ -153,6 +247,35 @@ class SQLiteInvestigationStore:
             for row in rows
         ]
 
+    def list_in_organization(
+        self, organization_id: str, limit: int = 100
+    ) -> list[InvestigationSummary]:
+        if isinstance(limit, bool) or limit < 1:
+            raise ValueError("limit must be a positive integer")
+        try:
+            with self._connection() as connection:
+                rows = connection.execute(
+                    """
+                    SELECT id, created_at, updated_at, status
+                    FROM investigations
+                    WHERE organization_id = ?
+                    ORDER BY updated_at DESC, id ASC
+                    LIMIT ?
+                    """,
+                    (organization_id, limit),
+                ).fetchall()
+        except sqlite3.Error as exc:
+            raise PersistenceError("failed to list investigations") from exc
+        return [
+            InvestigationSummary(
+                id=row["id"],
+                created_at=row["created_at"],
+                updated_at=row["updated_at"],
+                status=row["status"],
+            )
+            for row in rows
+        ]
+
     def delete_investigation(self, investigation_id: str) -> None:
         try:
             with self._connection() as connection:
@@ -167,6 +290,66 @@ class SQLiteInvestigationStore:
                 f"investigation not found: {investigation_id}"
             )
 
+    def delete_in_organization(
+        self, investigation_id: str, organization_id: str
+    ) -> None:
+        try:
+            with self._connection() as connection:
+                cursor = connection.execute(
+                    """
+                    DELETE FROM investigations
+                    WHERE id = ? AND organization_id = ?
+                    """,
+                    (investigation_id, organization_id),
+                )
+        except sqlite3.Error as exc:
+            raise PersistenceError("failed to delete investigation") from exc
+        if cursor.rowcount == 0:
+            raise InvestigationNotFoundError(
+                f"investigation not found: {investigation_id}"
+            )
+
+    def bind_owner(
+        self,
+        investigation_id: str,
+        organization_id: str,
+        created_by_user_id: str,
+    ) -> None:
+        try:
+            with self._connection() as connection:
+                cursor = connection.execute(
+                    """
+                    UPDATE investigations
+                    SET organization_id = ?, created_by_user_id = ?
+                    WHERE id = ? AND organization_id IS NULL
+                    """,
+                    (organization_id, created_by_user_id, investigation_id),
+                )
+        except sqlite3.Error as exc:
+            raise PersistenceError("failed to bind investigation") from exc
+        if cursor.rowcount != 1:
+            raise InvestigationNotFoundError(
+                f"investigation not found: {investigation_id}"
+            )
+
+    def claim_unassigned(
+        self, organization_id: str, created_by_user_id: str
+    ) -> int:
+        try:
+            with self._connection() as connection:
+                cursor = connection.execute(
+                    """
+                    UPDATE investigations
+                    SET organization_id = ?, created_by_user_id = ?,
+                        state_revision = 1
+                    WHERE organization_id IS NULL
+                    """,
+                    (organization_id, created_by_user_id),
+                )
+        except sqlite3.Error as exc:
+            raise PersistenceError("failed to claim investigations") from exc
+        return int(cursor.rowcount)
+
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.database_path)
         connection.row_factory = sqlite3.Row
@@ -180,6 +363,31 @@ class SQLiteInvestigationStore:
                 yield connection
         finally:
             connection.close()
+
+
+def _ensure_ownership_columns(connection: sqlite3.Connection) -> None:
+    existing = {
+        row["name"]
+        for row in connection.execute("PRAGMA table_info(investigations)")
+    }
+    additions = (
+        ("organization_id", "ALTER TABLE investigations ADD COLUMN organization_id TEXT"),
+        (
+            "created_by_user_id",
+            "ALTER TABLE investigations ADD COLUMN created_by_user_id TEXT",
+        ),
+        (
+            "state_schema_version",
+            "ALTER TABLE investigations ADD COLUMN state_schema_version INTEGER NOT NULL DEFAULT 1",
+        ),
+        (
+            "state_revision",
+            "ALTER TABLE investigations ADD COLUMN state_revision INTEGER NOT NULL DEFAULT 1",
+        ),
+    )
+    for name, statement in additions:
+        if name not in existing:
+            connection.execute(statement)
 
 
 def _utc_now() -> str:

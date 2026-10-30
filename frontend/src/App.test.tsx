@@ -676,4 +676,26 @@ describe("accueil et erreurs de décision", () => {
     expect(await screen.findByText(message)).toBeInTheDocument();
     expect(screen.queryByText(/private secret/i)).not.toBeInTheDocument();
   });
+
+  test("une session locale ne suffit pas à ouvrir l'application", async () => {
+    sessionStorage.setItem(
+      "bintu-session",
+      JSON.stringify({
+        email: "marc.laurent@bintu.demo",
+        name: "Marc Laurent",
+        initials: "ML",
+      }),
+    );
+    const { clerkState } = await import("./test/setup");
+    clerkState.isSignedIn = false;
+    clerkState.orgId = null;
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse([])));
+
+    render(<App />);
+
+    expect(
+      screen.getByRole("heading", { name: "Connexion" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Diagnostic technique intelligent/)).not.toBeInTheDocument();
+  });
 });

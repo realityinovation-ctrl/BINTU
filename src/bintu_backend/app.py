@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from fastapi import FastAPI, File, HTTPException, Request, UploadFile
+from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -39,6 +39,22 @@ from bintu_agent_core.models import (
 )
 from bintu_agent_core.provider import AIProvider
 from bintu_agent_core.sqlite_store import SQLiteInvestigationStore
+from bintu_backend.authentication import (
+    ClerkRequestAuthenticator,
+    RequestAuthenticator,
+)
+from bintu_backend.authorization import (
+    DIAGNOSTIC_CREATE,
+    DIAGNOSTIC_OPERATE,
+    DIAGNOSTIC_READ,
+    ActiveOrganizationRequired,
+    AuthenticatedContext,
+    AuthenticationError,
+    PermissionDenied,
+    authorize,
+)
+from bintu_backend.migration import claim_demo_organization
+from bintu_backend.settings import cors_origins
 from bintu_backend.schemas import (
     CreateInvestigationRequest,
     HealthResponse,
@@ -62,23 +78,20 @@ ACCEPTED_AUDIO_TYPES = {"audio/wav", "audio/x-wav", "audio/wave"}
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
 ACCEPTED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
-DEFAULT_CORS_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
-
-
 def create_app(
     *,
     database_path: str | Path | None = None,
     provider_factory: ProviderFactory | None = None,
     transcriber_factory: TranscriberFactory | None = None,
     image_analyzer_factory: ImageAnalyzerFactory | None = None,
+    authenticator: RequestAuthenticator | None = None,
 ) -> FastAPI:
     store = SQLiteInvestigationStore(
         database_path or os.environ.get("BINTU_DB_PATH", "data/bintu.sqlite3")
+    )
+    claim_demo_organization(store)
+    resolved_authenticator = (
+        authenticator or ClerkRequestAuthenticator.from_environment()
     )
     make_provider = provider_factory or MetaAIProvider
     make_transcriber = transcriber_factory or MuseVoiceTranscriber
@@ -86,11 +99,33 @@ def create_app(
     app = FastAPI(title="BINTU API", version="0.1.0")
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=DEFAULT_CORS_ORIGINS,
+        allow_origins=cors_origins(),
         allow_credentials=False,
         allow_methods=["GET", "POST"],
-        allow_headers=["Content-Type"],
+        allow_headers=["Authorization", "Content-Type"],
     )
+
+    def require(permission: str):
+        def dependency(request: Request) -> AuthenticatedContext:
+            try:
+                context = resolved_authenticator.authenticate(request)
+            except AuthenticationError:
+                raise HTTPException(
+                    status_code=401, detail="Authentication required"
+                ) from None
+            try:
+                authorize(context, permission)
+            except ActiveOrganizationRequired:
+                raise HTTPException(
+                    status_code=403, detail="Active organization required"
+                ) from None
+            except PermissionDenied:
+                raise HTTPException(
+                    status_code=403, detail="Permission denied"
+                ) from None
+            return context
+
+        return dependency
 
     @app.exception_handler(InvestigationNotFoundError)
     async def investigation_not_found(
@@ -207,10 +242,16 @@ def create_app(
         "/api/investigations",
         response_model=list[InvestigationSummaryResponse],
     )
-    def list_saved_investigations() -> list[InvestigationSummaryResponse]:
+    def list_saved_investigations(
+        context: AuthenticatedContext = Depends(require(DIAGNOSTIC_READ)),
+    ) -> list[InvestigationSummaryResponse]:
+        organization_id = _organization_id(context)
         summaries = []
-        for item in store.list_investigations(limit=20):
-            state = store.get_investigation(item.id)
+        for item in store.list_in_organization(organization_id, limit=20):
+            try:
+                state = store.get_in_organization(item.id, organization_id)
+            except InvestigationNotFoundError:
+                continue
             summaries.append(
                 InvestigationSummaryResponse(
                     investigation_id=item.id,
@@ -232,14 +273,16 @@ def create_app(
     )
     def create_investigation(
         request: CreateInvestigationRequest,
+        context: AuthenticatedContext = Depends(require(DIAGNOSTIC_CREATE)),
     ) -> InvestigationResponse:
-        state = store.create_investigation()
+        organization_id = _organization_id(context)
+        state = store.create_in_organization(organization_id, context.user_id)
         state.problem = Problem(description=request.problem)
         try:
             _advance_once(state, make_provider)
-            store.save_investigation(state)
+            store.save_in_organization(state, organization_id)
         except Exception:
-            store.delete_investigation(state.investigation_id)
+            store.delete_in_organization(state.investigation_id, organization_id)
             raise
         return _present(state)
 
@@ -247,17 +290,27 @@ def create_app(
         "/api/investigations/{investigation_id}",
         response_model=InvestigationResponse,
     )
-    def get_investigation(investigation_id: str) -> InvestigationResponse:
-        return _present(store.get_investigation(investigation_id))
+    def get_investigation(
+        investigation_id: str,
+        context: AuthenticatedContext = Depends(require(DIAGNOSTIC_READ)),
+    ) -> InvestigationResponse:
+        return _present(
+            store.get_in_organization(
+                investigation_id, _organization_id(context)
+            )
+        )
 
     @app.post(
         "/api/investigations/{investigation_id}/message",
         response_model=InvestigationResponse,
     )
     def send_message(
-        investigation_id: str, request: MessageRequest
+        investigation_id: str,
+        request: MessageRequest,
+        context: AuthenticatedContext = Depends(require(DIAGNOSTIC_OPERATE)),
     ) -> InvestigationResponse:
-        state = store.get_investigation(investigation_id)
+        organization_id = _organization_id(context)
+        state = store.get_in_organization(investigation_id, organization_id)
         pending = state.pending_action
         if pending is None:
             raise InvalidStateTransitionError(
@@ -298,7 +351,7 @@ def create_app(
             engine.advance()
         finally:
             _close_provider(provider)
-        store.save_investigation(state)
+        store.save_in_organization(state, organization_id)
         return _present(state)
 
     @app.post(
@@ -308,8 +361,10 @@ def create_app(
     def submit_measurement(
         investigation_id: str,
         request: MeasurementRequest,
+        context: AuthenticatedContext = Depends(require(DIAGNOSTIC_OPERATE)),
     ) -> InvestigationResponse:
-        state = store.get_investigation(investigation_id)
+        organization_id = _organization_id(context)
+        state = store.get_in_organization(investigation_id, organization_id)
         pending = state.pending_action
         if pending is None or not isinstance(
             pending.decision.arguments, RequestMeasurementArguments
@@ -350,7 +405,7 @@ def create_app(
             engine.advance()
         finally:
             _close_provider(provider)
-        store.save_investigation(state)
+        store.save_in_organization(state, organization_id)
         return _present(state)
 
     @app.post(
@@ -360,8 +415,12 @@ def create_app(
     def transcribe_audio(
         investigation_id: str,
         audio: UploadFile = File(...),
+        context: AuthenticatedContext = Depends(require(DIAGNOSTIC_OPERATE)),
     ) -> TranscriptionResponse:
-        store.get_investigation(investigation_id)
+        # FOLLOW-UP / P1: this route still does not require a pending question.
+        store.get_in_organization(
+            investigation_id, _organization_id(context)
+        )
         content_type = (audio.content_type or "").lower()
         if content_type not in ACCEPTED_AUDIO_TYPES:
             audio.file.close()
@@ -396,8 +455,10 @@ def create_app(
     def analyze_image(
         investigation_id: str,
         image: UploadFile = File(...),
+        context: AuthenticatedContext = Depends(require(DIAGNOSTIC_OPERATE)),
     ) -> InvestigationResponse:
-        state = store.get_investigation(investigation_id)
+        organization_id = _organization_id(context)
+        state = store.get_in_organization(investigation_id, organization_id)
         pending = state.pending_action
         if pending is None or not isinstance(
             pending.decision.arguments, AnalyzeImageArguments
@@ -447,10 +508,18 @@ def create_app(
             engine.advance()
         finally:
             _close_provider(provider)
-        store.save_investigation(state)
+        store.save_in_organization(state, organization_id)
         return _present(state)
 
     return app
+
+
+def _organization_id(context: AuthenticatedContext) -> str:
+    if context.organization_id is None:
+        raise HTTPException(
+            status_code=403, detail="Active organization required"
+        )
+    return context.organization_id
 
 
 def _advance_once(

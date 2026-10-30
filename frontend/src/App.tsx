@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "@clerk/react";
+import { setSessionTokenGetter, setUnauthorizedHandler } from "./api/client";
+import {
+  LoadingSession,
+  OrganizationRequired,
+  SessionExpired,
+  SignedOutScreen,
+} from "./auth/gate";
 import { Home } from "./pages/Home";
 import { Investigation } from "./pages/Investigation";
 import { NewInvestigation } from "./pages/NewInvestigation";
+import { retireLegacySession } from "./session";
 import type { Investigation as InvestigationData } from "./types/investigation";
 
 function currentPath() {
@@ -13,6 +22,15 @@ export default function App() {
   const [initialInvestigation, setInitialInvestigation] = useState<
     InvestigationData | undefined
   >();
+  const [sessionExpired, setSessionExpired] = useState(false);
+  const { isLoaded, isSignedIn, orgId, getToken, signOut } = useAuth();
+
+  setSessionTokenGetter(async () => (isSignedIn ? getToken() : null));
+  setUnauthorizedHandler(() => setSessionExpired(true));
+
+  useEffect(() => {
+    retireLegacySession();
+  }, []);
 
   useEffect(() => {
     const onPopState = () => {
@@ -33,36 +51,49 @@ export default function App() {
     navigate("/");
   }
 
+  if (!isLoaded) return <LoadingSession />;
+  if (!isSignedIn) return <SignedOutScreen />;
+  if (sessionExpired) {
+    return <SessionExpired onReconnect={() => void signOut()} />;
+  }
+  if (!orgId) return <OrganizationRequired />;
+
   if (path === "/new") {
     return (
-      <NewInvestigation
-        onHome={goHome}
-        onCreated={(created) => {
-          setInitialInvestigation(created);
-          navigate(`/investigations/${created.investigation_id}`);
-        }}
-      />
+      <div key={orgId}>
+        <NewInvestigation
+          onHome={goHome}
+          onCreated={(created) => {
+            setInitialInvestigation(created);
+            navigate(`/investigations/${created.investigation_id}`);
+          }}
+        />
+      </div>
     );
   }
 
   const match = path.match(/^\/investigations\/([^/]+)$/);
   if (match) {
     return (
-      <Investigation
-        id={decodeURIComponent(match[1])}
-        initial={initialInvestigation}
-        onHome={goHome}
-      />
+      <div key={orgId}>
+        <Investigation
+          id={decodeURIComponent(match[1])}
+          initial={initialInvestigation}
+          onHome={goHome}
+        />
+      </div>
     );
   }
 
   return (
-    <Home
-      onNew={() => navigate("/new")}
-      onOpen={(investigationId) => {
-        setInitialInvestigation(undefined);
-        navigate(`/investigations/${investigationId}`);
-      }}
-    />
+    <div key={orgId}>
+      <Home
+        onNew={() => navigate("/new")}
+        onOpen={(investigationId) => {
+          setInitialInvestigation(undefined);
+          navigate(`/investigations/${investigationId}`);
+        }}
+      />
+    </div>
   );
 }

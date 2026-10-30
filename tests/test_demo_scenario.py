@@ -3,13 +3,15 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 from bintu_agent_core.models import InvestigationStatus
-from bintu_backend.app import create_app
+from tests.auth_support import authenticated_app as create_app
+from tests.auth_support import bind_investigation
 from scripts.replay_demo_scenario import seed_controlled_demo
 
 
 def test_controlled_demo_can_be_reopened_without_meta(tmp_path: Path) -> None:
     database = tmp_path / "demo.sqlite3"
     seeded = seed_controlled_demo(database)
+    bind_investigation(database, seeded.investigation_id)
     calls = {"count": 0}
 
     def provider() -> object:

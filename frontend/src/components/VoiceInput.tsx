@@ -4,6 +4,7 @@ import {
   startWavRecording,
   type WavRecording,
 } from "../audio/recorder";
+import { MicIcon } from "./Icons";
 
 type VoiceState = "ready" | "recording" | "transcribing" | "review";
 
@@ -79,7 +80,7 @@ export function VoiceInput({
           onClick={() => void start()}
           disabled={disabled}
         >
-          <span aria-hidden="true">🎙️</span> Parler
+          <MicIcon /> Parler
         </button>
       )}
       {state === "recording" && (
@@ -88,7 +89,8 @@ export function VoiceInput({
           type="button"
           onClick={() => void stop()}
         >
-          <span aria-hidden="true">🔴</span> Enregistrement… Arrêter
+          <span className="recording-dot" aria-hidden="true" />
+          Enregistrement… Arrêter
         </button>
       )}
       {state === "transcribing" && (

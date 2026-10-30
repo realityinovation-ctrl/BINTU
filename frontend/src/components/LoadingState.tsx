@@ -1,5 +1,5 @@
 export function LoadingState({
-  message = "Chargement de l'investigation…",
+  message = "Chargement du diagnostic…",
 }: {
   message?: string;
 }) {

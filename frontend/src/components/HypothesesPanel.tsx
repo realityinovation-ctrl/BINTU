@@ -1,18 +1,19 @@
 import type { Hypothesis } from "../types/investigation";
+import {
+  HYPOTHESIS_LABELS,
+  HYPOTHESIS_STATUS_LABELS,
+} from "../presentation/labels";
+import { StatusPill } from "./Shell";
 
-const HYPOTHESIS_LABELS: Record<Hypothesis["hypothesis_id"], string> = {
-  H0: "Conditions normales",
-  H1: "Panneaux / environnement",
-  H2: "Chaîne électrique",
-  H3: "Stockage / conversion",
-};
-
-const STATUS_LABELS: Record<Hypothesis["status"], string> = {
-  unexplored: "À explorer",
-  plausible: "Plausible",
-  supported: "Étayée",
-  weakened: "Affaiblie",
-  eliminated: "Éliminée",
+const KIND: Record<
+  Hypothesis["status"],
+  "blue" | "amber" | "green" | "gray"
+> = {
+  unexplored: "gray",
+  plausible: "blue",
+  supported: "green",
+  weakened: "amber",
+  eliminated: "gray",
 };
 
 export function HypothesesPanel({
@@ -21,19 +22,33 @@ export function HypothesesPanel({
   hypotheses: Hypothesis[];
 }) {
   return (
-    <section className="card hypotheses-panel" aria-labelledby="hypotheses-title">
-      <p className="eyebrow">Ce que BINTU cherche à vérifier</p>
-      <h2 id="hypotheses-title">Hypothèses suivies</h2>
-      <ul className="hypothesis-list">
-        {hypotheses.map((hypothesis) => (
-          <li key={hypothesis.hypothesis_id}>
-            <span>{HYPOTHESIS_LABELS[hypothesis.hypothesis_id]}</span>
-            <span className={`hypothesis-status hypothesis-${hypothesis.status}`}>
-              {STATUS_LABELS[hypothesis.status]}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <div>
+      {hypotheses.map((hypothesis) => {
+        const { status } = hypothesis;
+        const supporting = hypothesis.supporting_evidence_ids.length;
+        const contradictory = hypothesis.contradictory_evidence_ids.length;
+        const eliminated = status === "eliminated";
+        return (
+          <div
+            className={`hypothesis ${eliminated ? "crossed" : ""}`}
+            key={hypothesis.hypothesis_id}
+          >
+            <div className="hypothesis-top">
+              <h3 className="hypothesis-title">
+                {HYPOTHESIS_LABELS[hypothesis.hypothesis_id]}
+              </h3>
+              <StatusPill kind={KIND[status]}>
+                {HYPOTHESIS_STATUS_LABELS[status]}
+              </StatusPill>
+            </div>
+            {supporting + contradictory > 0 && (
+              <div className="hypothesis-detail">
+                Pour {supporting} · Contre {contradictory}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }

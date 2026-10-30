@@ -74,11 +74,6 @@ export function MeasurementInput({
       className="measurement-form"
       onSubmit={(event) => void submit(event)}
     >
-      <div>
-        <p className="eyebrow">Mesure réelle du technicien</p>
-        <h2>Ajouter une mesure</h2>
-      </div>
-
       <label htmlFor="measurement-type">Type de mesure</label>
       <select
         id="measurement-type"
@@ -100,8 +95,10 @@ export function MeasurementInput({
       <div className="measurement-value-row">
         <input
           id="measurement-value"
+          className="measurement-value"
           type="text"
           inputMode="decimal"
+          enterKeyHint="done"
           value={value}
           onChange={(event) => setValue(event.target.value)}
           placeholder="38,4"
@@ -113,6 +110,10 @@ export function MeasurementInput({
         </span>
       </div>
 
+      <p className="measurement-location-readout">
+        Emplacement indiqué
+        <strong>{location || "—"}</strong>
+      </p>
       <label htmlFor="measurement-location">Emplacement</label>
       <input
         id="measurement-location"

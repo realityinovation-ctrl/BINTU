@@ -1,6 +1,7 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { analyzeImage, decisionFailureMessage } from "../api/client";
 import type { Investigation } from "../types/investigation";
+import { CameraIcon } from "./Icons";
 
 interface ImageInputProps {
   investigationId: string;
@@ -57,28 +58,34 @@ export function ImageInput({
   }
 
   return (
-    <section className="image-input" aria-labelledby="image-input-title">
-      <div>
-        <p className="eyebrow">Photo demandée</p>
-        <h2 id="image-input-title">Ajouter une observation visuelle</h2>
-        <p className="image-help">
-          La photo sera analysée comme une observation, jamais comme une
-          mesure électrique.
-        </p>
-      </div>
+    <div className="image-input">
+      <p className="image-help">
+        Une observation visuelle n'est pas une mesure électrique.
+      </p>
 
       {!file && (
-        <label className="photo-button">
-          <span aria-hidden="true">📷</span> Ajouter une photo
-          <input
-            ref={input}
-            className="visually-hidden"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            capture="environment"
-            onChange={selectImage}
-          />
-        </label>
+        <div className="photo-actions">
+          <label className="primary-button photo-capture">
+            <CameraIcon /> Prendre une photo
+            <input
+              ref={input}
+              className="visually-hidden"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              capture="environment"
+              onChange={selectImage}
+            />
+          </label>
+          <label className="secondary-button">
+            Galerie
+            <input
+              className="visually-hidden"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={selectImage}
+            />
+          </label>
+        </div>
       )}
 
       {file && preview && (
@@ -114,7 +121,7 @@ export function ImageInput({
             {analyzing ? (
               <>
                 <span className="spinner small-spinner" aria-hidden="true" />
-                Analyse de l&apos;image…
+                Analyse de l'image…
               </>
             ) : (
               "Analyser avec BINTU"
@@ -128,6 +135,6 @@ export function ImageInput({
           {error}
         </p>
       )}
-    </section>
+    </div>
   );
 }

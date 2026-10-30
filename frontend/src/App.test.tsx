@@ -22,6 +22,28 @@ function jsonResponse(body: unknown, status = 200) {
   } as Response;
 }
 
+async function launchInvestigation(
+  user: ReturnType<typeof userEvent.setup>,
+  problem: string,
+) {
+  if (!screen.queryByLabelText(/décrivez précisément ce que vous constatez/i)) {
+    await user.click(
+      screen.getAllByRole("button", { name: /nouveau diagnostic/i })[0],
+    );
+  }
+  await user.type(
+    screen.getByLabelText(/décrivez précisément ce que vous constatez/i),
+    problem,
+  );
+  for (let step = 0; step < 3; step += 1) {
+    const continuer = screen.queryByRole("button", { name: /^Continuer$/ });
+    if (!continuer) break;
+    await user.click(continuer);
+  }
+  const start = screen.queryByRole("button", { name: /démarrer le diagnostic/i });
+  if (start) await user.click(start);
+}
+
 describe("parcours principal", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -68,38 +90,35 @@ describe("parcours principal", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     render(<App />);
-    await user.click(
-      screen.getByRole("button", { name: /nouvelle investigation/i }),
-    );
-    await user.type(
-      screen.getByLabelText(/problème rencontré/i),
-      "La production solaire est anormalement faible.",
-    );
-    await user.click(
-      screen.getByRole("button", { name: /commencer l'investigation/i }),
-    );
+    await launchInvestigation(user, "La production solaire est anormalement faible.");
 
     expect(
       await screen.findByText("Quel état est affiché par l'onduleur ?"),
     ).toBeInTheDocument();
-    expect(screen.getByText(/pourquoi bintu le demande/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Pourquoi" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("list", { name: "Hypothèses distinguées" }),
+    ).toHaveTextContent("Chaîne électrique");
+    expect(
+      screen.getByRole("listitem", { current: "step" }),
+    ).toHaveTextContent("Prochaine vérification");
 
     await user.type(
-      screen.getByLabelText(/votre réponse/i),
+      screen.getByLabelText("Réponse"),
       "Aucun code défaut n'est affiché.",
     );
-    await user.click(screen.getByRole("button", { name: "Envoyer" }));
+    await user.click(screen.getByRole("button", { name: "Répondre" }));
 
     expect(
-      await screen.findByText(
-        "BINTU a besoin d'une mesure pour poursuivre l'enquête",
-      ),
+      await screen.findByText("Vérifier la tension réellement disponible."),
     ).toBeInTheDocument();
-    expect(screen.getByText(/bornes de la batterie/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/bornes de la batterie/i).length).toBeGreaterThan(0);
     expect(fetchMock).toHaveBeenCalledTimes(3);
     expect(fetchMock.mock.calls[1][1]?.body).toBe(
       JSON.stringify({
-        problem: "La production solaire est anormalement faible.",
+        problem: "Production faible — La production solaire est anormalement faible.",
       }),
     );
   });
@@ -111,7 +130,7 @@ describe("parcours principal", () => {
     render(<App />);
 
     expect(
-      screen.getByText("Chargement de l'investigation…"),
+      screen.getByText("Chargement du diagnostic…"),
     ).toBeInTheDocument();
   });
 
@@ -127,7 +146,7 @@ describe("parcours principal", () => {
     render(<App />);
 
     expect(
-      await screen.findByText("Investigation introuvable"),
+      await screen.findByText("Diagnostic introuvable"),
     ).toBeInTheDocument();
   });
 
@@ -150,7 +169,10 @@ describe("parcours principal", () => {
         "La production solaire est anormalement faible.",
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText("Hypothèses suivies")).toBeInTheDocument();
+    expect(
+      screen.getByRole("navigation", { name: "Fil du diagnostic" }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("Hypothèses").length).toBeGreaterThan(0);
   });
 
   test("ne transmet la transcription qu'après confirmation", async () => {
@@ -190,16 +212,7 @@ describe("parcours principal", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     render(<App />);
-    await user.click(
-      screen.getByRole("button", { name: /nouvelle investigation/i }),
-    );
-    await user.type(
-      screen.getByLabelText(/problème rencontré/i),
-      "Production solaire faible.",
-    );
-    await user.click(
-      screen.getByRole("button", { name: /commencer l'investigation/i }),
-    );
+    await launchInvestigation(user, "Production solaire faible.");
     await screen.findByText("Quel état est affiché par l'onduleur ?");
 
     await user.click(screen.getByRole("button", { name: /parler/i }));
@@ -303,7 +316,7 @@ describe("parcours principal", () => {
       type: "image/png",
     });
     await user.upload(
-      screen.getByLabelText(/ajouter une photo/i),
+      screen.getByLabelText(/prendre une photo/i),
       file,
     );
 
@@ -324,7 +337,7 @@ describe("parcours principal", () => {
         "Une partie du panneau semble couverte par des dépôts visibles.",
       ),
     ).toBeInTheDocument();
-    expect(screen.getByText("Observation visuelle")).toBeInTheDocument();
+    expect(screen.getAllByText("Image").length).toBeGreaterThan(0);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(String(fetchMock.mock.calls[0][0])).toContain("/image");
     expect(fetchMock.mock.calls[0][1]?.body).toBeInstanceOf(FormData);
@@ -432,9 +445,10 @@ describe("parcours principal", () => {
 
     resolveRequest(jsonResponse(afterMeasurement));
     expect(
-      await screen.findByText("ac_power mesurée à sortie onduleur"),
+      await screen.findByText("La valeur est-elle stable ?"),
     ).toBeInTheDocument();
     expect(screen.getByText("842.5 W")).toBeInTheDocument();
+    expect(screen.getAllByText("Puissance AC").length).toBeGreaterThan(0);
   });
 
   test("affiche une erreur si l'API refuse la mesure", async () => {
@@ -500,8 +514,8 @@ describe("statuts d'investigation", () => {
     );
 
     const expected = {
-      investigating: "Enquête en cours",
-      waiting_for_technician: "En attente de votre réponse",
+      investigating: "Diagnostic en cours",
+      waiting_for_technician: "En attente de votre intervention",
       completed: "Diagnostic terminé",
       insufficient_information: "Informations insuffisantes",
     }[status];
@@ -533,7 +547,7 @@ describe("statuts d'investigation", () => {
 
     expect(screen.queryByText(/poursuit son enquête/i)).not.toBeInTheDocument();
     expect(
-      screen.getByText("La décision IA n'a pas permis de poursuivre l'enquête."),
+      screen.getByText("La décision n'a pas permis de poursuivre le diagnostic."),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /réessayer/i }),
@@ -593,17 +607,73 @@ describe("statuts d'investigation", () => {
       />,
     );
 
-    expect(screen.getByText("Rapport d'enquête")).toBeInTheDocument();
+    expect(screen.getByText("Rapport")).toBeInTheDocument();
     expect(
       screen.getByText(/obstruction visible des panneaux/i),
     ).toBeInTheDocument();
     expect(screen.getByText("Confiance fournie : 62 %")).toBeInTheDocument();
-    expect(screen.getByText("Observation visuelle")).toBeInTheDocument();
-    expect(screen.getByText(/dc_voltage : 31.5 V/i)).toBeInTheDocument();
+    expect(screen.getAllByText("Image").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Tension DC : 31\.5 V/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/dc_voltage/)).not.toBeInTheDocument();
     expect(
       screen.getByText("Panneaux / environnement : Plausible"),
     ).toBeInTheDocument();
     expect(screen.getByText(/localiser un défaut/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("listitem", { current: "step" }),
+    ).toHaveTextContent("Diagnostic");
+    expect(screen.queryByText(/MVP/)).not.toBeInTheDocument();
+  });
+
+  test("n'affiche pas de distinction absente de la décision", () => {
+    const investigation = makeInvestigation();
+    investigation.state.pending_action = {
+      action_id: "action-1",
+      tool_name: "ask_technician",
+      arguments: { question: "Question seule ?" },
+      reason: "Une raison fournie.",
+    };
+
+    render(
+      <Investigation
+        id={investigation.investigation_id}
+        initial={investigation}
+        onHome={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText("Question seule ?")).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Cette vérification permet de distinguer/i),
+    ).not.toBeInTheDocument();
+  });
+
+  test("signale une action non fournissable sans mentionner le MVP", () => {
+    const investigation = makeInvestigation();
+    investigation.state.pending_action = {
+      action_id: "action-1",
+      tool_name: "compare_measurements",
+      arguments: {
+        measurement_ids: ["m-1", "m-2"],
+        comparison_reason: "Comparer deux tensions déjà reçues.",
+        distinguishes: ["H2"],
+      },
+      reason: "Les deux mesures existent déjà.",
+    };
+
+    render(
+      <Investigation
+        id={investigation.investigation_id}
+        initial={investigation}
+        onHome={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText("Comparer deux tensions déjà reçues.")).toBeInTheDocument();
+    expect(
+      screen.getByText(/ne peut pas encore être fournie depuis l'interface/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/MVP/)).not.toBeInTheDocument();
   });
 });
 
@@ -634,11 +704,11 @@ describe("accueil et erreurs de décision", () => {
     render(<App />);
 
     expect(
-      await screen.findByText(/BINTU ne répond pas seulement\. BINTU enquête/),
+      await screen.findByRole("heading", { name: "Diagnostics" }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/BINTU choisit la prochaine vérification utile/),
-    ).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Voix" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Timeline")).not.toBeInTheDocument();
+    expect(screen.queryByText(/MVP/)).not.toBeInTheDocument();
     await user.click(
       screen.getByRole("button", { name: /production solaire/i }),
     );
@@ -653,7 +723,7 @@ describe("accueil et erreurs de décision", () => {
   test.each([
     [502, "Le service IA n'est pas disponible. Réessayez."],
     [504, "La décision IA a pris trop de temps. Réessayez."],
-    [422, "La décision proposée par l'IA n'est pas valide. L'enquête reste inchangée."],
+    [422, "La décision proposée n'est pas valide. Le diagnostic reste inchangé."],
     [500, "Une erreur interne est survenue."],
   ])("affiche l'erreur de création %s", async (status, message) => {
     const user = userEvent.setup();
@@ -668,10 +738,7 @@ describe("accueil et erreurs de décision", () => {
     );
 
     render(<App />);
-    await user.type(screen.getByLabelText(/problème rencontré/i), "Production faible.");
-    await user.click(
-      screen.getByRole("button", { name: /commencer l'investigation/i }),
-    );
+    await launchInvestigation(user, "Production faible.");
 
     expect(await screen.findByText(message)).toBeInTheDocument();
     expect(screen.queryByText(/private secret/i)).not.toBeInTheDocument();

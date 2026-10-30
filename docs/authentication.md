@@ -14,17 +14,16 @@ Dans le tableau Clerk :
 2. Activez **Email** et **Google**.
 3. Laissez GitHub désactivé pour cette version.
 4. Activez **Organizations**.
-5. En development, créez les rôles d'organisation `org:owner`, `org:technician` et `org:reader`, puis ajoutez-les au jeu de rôles par défaut. Les rôles système `admin` et `member` n'ouvrent aucun diagnostic.
-6. Créez les permissions personnalisées et assignez-les :
+5. Gardez les rôles gratuits `org:admin` et `org:member`. Ne créez pas de rôles personnalisés.
+6. Créez les permissions et assignez-les :
    - `org:diagnostic:read`
    - `org:diagnostic:create`
    - `org:diagnostic:operate`
    - `org:organization:manage`
-   - owner : les quatre
-   - technician : les trois permissions `diagnostic`
-   - reader : `org:diagnostic:read` seulement
+   - `org:admin` : les quatre
+   - `org:member` : les trois permissions `diagnostic`
 7. Créez une organisation, par exemple « BINTU Demo », et un utilisateur de migration.
-8. En production, les rôles personnalisés demandent l'option B2B Authentication de Clerk. Tant qu'elle n'est pas active, ne renommez pas `admin` en owner.
+8. Le rôle lecture seule est reporté. Il n'existe pas dans cette version.
 
 ## 2. Variables
 
@@ -81,4 +80,4 @@ Le bouton de déconnexion appelle Clerk. Une ancienne clé `bintu-session` dans 
 
 Créez un diagnostic depuis l'application. Il est enregistré avec l'organisation et l'utilisateur du jeton vérifié, pas avec une valeur envoyée par le formulaire.
 Un utilisateur d'une autre organisation reçoit 404 s'il demande cet identifiant.
-Un reader peut le consulter. Il ne peut pas le créer ni le modifier.
+Un membre de l'organisation peut le créer et le modifier. Un admin peut en plus gérer l'organisation. Une autre organisation reçoit 404.

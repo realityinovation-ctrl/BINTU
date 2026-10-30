@@ -1,4 +1,8 @@
-"""BINTU authorization. Permissions come from a verified context, never from JSON."""
+"""BINTU authorization. Permissions come from a verified context, never from JSON.
+
+Free Clerk organization roles only: org:admin and org:member.
+A verified permission list in the token still replaces this map.
+"""
 
 from __future__ import annotations
 
@@ -19,7 +23,7 @@ KNOWN_PERMISSIONS = frozenset(
 )
 
 ROLE_PERMISSIONS: dict[str, frozenset[str]] = {
-    "owner": frozenset(
+    "admin": frozenset(
         {
             DIAGNOSTIC_READ,
             DIAGNOSTIC_CREATE,
@@ -27,10 +31,9 @@ ROLE_PERMISSIONS: dict[str, frozenset[str]] = {
             ORGANIZATION_MANAGE,
         }
     ),
-    "technician": frozenset(
+    "member": frozenset(
         {DIAGNOSTIC_READ, DIAGNOSTIC_CREATE, DIAGNOSTIC_OPERATE}
     ),
-    "reader": frozenset({DIAGNOSTIC_READ}),
 }
 
 

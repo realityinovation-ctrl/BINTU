@@ -38,14 +38,14 @@ def context_for(
     )
 
 
-def technician_authenticator() -> FixedAuthenticator:
+def member_authenticator() -> FixedAuthenticator:
     return FixedAuthenticator(
-        context_for("technician", user_id=TEST_USER_ID)
+        context_for("member", user_id=TEST_USER_ID)
     )
 
 
 def authenticated_app(**kwargs: Any) -> FastAPI:
-    kwargs.setdefault("authenticator", technician_authenticator())
+    kwargs.setdefault("authenticator", member_authenticator())
     return create_app(**kwargs)
 
 

@@ -22,8 +22,13 @@ from bintu_backend.authentication import (
     context_from_payload,
 )
 from bintu_backend.authorization import (
+    DIAGNOSTIC_CREATE,
+    DIAGNOSTIC_OPERATE,
     DIAGNOSTIC_READ,
+    ORGANIZATION_MANAGE,
     ROLE_PERMISSIONS,
+    PermissionDenied,
+    authorize,
 )
 from bintu_backend.migration import claim_demo_organization
 from tests.auth_support import (
@@ -179,7 +184,7 @@ def test_missing_organization_is_forbidden(tmp_path: Path) -> None:
     client = _client(
         tmp_path,
         FixedAuthenticator(
-            context_for("technician", organization_id=None, user_id=TEST_USER_ID)
+            context_for("member", organization_id=None, user_id=TEST_USER_ID)
         ),
     )
 
@@ -189,12 +194,49 @@ def test_missing_organization_is_forbidden(tmp_path: Path) -> None:
     assert response.json() == {"detail": "Active organization required"}
 
 
-def test_default_clerk_roles_are_not_bintu_roles(tmp_path: Path) -> None:
-    context = context_from_payload(
-        {"sub": "user_admin", "org_id": TEST_ORGANIZATION_ID, "org_role": "admin"}
+def test_free_clerk_roles_map_to_bintu_permissions() -> None:
+    admin = context_from_payload(
+        {
+            "sub": "user_admin",
+            "org_id": TEST_ORGANIZATION_ID,
+            "org_role": "org:admin",
+        }
     )
-    assert context.role is None
-    assert context.permissions == frozenset()
+    member = context_from_payload(
+        {
+            "sub": "user_member",
+            "org_id": TEST_ORGANIZATION_ID,
+            "org_role": "member",
+        }
+    )
+    unknown = context_from_payload(
+        {
+            "sub": "user_owner",
+            "org_id": TEST_ORGANIZATION_ID,
+            "org_role": "org:owner",
+        }
+    )
+
+    assert admin.role == "admin"
+    assert admin.permissions == ROLE_PERMISSIONS["admin"]
+    assert ORGANIZATION_MANAGE in admin.permissions
+    authorize(admin, ORGANIZATION_MANAGE)
+    authorize(admin, DIAGNOSTIC_OPERATE)
+    assert member.role == "member"
+    assert member.permissions == frozenset(
+        {DIAGNOSTIC_READ, DIAGNOSTIC_CREATE, DIAGNOSTIC_OPERATE}
+    )
+    assert ORGANIZATION_MANAGE not in member.permissions
+    with pytest.raises(PermissionDenied):
+        authorize(member, ORGANIZATION_MANAGE)
+    assert unknown.role is None
+    assert unknown.permissions == frozenset()
+
+
+def test_unknown_role_cannot_read_a_diagnostic(tmp_path: Path) -> None:
+    context = context_from_payload(
+        {"sub": "user_owner", "org_id": TEST_ORGANIZATION_ID, "org_role": "org:reader"}
+    )
     client = _client(tmp_path, FixedAuthenticator(context))
 
     response = client.get("/api/investigations")
@@ -208,11 +250,11 @@ def test_verified_token_permissions_override_the_role_name(tmp_path: Path) -> No
         {
             "sub": TEST_USER_ID,
             "org_id": TEST_ORGANIZATION_ID,
-            "org_role": "org:owner",
+            "org_role": "org:admin",
             "org_permissions": ["org:diagnostic:read"],
         }
     )
-    assert context.role == "owner"
+    assert context.role == "admin"
     assert context.permissions == frozenset({DIAGNOSTIC_READ})
     client = _client(tmp_path, FixedAuthenticator(context))
 
@@ -226,15 +268,15 @@ def test_verified_token_permissions_override_the_role_name(tmp_path: Path) -> No
 def test_raw_v2_organization_claim_is_accepted() -> None:
     context = context_from_payload(
         {
-            "sub": "user_reader",
+            "sub": "user_member",
             "v": 2,
-            "o": {"id": TEST_ORGANIZATION_ID, "rol": "reader"},
+            "o": {"id": TEST_ORGANIZATION_ID, "rol": "member"},
         }
     )
 
     assert context.organization_id == TEST_ORGANIZATION_ID
-    assert context.role == "reader"
-    assert context.permissions == ROLE_PERMISSIONS["reader"]
+    assert context.role == "member"
+    assert context.permissions == ROLE_PERMISSIONS["member"]
 
 
 def test_pending_session_has_no_organization() -> None:
@@ -243,7 +285,7 @@ def test_pending_session_has_no_organization() -> None:
             "sub": TEST_USER_ID,
             "sts": "pending",
             "org_id": TEST_ORGANIZATION_ID,
-            "org_role": "technician",
+            "org_role": "member",
         }
     )
 
@@ -251,10 +293,10 @@ def test_pending_session_has_no_organization() -> None:
     assert context.permissions == frozenset()
 
 
-def test_technician_create_uses_the_verified_organization(tmp_path: Path) -> None:
+def test_member_create_uses_the_verified_organization(tmp_path: Path) -> None:
     database = tmp_path / "access.sqlite3"
     client = _client(tmp_path, FixedAuthenticator(context_for(
-        "technician", user_id=TEST_USER_ID
+        "member", user_id=TEST_USER_ID
     )))
     investigation_id = _create(client)
 
@@ -278,32 +320,84 @@ def test_technician_create_uses_the_verified_organization(tmp_path: Path) -> Non
     assert listed.json()[0]["investigation_id"] == investigation_id
 
 
-def test_reader_can_read_but_cannot_change_a_diagnostic(tmp_path: Path) -> None:
+def test_admin_and_member_can_operate_inside_their_organization(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "roles.sqlite3"
+    admin = TestClient(
+        create_app(
+            database_path=database,
+            provider_factory=AskingProvider,
+            authenticator=FixedAuthenticator(
+                context_for("admin", user_id="user_test_admin")
+            ),
+        )
+    )
+    investigation_id = _create(admin)
+    assert admin.get(f"/api/investigations/{investigation_id}").status_code == 200
+    assert (
+        admin.post(
+            f"/api/investigations/{investigation_id}/message",
+            json={"message": "Observation admin."},
+        ).status_code
+        == 200
+    )
+
+    member = TestClient(
+        create_app(
+            database_path=database,
+            provider_factory=AskingProvider,
+            authenticator=FixedAuthenticator(
+                context_for("member", user_id=TEST_USER_ID)
+            ),
+        )
+    )
+    assert member.get(f"/api/investigations/{investigation_id}").status_code == 200
+    created = member.post(
+        "/api/investigations", json={"problem": "Second diagnostic."}
+    )
+    assert created.status_code == 201
+    member_id = created.json()["investigation_id"]
+    assert (
+        member.post(
+            f"/api/investigations/{member_id}/message",
+            json={"message": "Observation membre."},
+        ).status_code
+        == 200
+    )
+
+
+def test_read_only_permissions_cannot_change_a_diagnostic(tmp_path: Path) -> None:
     database = tmp_path / "shared.sqlite3"
-    technician = TestClient(
+    member = TestClient(
         authenticated_app(
             database_path=database, provider_factory=AskingProvider
         )
     )
-    investigation_id = _create(technician)
-    reader = TestClient(
+    investigation_id = _create(member)
+    limited = TestClient(
         create_app(
             database_path=database,
             provider_factory=AskingProvider,
-            authenticator=FixedAuthenticator(context_for("reader")),
+            authenticator=FixedAuthenticator(
+                context_for(
+                    "member",
+                    permissions=frozenset({DIAGNOSTIC_READ}),
+                )
+            ),
         )
     )
 
-    assert reader.get(f"/api/investigations/{investigation_id}").status_code == 200
-    assert reader.get("/api/investigations").status_code == 200
-    assert reader.post(
+    assert limited.get(f"/api/investigations/{investigation_id}").status_code == 200
+    assert limited.get("/api/investigations").status_code == 200
+    assert limited.post(
         "/api/investigations", json={"problem": "Interdit."}
     ).status_code == 403
-    message = reader.post(
+    message = limited.post(
         f"/api/investigations/{investigation_id}/message",
         json={"message": "non"},
     )
-    measurement = reader.post(
+    measurement = limited.post(
         f"/api/investigations/{investigation_id}/measurement",
         json={
             "measurement_type": "dc_voltage",
@@ -312,11 +406,11 @@ def test_reader_can_read_but_cannot_change_a_diagnostic(tmp_path: Path) -> None:
             "location": "bornes",
         },
     )
-    image = reader.post(
+    image = limited.post(
         f"/api/investigations/{investigation_id}/image",
         files={"image": ("panel.png", PNG_BYTES, "image/png")},
     )
-    audio = reader.post(
+    audio = limited.post(
         f"/api/investigations/{investigation_id}/transcribe",
         files={"audio": ("recording.wav", b"RIFF", "audio/wav")},
     )
@@ -330,19 +424,19 @@ def test_reader_can_read_but_cannot_change_a_diagnostic(tmp_path: Path) -> None:
 
 def test_another_organization_receives_not_found(tmp_path: Path) -> None:
     database = tmp_path / "shared.sqlite3"
-    owner = TestClient(
+    admin = TestClient(
         authenticated_app(
             database_path=database, provider_factory=AskingProvider
         )
     )
-    investigation_id = _create(owner)
+    investigation_id = _create(admin)
     outsider = TestClient(
         create_app(
             database_path=database,
             provider_factory=AskingProvider,
             authenticator=FixedAuthenticator(
                 context_for(
-                    "technician",
+                    "member",
                     organization_id=OTHER_ORGANIZATION_ID,
                     user_id="user_test_other",
                 )
@@ -368,7 +462,7 @@ def test_another_organization_receives_not_found(tmp_path: Path) -> None:
         ).status_code
         == 404
     )
-    assert owner.get(f"/api/investigations/{investigation_id}").status_code == 200
+    assert admin.get(f"/api/investigations/{investigation_id}").status_code == 200
 
 
 def test_local_cors_allows_the_bearer_header(tmp_path: Path) -> None:

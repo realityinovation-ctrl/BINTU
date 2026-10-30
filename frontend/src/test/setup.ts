@@ -25,7 +25,7 @@ const { clerkState } = vi.hoisted(() => {
     isSignedIn: true,
     userId: "user_test_technician",
     orgId: "org_test_alpha",
-    orgRole: "org:technician",
+    orgRole: "org:member",
     orgName: "BINTU Demo",
     fullName: "Marc Laurent",
     firstName: "Marc",
@@ -41,7 +41,7 @@ export function resetClerkState() {
   clerkState.isSignedIn = true;
   clerkState.userId = "user_test_technician";
   clerkState.orgId = "org_test_alpha";
-  clerkState.orgRole = "org:technician";
+  clerkState.orgRole = "org:member";
   clerkState.orgName = "BINTU Demo";
   clerkState.fullName = "Marc Laurent";
   clerkState.firstName = "Marc";

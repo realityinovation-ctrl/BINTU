@@ -21,12 +21,16 @@ Le test `tests/test_parity_fixtures.py` échoue si un fichier ne correspond plus
 ## Comportements couverts
 
 - Création puis première décision
+- Échec de la première décision à la création : l'état reste à l'étape 0, sans chronologie
+- `advance()` refusé quand le statut n'est pas `investigating`
 - Question, puis réponse du technicien
 - Mesure valide, type inconnu, mauvaise unité, valeur non finie
 - Image acceptée, et refusée si l'action en attente n'est pas `analyze_image`
 - Comparaison de deux mesures
 - Conclusion valide avec une mesure citée
+- Conclusion acceptée à confiance exactement 0,7 sans mesure citée
 - Conclusion refusée au-dessus de 0,7 sans mesure citée
+- Conclusion refusée sans modifier `step_count` ni la chronologie
 - Conclusion refusée si elle ne cite qu'une image
 - Fin explicite pour informations insuffisantes
 - Plafond `max_steps` = 20, sans appeler le fournisseur
@@ -34,6 +38,7 @@ Le test `tests/test_parity_fixtures.py` échoue si un fichier ne correspond plus
 - Une conclusion n'est pas traitée comme une répétition
 - Élimination sans preuve contradictoire forte
 - Hypothèse déjà éliminée qui le reste
+- Statut d'hypothèse dérivé par le Core : une proposition différente est refusée
 - Refus d'ouvrir un conducteur sous tension
 - `generate_report` refusé sans modifier l'état
 - Ancien document `installation` relu en `system` : les `null` disparaissent, les valeurs connues restent

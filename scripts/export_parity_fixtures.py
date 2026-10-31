@@ -28,12 +28,15 @@ from bintu_agent_core.models import (
     CompareMeasurementsArguments,
     DiagnosticSystem,
     FinishInvestigationArguments,
+    EvidenceRelation,
+    EvidenceStrength,
     FinishOutcome,
     GenerateReportArguments,
     HypothesisId,
     HypothesisStatus,
     HypothesisUpdate,
     InvestigationState,
+    InvestigationStatus,
     Problem,
     RequestMeasurementArguments,
     ToolName,
@@ -118,6 +121,12 @@ def _image(focus: str = "poussière sur le champ") -> AgentDecision:
         ),
         reason="Voir ce que la photo montre.",
     )
+
+
+def _completed(investigation_id: str) -> InvestigationState:
+    state = _state(investigation_id)
+    state.status = InvestigationStatus.COMPLETED
+    return state
 
 
 def _state(investigation_id: str) -> InvestigationState:
@@ -240,6 +249,8 @@ def _run(case: Case) -> dict[str, Any]:
                 str(case.submission["statement"]),
                 float(case.submission["certainty"]),
             )
+        elif case.operation == "advance_provider_exhausted":
+            InvestigationEngine(state, MockAIProvider([])).advance()
         else:
             raise RuntimeError(f"unknown operation {case.operation}")
     except Exception as exc:
@@ -660,6 +671,77 @@ def cases() -> list[Case]:
             legacy_document=legacy_document,
         ),
         Case("electric_motor", "persistence", "sqlite_roundtrip", motor),
+        Case(
+            "confidence_at_limit_without_measurement",
+            "conclusion",
+            "advance",
+            _answered("parity-confidence-limit"),
+            decision=AgentDecision(
+                tool_name=ToolName.FINISH_INVESTIGATION,
+                arguments=FinishInvestigationArguments(
+                    outcome=FinishOutcome.DIAGNOSED,
+                    diagnosis="La réponse suffit à cette confiance.",
+                    confidence=0.7,
+                    evidence=["answer-1"],
+                    distinguishes=[HypothesisId.H0, HypothesisId.H1],
+                ),
+                reason="La limite haute accepte une réponse sans mesure.",
+            ),
+        ),
+        Case(
+            "advance_outside_investigating",
+            "transition",
+            "advance",
+            _completed("parity-not-investigating"),
+            decision=_ask("Cette question ne doit pas partir."),
+        ),
+        Case(
+            "status_derived_by_core",
+            "hypothesis",
+            "advance",
+            _answered("parity-derived-status", "Question initiale ?"),
+            decision=AgentDecision(
+                tool_name=ToolName.ASK_TECHNICIAN,
+                arguments=AskTechnicianArguments(
+                    question="Question suivante ?",
+                    distinguishes=[HypothesisId.H1],
+                ),
+                reason="Le statut proposé ne doit pas être recopié.",
+                hypothesis_updates=[
+                    HypothesisUpdate(
+                        hypothesis_id=HypothesisId.H1,
+                        relation=EvidenceRelation.SUPPORTING,
+                        strength=EvidenceStrength.INDICATIVE,
+                        status=HypothesisStatus.SUPPORTED,
+                        evidence_ids=["answer-1"],
+                        reason="L'IA propose un statut plus fort que la dérivation.",
+                    )
+                ],
+            ),
+        ),
+        Case(
+            "first_decision_failed",
+            "creation",
+            "advance_provider_exhausted",
+            _state("parity-create-failed"),
+        ),
+        Case(
+            "refused_conclusion_unchanged",
+            "conclusion",
+            "advance",
+            _answered("parity-refused-conclusion"),
+            decision=AgentDecision(
+                tool_name=ToolName.FINISH_INVESTIGATION,
+                arguments=FinishInvestigationArguments(
+                    outcome=FinishOutcome.DIAGNOSED,
+                    diagnosis="Conclusion refusée.",
+                    confidence=0.8,
+                    evidence=["answer-1"],
+                    distinguishes=[HypothesisId.H0, HypothesisId.H1],
+                ),
+                reason="Cette conclusion ne doit rien écrire.",
+            ),
+        ),
     ]
 
 

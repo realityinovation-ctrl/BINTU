@@ -3,9 +3,11 @@ import { InvestigationEngine } from "../../src/core/engine";
 import { normalizeLegacySystem } from "../../src/core/legacySystem";
 import {
   dumpState,
+  hypothesisImpactSchema,
   parseDecision,
   parseState,
   type AgentDecision,
+  type HypothesisImpact,
   type InvestigationState,
 } from "../../src/core/models";
 import type { AIProvider } from "../../src/core/ports/aiProvider";
@@ -130,6 +132,13 @@ function run(state: InvestigationState, fixture: Fixture): void {
       String(submission.statement),
       Number(submission.certainty),
     );
+    return;
+  }
+  if (fixture.operation === "apply_verification_impacts") {
+    const impacts = hypothesisImpactSchema
+      .array()
+      .parse(submission.impacts) as HypothesisImpact[];
+    engine.applyVerificationImpacts(String(submission.verification_id), impacts);
     return;
   }
   throw new Error(`unknown operation ${fixture.operation}`);

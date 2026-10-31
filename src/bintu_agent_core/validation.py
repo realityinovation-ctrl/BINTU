@@ -12,6 +12,8 @@ from bintu_agent_core.errors import (
 from bintu_agent_core.measurement_catalog import MEASUREMENT_CATALOG
 from bintu_agent_core.models import (
     AgentDecision,
+    AnalyzeImageArguments,
+    AskTechnicianArguments,
     CompareMeasurementsArguments,
     EvidenceRelation,
     EvidenceSourceType,
@@ -24,10 +26,101 @@ from bintu_agent_core.models import (
     HypothesisUpdate,
     InvestigationState,
     RequestMeasurementArguments,
+    TimelineEventType,
 )
 
 
 HIGH_CONFIDENCE_LIMIT = 0.7
+
+
+def _fold(value: str) -> str:
+    return " ".join(value.split()).casefold()
+
+
+def action_signature(decision: AgentDecision) -> list[str] | None:
+    """Stable identity of an action. A valid finish is never repetitive."""
+
+    arguments = decision.arguments
+    if isinstance(arguments, (FinishInvestigationArguments, GenerateReportArguments)):
+        return None
+    if isinstance(arguments, AskTechnicianArguments):
+        return ["ask_technician", _fold(arguments.question)]
+    if isinstance(arguments, RequestMeasurementArguments):
+        return [
+            "request_measurement",
+            arguments.measurement_type.strip(),
+            arguments.unit.strip(),
+            _fold(arguments.location),
+        ]
+    if isinstance(arguments, AnalyzeImageArguments):
+        return ["analyze_image", _fold(arguments.focus)]
+    if isinstance(arguments, CompareMeasurementsArguments):
+        return ["compare_measurements", *sorted(arguments.measurement_ids)]
+    return None
+
+
+def _direct_evidence(state: InvestigationState, action_id: object) -> set[str]:
+    if not isinstance(action_id, str):
+        return set()
+    evidence_ids: set[str] = set()
+    for verification in state.verifications.values():
+        if verification.action_id == action_id:
+            evidence_ids.update(verification.evidence_ids)
+    return evidence_ids
+
+
+def _evidence_after(state: InvestigationState, evidence_id: str) -> set[str]:
+    keys = list(state.evidence)
+    if evidence_id not in keys:
+        return set()
+    return set(keys[keys.index(evidence_id) + 1 :])
+
+
+def _measurement_repeat_without_later_evidence(
+    state: InvestigationState, signature: list[str]
+) -> bool:
+    if signature[0] != "request_measurement":
+        return False
+    _, measurement_type, unit, location = signature
+    for measurement in state.measurements.values():
+        if (
+            measurement.measurement_type == measurement_type
+            and measurement.unit == unit
+            and _fold(measurement.location) == location
+            and not _evidence_after(state, measurement.id)
+        ):
+            return True
+    return False
+
+
+def assert_decision_is_not_repetitive(
+    state: InvestigationState, decision: AgentDecision
+) -> None:
+    """Reject an action already tried when no later evidence justifies it."""
+
+    signature = action_signature(decision)
+    if signature is None:
+        return
+    last_match = None
+    for event in state.timeline:
+        if (
+            event.event_type is TimelineEventType.DECISION_RECORDED
+            and event.details.get("signature") == signature
+        ):
+            last_match = event
+    if last_match is None:
+        if _measurement_repeat_without_later_evidence(state, signature):
+            raise DecisionValidationError(
+                "repetitive action does not add diagnostic information"
+            )
+        return
+    previous_evidence = set(last_match.details.get("evidence_ids") or [])
+    direct_evidence = _direct_evidence(state, last_match.details.get("action_id"))
+    new_evidence = set(state.evidence) - previous_evidence - direct_evidence
+    if not new_evidence:
+        raise DecisionValidationError(
+            "repetitive action does not add diagnostic information"
+        )
 
 
 def _normalized_text(decision: AgentDecision) -> str:

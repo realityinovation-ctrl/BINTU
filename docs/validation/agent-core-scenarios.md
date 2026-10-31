@@ -273,6 +273,11 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H0",
         "H3"
+      ],
+      "evidence_ids": [],
+      "signature": [
+        "ask_technician",
+        "la batterie indique-t-elle une charge complète ?"
       ]
     }
   },
@@ -497,6 +502,9 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H0",
         "H3"
+      ],
+      "evidence_ids": [
+        "answer-full"
       ]
     }
   },
@@ -620,6 +628,11 @@ Preuves justifiant ces changements :
         "distinguishes": [
           "H0",
           "H3"
+        ],
+        "evidence_ids": [],
+        "signature": [
+          "ask_technician",
+          "la batterie indique-t-elle une charge complète ?"
         ]
       }
     },
@@ -728,6 +741,9 @@ Preuves justifiant ces changements :
         "distinguishes": [
           "H0",
           "H3"
+        ],
+        "evidence_ids": [
+          "answer-full"
         ]
       }
     },
@@ -766,6 +782,11 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H0",
         "H3"
+      ],
+      "evidence_ids": [],
+      "signature": [
+        "ask_technician",
+        "la batterie indique-t-elle une charge complète ?"
       ]
     }
   },
@@ -874,6 +895,9 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H0",
         "H3"
+      ],
+      "evidence_ids": [
+        "answer-full"
       ]
     }
   },
@@ -1080,6 +1104,13 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [],
+      "signature": [
+        "request_measurement",
+        "dc_voltage",
+        "V",
+        "sortie du champ pv"
       ]
     }
   },
@@ -1287,6 +1318,15 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [
+        "m-array"
+      ],
+      "signature": [
+        "request_measurement",
+        "dc_voltage",
+        "V",
+        "entrée pv de l'onduleur"
       ]
     }
   },
@@ -1569,6 +1609,15 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [
+        "m-array",
+        "m-inverter"
+      ],
+      "signature": [
+        "compare_measurements",
+        "m-array",
+        "m-inverter"
       ]
     }
   },
@@ -1775,6 +1824,11 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [
+        "comparison-3",
+        "m-array",
+        "m-inverter"
       ]
     }
   },
@@ -1977,6 +2031,13 @@ Preuves justifiant ces changements :
         "distinguishes": [
           "H1",
           "H2"
+        ],
+        "evidence_ids": [],
+        "signature": [
+          "request_measurement",
+          "dc_voltage",
+          "V",
+          "sortie du champ pv"
         ]
       }
     },
@@ -2057,6 +2118,15 @@ Preuves justifiant ces changements :
         "distinguishes": [
           "H1",
           "H2"
+        ],
+        "evidence_ids": [
+          "m-array"
+        ],
+        "signature": [
+          "request_measurement",
+          "dc_voltage",
+          "V",
+          "entrée pv de l'onduleur"
         ]
       }
     },
@@ -2137,6 +2207,15 @@ Preuves justifiant ces changements :
         "distinguishes": [
           "H1",
           "H2"
+        ],
+        "evidence_ids": [
+          "m-array",
+          "m-inverter"
+        ],
+        "signature": [
+          "compare_measurements",
+          "m-array",
+          "m-inverter"
         ]
       }
     },
@@ -2223,6 +2302,11 @@ Preuves justifiant ces changements :
         "distinguishes": [
           "H1",
           "H2"
+        ],
+        "evidence_ids": [
+          "comparison-3",
+          "m-array",
+          "m-inverter"
         ]
       }
     },
@@ -2265,6 +2349,13 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [],
+      "signature": [
+        "request_measurement",
+        "dc_voltage",
+        "V",
+        "sortie du champ pv"
       ]
     }
   },
@@ -2345,6 +2436,15 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [
+        "m-array"
+      ],
+      "signature": [
+        "request_measurement",
+        "dc_voltage",
+        "V",
+        "entrée pv de l'onduleur"
       ]
     }
   },
@@ -2425,6 +2525,15 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [
+        "m-array",
+        "m-inverter"
+      ],
+      "signature": [
+        "compare_measurements",
+        "m-array",
+        "m-inverter"
       ]
     }
   },
@@ -2511,6 +2620,11 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [
+        "comparison-3",
+        "m-array",
+        "m-inverter"
       ]
     }
   },
@@ -2756,6 +2870,11 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H0",
         "H1"
+      ],
+      "evidence_ids": [],
+      "signature": [
+        "analyze_image",
+        "rechercher des dépôts ou ombrages visibles."
       ]
     }
   },
@@ -2979,6 +3098,15 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [
+        "image-dust"
+      ],
+      "signature": [
+        "request_measurement",
+        "dc_voltage",
+        "V",
+        "sortie du champ pv"
       ]
     }
   },
@@ -3188,6 +3316,16 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [
+        "image-dust",
+        "m-array"
+      ],
+      "signature": [
+        "request_measurement",
+        "dc_voltage",
+        "V",
+        "entrée pv de l'onduleur"
       ]
     }
   },
@@ -3472,6 +3610,16 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [
+        "image-dust",
+        "m-array",
+        "m-inverter"
+      ],
+      "signature": [
+        "compare_measurements",
+        "m-array",
+        "m-inverter"
       ]
     }
   },
@@ -3681,6 +3829,12 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [
+        "comparison-4",
+        "image-dust",
+        "m-array",
+        "m-inverter"
       ]
     }
   },
@@ -3922,6 +4076,11 @@ Preuves justifiant ces changements :
         "distinguishes": [
           "H0",
           "H1"
+        ],
+        "evidence_ids": [],
+        "signature": [
+          "analyze_image",
+          "rechercher des dépôts ou ombrages visibles."
         ]
       }
     },
@@ -4016,6 +4175,15 @@ Preuves justifiant ces changements :
         "distinguishes": [
           "H1",
           "H2"
+        ],
+        "evidence_ids": [
+          "image-dust"
+        ],
+        "signature": [
+          "request_measurement",
+          "dc_voltage",
+          "V",
+          "sortie du champ pv"
         ]
       }
     },
@@ -4096,6 +4264,16 @@ Preuves justifiant ces changements :
         "distinguishes": [
           "H1",
           "H2"
+        ],
+        "evidence_ids": [
+          "image-dust",
+          "m-array"
+        ],
+        "signature": [
+          "request_measurement",
+          "dc_voltage",
+          "V",
+          "entrée pv de l'onduleur"
         ]
       }
     },
@@ -4176,6 +4354,16 @@ Preuves justifiant ces changements :
         "distinguishes": [
           "H1",
           "H2"
+        ],
+        "evidence_ids": [
+          "image-dust",
+          "m-array",
+          "m-inverter"
+        ],
+        "signature": [
+          "compare_measurements",
+          "m-array",
+          "m-inverter"
         ]
       }
     },
@@ -4262,6 +4450,12 @@ Preuves justifiant ces changements :
         "distinguishes": [
           "H1",
           "H2"
+        ],
+        "evidence_ids": [
+          "comparison-4",
+          "image-dust",
+          "m-array",
+          "m-inverter"
         ]
       }
     },
@@ -4305,6 +4499,11 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H0",
         "H1"
+      ],
+      "evidence_ids": [],
+      "signature": [
+        "analyze_image",
+        "rechercher des dépôts ou ombrages visibles."
       ]
     }
   },
@@ -4399,6 +4598,15 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [
+        "image-dust"
+      ],
+      "signature": [
+        "request_measurement",
+        "dc_voltage",
+        "V",
+        "sortie du champ pv"
       ]
     }
   },
@@ -4479,6 +4687,16 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [
+        "image-dust",
+        "m-array"
+      ],
+      "signature": [
+        "request_measurement",
+        "dc_voltage",
+        "V",
+        "entrée pv de l'onduleur"
       ]
     }
   },
@@ -4559,6 +4777,16 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [
+        "image-dust",
+        "m-array",
+        "m-inverter"
+      ],
+      "signature": [
+        "compare_measurements",
+        "m-array",
+        "m-inverter"
       ]
     }
   },
@@ -4645,6 +4873,12 @@ Preuves justifiant ces changements :
       "distinguishes": [
         "H1",
         "H2"
+      ],
+      "evidence_ids": [
+        "comparison-4",
+        "image-dust",
+        "m-array",
+        "m-inverter"
       ]
     }
   },
@@ -4854,6 +5088,11 @@ Preuves justifiant ces changements :
         "H1",
         "H2",
         "H3"
+      ],
+      "evidence_ids": [],
+      "signature": [
+        "ask_technician",
+        "pouvez-vous relever l'état affiché par l'onduleur ?"
       ]
     }
   },
@@ -5054,6 +5293,9 @@ Preuves justifiant ces changements :
         "H1",
         "H2",
         "H3"
+      ],
+      "evidence_ids": [
+        "answer-unavailable"
       ]
     }
   },
@@ -5166,6 +5408,11 @@ Preuves justifiant ces changements :
           "H1",
           "H2",
           "H3"
+        ],
+        "evidence_ids": [],
+        "signature": [
+          "ask_technician",
+          "pouvez-vous relever l'état affiché par l'onduleur ?"
         ]
       }
     },
@@ -5248,6 +5495,9 @@ Preuves justifiant ces changements :
           "H1",
           "H2",
           "H3"
+        ],
+        "evidence_ids": [
+          "answer-unavailable"
         ]
       }
     },
@@ -5281,6 +5531,11 @@ Preuves justifiant ces changements :
         "H1",
         "H2",
         "H3"
+      ],
+      "evidence_ids": [],
+      "signature": [
+        "ask_technician",
+        "pouvez-vous relever l'état affiché par l'onduleur ?"
       ]
     }
   },
@@ -5363,6 +5618,9 @@ Preuves justifiant ces changements :
         "H1",
         "H2",
         "H3"
+      ],
+      "evidence_ids": [
+        "answer-unavailable"
       ]
     }
   },

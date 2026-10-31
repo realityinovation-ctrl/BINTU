@@ -26,11 +26,13 @@ from tests.auth_support import bind_investigation
 
 class AskingProvider:
     def decide_next(self, state: InvestigationState) -> AgentDecision:
-        del state
+        question = "Quel état est affiché par l'onduleur ?"
+        if state.observations:
+            question = "Depuis quand cette observation est-elle constatée ?"
         return AgentDecision(
             tool_name=ToolName.ASK_TECHNICIAN,
             arguments=AskTechnicianArguments(
-                question="Quel état est affiché par l'onduleur ?",
+                question=question,
                 distinguishes=[HypothesisId.H0, HypothesisId.H2],
             ),
             reason="Obtenir une observation du technicien.",

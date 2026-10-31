@@ -34,7 +34,11 @@ from bintu_agent_core.models import (
     Verification,
 )
 from bintu_agent_core.provider import AIProvider
-from bintu_agent_core.validation import validate_decision
+from bintu_agent_core.validation import (
+    action_signature,
+    assert_decision_is_not_repetitive,
+    validate_decision,
+)
 
 
 TERMINAL_STATUSES = {
@@ -73,23 +77,29 @@ class InvestigationEngine:
         decision = self.provider.decide_next(self.state.model_copy(deep=True))
 
         validate_decision(self.state, decision)
+        assert_decision_is_not_repetitive(self.state, decision)
         if isinstance(decision.arguments, GenerateReportArguments):
             raise UnsupportedToolError(
                 "generate_report is contracted but deferred in Agent Core v0.2"
             )
         self.state.step_count += 1
         action_id = f"action-{self.state.step_count}"
+        details: dict[str, object] = {
+            "action_id": action_id,
+            "tool_name": decision.tool_name.value,
+            "distinguishes": [
+                hypothesis_id.value
+                for hypothesis_id in decision.arguments.distinguishes
+            ],
+            "evidence_ids": sorted(self.state.evidence),
+        }
+        signature = action_signature(decision)
+        if signature is not None:
+            details["signature"] = signature
         self._event(
             TimelineEventType.DECISION_RECORDED,
             decision.reason,
-            {
-                "action_id": action_id,
-                "tool_name": decision.tool_name.value,
-                "distinguishes": [
-                    hypothesis_id.value
-                    for hypothesis_id in decision.arguments.distinguishes
-                ],
-            },
+            details,
         )
         self._apply_hypothesis_updates(action_id, decision.hypothesis_updates)
         self._dispatch(action_id, decision)

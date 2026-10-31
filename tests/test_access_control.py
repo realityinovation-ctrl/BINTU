@@ -46,7 +46,6 @@ PNG_BYTES = b"\x89PNG\r\n\x1a\nminimal-test-payload"
 
 class AskingProvider:
     def decide_next(self, state: object) -> object:
-        del state
         from bintu_agent_core.models import (
             AgentDecision,
             AskTechnicianArguments,
@@ -54,10 +53,13 @@ class AskingProvider:
             ToolName,
         )
 
+        question = "Quel état est affiché ?"
+        if getattr(state, "observations", None):
+            question = "Depuis quand cette observation est-elle constatée ?"
         return AgentDecision(
             tool_name=ToolName.ASK_TECHNICIAN,
             arguments=AskTechnicianArguments(
-                question="Quel état est affiché ?",
+                question=question,
                 distinguishes=[HypothesisId.H0, HypothesisId.H2],
             ),
             reason="Obtenir une observation.",

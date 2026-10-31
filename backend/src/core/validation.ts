@@ -1,6 +1,7 @@
 /** Backend-enforced decision and electrical-safety guardrails. */
 
 import { DecisionValidationError, SafetyViolationError } from "./errors";
+import { validateHypothesisUpdates } from "./hypotheses";
 import { MEASUREMENT_CATALOG } from "./measurementCatalog";
 import type { AgentDecision, InvestigationState } from "./models";
 import { pythonList, pythonQuoted } from "./pythonFormat";
@@ -74,6 +75,7 @@ export function validateDecision(
     );
   }
 
+  validateHypothesisUpdates(state, decision);
   validateSafety(decision);
 }
 

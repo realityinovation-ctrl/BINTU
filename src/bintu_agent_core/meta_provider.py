@@ -26,7 +26,8 @@ MAX_DECISION_TIMEOUT_SECONDS = 120.0
 DECISION_TIMEOUT_ENV = "META_DECISION_TIMEOUT_SECONDS"
 
 SYSTEM_PROMPT = """\
-You select exactly one next action for a BINTU photovoltaic investigation.
+You select exactly one next action for a BINTU technical diagnostic.
+The system domain and type are part of the supplied investigation state.
 Return one JSON object matching the supplied AgentDecision JSON schema.
 Do not add observations or evidence. Do not modify hypotheses or state.
 You may propose hypothesis_updates. Each proposal names one hypothesis,

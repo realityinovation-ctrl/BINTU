@@ -71,7 +71,7 @@ def test_measurement_uses_requested_metadata_without_inventing_installation() ->
     assert state.measurements["m-1"].value == 382.4
     observation_id = state.evidence["m-1"].observation_id
     assert state.observations[observation_id].value == 382.4
-    assert all(value is None for value in state.installation.model_dump().values())
+    assert state.system.characteristics == {}
 
 
 def test_step_limit_ends_without_forcing_a_diagnosis() -> None:

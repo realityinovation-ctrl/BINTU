@@ -394,6 +394,30 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _normalize_legacy_system(state_payload: dict) -> dict:
+    """Read a stored photovoltaic installation as a generic diagnosed system."""
+
+    if "system" in state_payload or "installation" not in state_payload:
+        return state_payload
+    installation = state_payload["installation"]
+    if not isinstance(installation, dict):
+        return state_payload
+    characteristics = {
+        key: value for key, value in installation.items() if value is not None
+    }
+    normalized = {
+        key: value for key, value in state_payload.items() if key != "installation"
+    }
+    normalized["system"] = {
+        "domain": "photovoltaic",
+        "type": "photovoltaic_installation",
+        "manufacturer": None,
+        "model": None,
+        "characteristics": characteristics,
+    }
+    return normalized
+
+
 def _serialize_state(state: InvestigationState) -> str:
     payload = {
         "schema_version": SCHEMA_VERSION,
@@ -421,9 +445,9 @@ def _deserialize_state(
             f"unsupported schema_version: {payload.get('schema_version')!r}"
         )
 
-    state_payload = {
-        key: value for key, value in payload.items() if key != "schema_version"
-    }
+    state_payload = _normalize_legacy_system(
+        {key: value for key, value in payload.items() if key != "schema_version"}
+    )
     try:
         restored = InvestigationState.model_validate(state_payload)
     except ValidationError as exc:

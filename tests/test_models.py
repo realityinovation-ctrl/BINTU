@@ -8,7 +8,6 @@ from bintu_agent_core.models import (
     FinishInvestigationArguments,
     FinishOutcome,
     HypothesisId,
-    InstallationData,
     InvestigationState,
     Observation,
     RequestMeasurementArguments,
@@ -16,11 +15,14 @@ from bintu_agent_core.models import (
 )
 
 
-def test_unknown_installation_values_stay_none() -> None:
+def test_new_investigation_defaults_to_the_photovoltaic_system() -> None:
     state = InvestigationState(investigation_id="inv-1")
 
-    assert state.installation == InstallationData()
-    assert all(value is None for value in state.installation.model_dump().values())
+    assert state.system.domain == "photovoltaic"
+    assert state.system.type == "photovoltaic_installation"
+    assert state.system.manufacturer is None
+    assert state.system.model is None
+    assert state.system.characteristics == {}
 
 
 def test_image_analysis_requires_certainty() -> None:

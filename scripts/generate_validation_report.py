@@ -222,7 +222,7 @@ def state_summary(state: InvestigationState) -> dict[str, Any]:
     return {
         "status": state.status.value,
         "step_count": state.step_count,
-        "installation": state.installation.model_dump(mode="json"),
+        "system": state.system.model_dump(mode="json"),
         "hypotheses": {
             hypothesis_id.value: hypothesis.model_dump(mode="json")
             for hypothesis_id, hypothesis in state.hypotheses.items()
@@ -407,7 +407,7 @@ def generate_report() -> str:
         (
             "Les mesures, réponses et analyses ci-dessous proviennent "
             "exclusivement des données de scénario déclarées dans le générateur. "
-            "Les données d'installation non fournies restent `null`."
+            "Les caractéristiques de système non fournies restent absentes."
         ),
         "",
         "Commande de régénération :",

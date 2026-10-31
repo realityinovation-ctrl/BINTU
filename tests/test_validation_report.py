@@ -10,20 +10,19 @@ def test_generated_report_is_current() -> None:
     assert REPORT_PATH.read_text(encoding="utf-8") == generate_report()
 
 
-def test_all_scenario_snapshots_keep_unknown_installation_values_null() -> None:
+def test_all_scenario_snapshots_keep_unknown_system_characteristics_absent() -> None:
     for definition in SCENARIOS:
         scenario = execute_scenario(definition)
-        installations = [
-            scenario["initial_state"]["installation"],
-            *[
-                step["state_after_step"]["installation"]
-                for step in scenario["steps"]
-            ],
-            scenario["final_state"]["installation"],
+        systems = [
+            scenario["initial_state"]["system"],
+            *[step["state_after_step"]["system"] for step in scenario["steps"]],
+            scenario["final_state"]["system"],
         ]
         assert all(
-            all(value is None for value in installation.values())
-            for installation in installations
+            system["domain"] == "photovoltaic"
+            and system["type"] == "photovoltaic_installation"
+            and system["characteristics"] == {}
+            for system in systems
         )
 
 

@@ -614,7 +614,7 @@ def _present(state: InvestigationState) -> InvestigationResponse:
                 if state.problem is not None
                 else None
             ),
-            "installation": state.installation.model_dump(mode="json"),
+            "system": state.system.model_dump(mode="json"),
             "measurement_catalog": [
                 {
                     "measurement_type": spec.measurement_type,

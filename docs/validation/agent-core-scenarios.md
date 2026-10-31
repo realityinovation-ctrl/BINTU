@@ -2,7 +2,7 @@
 
 Ce document est généré par l'exécution réelle de `InvestigationEngine` avec les décisions et résultats scriptés. Il valide la mécanique du moteur, pas l'intelligence diagnostique.
 
-Les mesures, réponses et analyses ci-dessous proviennent exclusivement des données de scénario déclarées dans le générateur. Les données d'installation non fournies restent `null`.
+Les mesures, réponses et analyses ci-dessous proviennent exclusivement des données de scénario déclarées dans le générateur. Les caractéristiques de système non fournies restent absentes.
 
 Commande de régénération :
 
@@ -23,13 +23,12 @@ Fixture de décisions : `normal_battery_full.json`.
   "step_count": 0,
   "max_steps": 20,
   "problem": null,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -218,13 +217,12 @@ Preuves justifiant ces changements :
 {
   "status": "investigating",
   "step_count": 1,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -447,13 +445,12 @@ Preuves justifiant ces changements :
 {
   "status": "completed",
   "step_count": 2,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -529,13 +526,12 @@ Preuves justifiant ces changements :
   "step_count": 2,
   "max_steps": 20,
   "problem": null,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -926,13 +922,12 @@ Fixture de décisions : `degraded_cable.json`.
   "step_count": 0,
   "max_steps": 20,
   "problem": null,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -1053,13 +1048,12 @@ Preuves justifiant ces changements :
 {
   "status": "investigating",
   "step_count": 1,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -1267,13 +1261,12 @@ Preuves justifiant ces changements :
 {
   "status": "investigating",
   "step_count": 2,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -1554,13 +1547,12 @@ Preuves justifiant ces changements :
 {
   "status": "investigating",
   "step_count": 3,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -1769,13 +1761,12 @@ Preuves justifiant ces changements :
 {
   "status": "completed",
   "step_count": 4,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -1853,13 +1844,12 @@ Preuves justifiant ces changements :
   "step_count": 4,
   "max_steps": 20,
   "problem": null,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -2653,13 +2643,12 @@ Fixture de décisions : `dust_photo_measurement_trap.json`.
   "step_count": 0,
   "max_steps": 20,
   "problem": null,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -2817,13 +2806,12 @@ Preuves justifiant ces changements :
 {
   "status": "investigating",
   "step_count": 1,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -3045,13 +3033,12 @@ Preuves justifiant ces changements :
 {
   "status": "investigating",
   "step_count": 2,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -3263,13 +3250,12 @@ Preuves justifiant ces changements :
 {
   "status": "investigating",
   "step_count": 3,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -3553,13 +3539,12 @@ Preuves justifiant ces changements :
 {
   "status": "investigating",
   "step_count": 4,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -3772,13 +3757,12 @@ Preuves justifiant ces changements :
 {
   "status": "completed",
   "step_count": 5,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -3859,13 +3843,12 @@ Preuves justifiant ces changements :
   "step_count": 5,
   "max_steps": 20,
   "problem": null,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -4907,13 +4890,12 @@ Fixture de décisions : `insufficient_information.json`.
   "step_count": 0,
   "max_steps": 20,
   "problem": null,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -5035,13 +5017,12 @@ Preuves justifiant ces changements :
 {
   "status": "investigating",
   "step_count": 1,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -5240,13 +5221,12 @@ Preuves justifiant ces changements :
 {
   "status": "insufficient_information",
   "step_count": 2,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {
@@ -5320,13 +5300,12 @@ Preuves justifiant ces changements :
   "step_count": 2,
   "max_steps": 20,
   "problem": null,
-  "installation": {
-    "nominal_power_kwp": null,
-    "panel_count": null,
-    "inverter_model": null,
-    "battery_present": null,
-    "battery_capacity_kwh": null,
-    "system_voltage_v": null
+  "system": {
+    "domain": "photovoltaic",
+    "type": "photovoltaic_installation",
+    "manufacturer": null,
+    "model": null,
+    "characteristics": {}
   },
   "hypotheses": {
     "H0": {

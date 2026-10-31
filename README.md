@@ -1,12 +1,42 @@
 # BINTU Agent Core
 
-BINTU Agent Core v0.2 est un package Python pur qui orchestre une investigation
-photovoltaïque sans dépendre d'un fournisseur d'IA, du réseau, d'une base de
+BINTU Agent Core v0.2 est un package Python pur qui orchestre un diagnostic
+technique sans dépendre d'un fournisseur d'IA, du réseau, d'une base de
 données ou d'un framework web.
 
 Le cœur sépare strictement les observations, les hypothèses, les vérifications
 et les conclusions. Toute information inconnue reste `None`. Les décisions d'un
 fournisseur sont validées par le cœur avant leur exécution.
+
+## Core et domaines
+
+BINTU possède un Core de diagnostic générique. Le photovoltaïque constitue
+actuellement le premier domaine implémenté et sert de domaine de validation.
+Les concepts propres au photovoltaïque ne sont pas des primitives universelles
+du Core.
+
+```text
+Core
+  ↓
+Domain
+  ↓
+System
+```
+
+Le Core raisonne sur un `DiagnosticSystem` : `domain`, `type`, fabricant,
+modèle, et un dictionnaire `characteristics`. Les hypothèses `H0` à `H3`
+restent les emplacements du contrat actuel. Leurs libellés photovoltaïques
+(panneaux, chaîne électrique, stockage) appartiennent au profil du domaine,
+pas au Core.
+
+Exemples conceptuels de `system.type` :
+
+- `photovoltaic_installation` — domaine implémenté, `domain = photovoltaic` ;
+- `electric_motor` — représentable, pas encore un domaine diagnostique ;
+- `industrial_inverter` — représentable, pas encore un domaine diagnostique.
+
+Un diagnostic créé aujourd'hui reste photovoltaïque tant qu'aucun autre
+domaine n'est choisi.
 
 ## Développement
 
@@ -212,7 +242,7 @@ codée.
 
 ## Invariants
 
-- une donnée d'installation inconnue reste `None` ;
+- une caractéristique de système inconnue n'est pas inventée ;
 - une décision ne s'exécute jamais avant validation ;
 - une élimination est dérivée uniquement d'une preuve contradictoire forte ;
 - une proposition `hypothesis_updates` est refusée si une preuve est absente,

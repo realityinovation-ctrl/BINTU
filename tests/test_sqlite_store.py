@@ -53,11 +53,16 @@ def test_create_investigation_persists_initial_state(tmp_path: Path) -> None:
 def test_save_and_read_investigation(tmp_path: Path) -> None:
     store = store_at(tmp_path)
     state = store.create_investigation()
-    state.installation.panel_count = 12
+    state.system.characteristics["panel_count"] = 12
 
     store.save_investigation(state)
 
-    assert store.get_investigation(state.investigation_id).installation.panel_count == 12
+    assert (
+        store.get_investigation(state.investigation_id).system.characteristics[
+            "panel_count"
+        ]
+        == 12
+    )
 
 
 def test_full_state_round_trip_is_equivalent(tmp_path: Path) -> None:
@@ -92,13 +97,18 @@ def test_multiple_investigations_are_independent(tmp_path: Path) -> None:
     store = store_at(tmp_path)
     first = store.create_investigation()
     second = store.create_investigation()
-    first.installation.panel_count = 8
+    first.system.characteristics["panel_count"] = 8
     store.save_investigation(first)
 
-    assert store.get_investigation(first.investigation_id).installation.panel_count == 8
     assert (
-        store.get_investigation(second.investigation_id).installation.panel_count
-        is None
+        store.get_investigation(first.investigation_id).system.characteristics[
+            "panel_count"
+        ]
+        == 8
+    )
+    assert (
+        store.get_investigation(second.investigation_id).system.characteristics
+        == {}
     )
 
 
@@ -115,15 +125,13 @@ def test_list_investigations_respects_limit(tmp_path: Path) -> None:
     assert all(summary.created_at and summary.updated_at for summary in summaries)
 
 
-def test_unknown_installation_values_remain_null(tmp_path: Path) -> None:
+def test_unknown_system_characteristics_remain_absent(tmp_path: Path) -> None:
     store = store_at(tmp_path)
     state = store.create_investigation()
 
     restored = store.get_investigation(state.investigation_id)
 
-    assert all(
-        value is None for value in restored.installation.model_dump().values()
-    )
+    assert restored.system.characteristics == {}
 
 
 def test_missing_investigation_is_explicit(tmp_path: Path) -> None:
@@ -161,7 +169,7 @@ def test_missing_json_fields_are_not_reconstructed_from_defaults(
                 (state.investigation_id,),
             ).fetchone()[0]
             payload = json.loads(raw)
-            del payload["installation"]
+            del payload["system"]
             connection.execute(
                 "UPDATE investigations SET state_json = ? WHERE id = ?",
                 (json.dumps(payload), state.investigation_id),

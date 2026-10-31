@@ -76,15 +76,6 @@ class TimelineEventType(StrEnum):
     ACTION_RESUMED = "action_resumed"
 
 
-class InstallationData(ContractModel):
-    nominal_power_kwp: float | None = None
-    panel_count: int | None = None
-    inverter_model: str | None = None
-    battery_present: bool | None = None
-    battery_capacity_kwh: float | None = None
-    system_voltage_v: float | None = None
-
-
 class Problem(ContractModel):
     description: str = Field(min_length=1)
 
@@ -280,6 +271,18 @@ class TimelineEvent(ContractModel):
     details: dict[str, Any] = Field(default_factory=dict)
 
 
+class DiagnosticSystem(ContractModel):
+    """Equipment under diagnosis. Domain facts live only in characteristics."""
+
+    domain: str = Field(default="photovoltaic", min_length=1)
+    type: str = Field(default="photovoltaic_installation", min_length=1)
+    manufacturer: str | None = None
+    model: str | None = None
+    characteristics: dict[str, str | bool | int | float | None] = Field(
+        default_factory=dict
+    )
+
+
 def initial_hypotheses() -> dict[HypothesisId, HypothesisState]:
     return {
         hypothesis_id: HypothesisState(hypothesis_id=hypothesis_id)
@@ -293,7 +296,7 @@ class InvestigationState(ContractModel):
     step_count: int = Field(default=0, ge=0)
     max_steps: int = Field(default=20, ge=1)
     problem: Problem | None = None
-    installation: InstallationData = Field(default_factory=InstallationData)
+    system: DiagnosticSystem = Field(default_factory=DiagnosticSystem)
     hypotheses: dict[HypothesisId, HypothesisState] = Field(
         default_factory=initial_hypotheses
     )

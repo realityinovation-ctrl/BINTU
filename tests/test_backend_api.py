@@ -129,9 +129,10 @@ def test_create_investigation_returns_initial_action(
         "Production solaire anormalement faible."
     )
     assert body["state"]["pending_action"]["tool_name"] == "ask_technician"
-    assert all(
-        value is None for value in body["state"]["installation"].values()
-    )
+    system = body["state"]["system"]
+    assert system["domain"] == "photovoltaic"
+    assert system["type"] == "photovoltaic_installation"
+    assert system["characteristics"] == {}
 
 
 def test_get_existing_investigation(api: tuple[TestClient, Path]) -> None:

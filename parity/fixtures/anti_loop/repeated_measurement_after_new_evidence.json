@@ -1,0 +1,673 @@
+{
+  "category": "anti_loop",
+  "decision": {
+    "arguments": {
+      "distinguishes": [
+        "H1",
+        "H2"
+      ],
+      "location": "onduleur",
+      "measurement_type": "dc_voltage",
+      "unit": "V"
+    },
+    "reason": "Mesurer le point demandé.",
+    "tool_name": "request_measurement"
+  },
+  "expected": {
+    "state": {
+      "conclusion": null,
+      "evidence": {
+        "answer-shade": {
+          "certainty": null,
+          "id": "answer-shade",
+          "observation_id": "observation:answer-shade",
+          "source_id": "action-2",
+          "source_type": "technician_answer"
+        },
+        "m-1": {
+          "certainty": null,
+          "id": "m-1",
+          "observation_id": "observation:m-1",
+          "source_id": "m-1",
+          "source_type": "measurement"
+        }
+      },
+      "hypotheses": {
+        "H0": {
+          "contradictory_evidence_ids": [],
+          "hypothesis_id": "H0",
+          "status": "unexplored",
+          "supporting_evidence_ids": []
+        },
+        "H1": {
+          "contradictory_evidence_ids": [],
+          "hypothesis_id": "H1",
+          "status": "unexplored",
+          "supporting_evidence_ids": []
+        },
+        "H2": {
+          "contradictory_evidence_ids": [],
+          "hypothesis_id": "H2",
+          "status": "unexplored",
+          "supporting_evidence_ids": []
+        },
+        "H3": {
+          "contradictory_evidence_ids": [],
+          "hypothesis_id": "H3",
+          "status": "unexplored",
+          "supporting_evidence_ids": []
+        }
+      },
+      "investigation_id": "parity-repeat-after-evidence",
+      "max_steps": 20,
+      "measurements": {
+        "m-1": {
+          "id": "m-1",
+          "location": "onduleur",
+          "measurement_type": "dc_voltage",
+          "source_id": "action-1",
+          "unit": "V",
+          "value": 310.0
+        }
+      },
+      "observations": {
+        "observation:answer-shade": {
+          "certainty": null,
+          "id": "observation:answer-shade",
+          "source_id": "action-2",
+          "source_type": "technician_answer",
+          "statement": "Oui, sur la rangée basse.",
+          "unit": null,
+          "value": null
+        },
+        "observation:m-1": {
+          "certainty": null,
+          "id": "observation:m-1",
+          "source_id": "m-1",
+          "source_type": "measurement",
+          "statement": "dc_voltage mesurée à onduleur",
+          "unit": "V",
+          "value": 310.0
+        }
+      },
+      "pending_action": {
+        "action_id": "action-3",
+        "decision": {
+          "arguments": {
+            "distinguishes": [
+              "H1",
+              "H2"
+            ],
+            "location": "onduleur",
+            "measurement_type": "dc_voltage",
+            "unit": "V"
+          },
+          "reason": "Mesurer le point demandé.",
+          "tool_name": "request_measurement"
+        }
+      },
+      "problem": {
+        "description": "La production est anormalement faible."
+      },
+      "status": "waiting_for_technician",
+      "step_count": 3,
+      "system": {
+        "characteristics": {},
+        "domain": "photovoltaic",
+        "manufacturer": null,
+        "model": null,
+        "type": "photovoltaic_installation"
+      },
+      "timeline": [
+        {
+          "details": {
+            "action_id": "action-1",
+            "distinguishes": [
+              "H1",
+              "H2"
+            ],
+            "evidence_ids": [],
+            "signature": [
+              "request_measurement",
+              "dc_voltage",
+              "V",
+              "onduleur"
+            ],
+            "tool_name": "request_measurement"
+          },
+          "event_type": "decision_recorded",
+          "sequence": 1,
+          "summary": "Mesurer le point demandé."
+        },
+        {
+          "details": {
+            "action_id": "action-1"
+          },
+          "event_type": "action_requested",
+          "sequence": 2,
+          "summary": "Action externe demandée : request_measurement."
+        },
+        {
+          "details": {
+            "from": "investigating",
+            "to": "waiting_for_technician"
+          },
+          "event_type": "status_changed",
+          "sequence": 3,
+          "summary": "Statut : investigating -> waiting_for_technician."
+        },
+        {
+          "details": {
+            "observation_id": "observation:m-1",
+            "source_id": "m-1",
+            "source_type": "measurement"
+          },
+          "event_type": "observation_added",
+          "sequence": 4,
+          "summary": "Observation ajoutée depuis measurement."
+        },
+        {
+          "details": {
+            "evidence_id": "m-1",
+            "observation_id": "observation:m-1",
+            "source_id": "m-1",
+            "source_type": "measurement"
+          },
+          "event_type": "evidence_added",
+          "sequence": 5,
+          "summary": "Preuve créée par référence à une observation validée."
+        },
+        {
+          "details": {
+            "action_id": "action-1",
+            "evidence_ids": [
+              "m-1"
+            ],
+            "verification_id": "verification:action-1"
+          },
+          "event_type": "verification_recorded",
+          "sequence": 6,
+          "summary": "Résultat d'outil validé et enregistré."
+        },
+        {
+          "details": {
+            "action_id": "action-1"
+          },
+          "event_type": "action_resumed",
+          "sequence": 7,
+          "summary": "Résultat externe reçu ; l'investigation peut reprendre."
+        },
+        {
+          "details": {
+            "from": "waiting_for_technician",
+            "to": "investigating"
+          },
+          "event_type": "status_changed",
+          "sequence": 8,
+          "summary": "Statut : waiting_for_technician -> investigating."
+        },
+        {
+          "details": {
+            "action_id": "action-2",
+            "distinguishes": [
+              "H0",
+              "H1"
+            ],
+            "evidence_ids": [
+              "m-1"
+            ],
+            "signature": [
+              "ask_technician",
+              "un ombrage est-il apparu ?"
+            ],
+            "tool_name": "ask_technician"
+          },
+          "event_type": "decision_recorded",
+          "sequence": 9,
+          "summary": "Obtenir une observation manquante."
+        },
+        {
+          "details": {
+            "action_id": "action-2"
+          },
+          "event_type": "action_requested",
+          "sequence": 10,
+          "summary": "Action externe demandée : ask_technician."
+        },
+        {
+          "details": {
+            "from": "investigating",
+            "to": "waiting_for_technician"
+          },
+          "event_type": "status_changed",
+          "sequence": 11,
+          "summary": "Statut : investigating -> waiting_for_technician."
+        },
+        {
+          "details": {
+            "observation_id": "observation:answer-shade",
+            "source_id": "action-2",
+            "source_type": "technician_answer"
+          },
+          "event_type": "observation_added",
+          "sequence": 12,
+          "summary": "Observation ajoutée depuis technician_answer."
+        },
+        {
+          "details": {
+            "evidence_id": "answer-shade",
+            "observation_id": "observation:answer-shade",
+            "source_id": "action-2",
+            "source_type": "technician_answer"
+          },
+          "event_type": "evidence_added",
+          "sequence": 13,
+          "summary": "Preuve créée par référence à une observation validée."
+        },
+        {
+          "details": {
+            "action_id": "action-2",
+            "evidence_ids": [
+              "answer-shade"
+            ],
+            "verification_id": "verification:action-2"
+          },
+          "event_type": "verification_recorded",
+          "sequence": 14,
+          "summary": "Résultat d'outil validé et enregistré."
+        },
+        {
+          "details": {
+            "action_id": "action-2"
+          },
+          "event_type": "action_resumed",
+          "sequence": 15,
+          "summary": "Résultat externe reçu ; l'investigation peut reprendre."
+        },
+        {
+          "details": {
+            "from": "waiting_for_technician",
+            "to": "investigating"
+          },
+          "event_type": "status_changed",
+          "sequence": 16,
+          "summary": "Statut : waiting_for_technician -> investigating."
+        },
+        {
+          "details": {
+            "action_id": "action-3",
+            "distinguishes": [
+              "H1",
+              "H2"
+            ],
+            "evidence_ids": [
+              "answer-shade",
+              "m-1"
+            ],
+            "signature": [
+              "request_measurement",
+              "dc_voltage",
+              "V",
+              "onduleur"
+            ],
+            "tool_name": "request_measurement"
+          },
+          "event_type": "decision_recorded",
+          "sequence": 17,
+          "summary": "Mesurer le point demandé."
+        },
+        {
+          "details": {
+            "action_id": "action-3"
+          },
+          "event_type": "action_requested",
+          "sequence": 18,
+          "summary": "Action externe demandée : request_measurement."
+        },
+        {
+          "details": {
+            "from": "investigating",
+            "to": "waiting_for_technician"
+          },
+          "event_type": "status_changed",
+          "sequence": 19,
+          "summary": "Statut : investigating -> waiting_for_technician."
+        }
+      ],
+      "verifications": {
+        "verification:action-1": {
+          "action_id": "action-1",
+          "distinguishes": [
+            "H1",
+            "H2"
+          ],
+          "evidence_ids": [
+            "m-1"
+          ],
+          "id": "verification:action-1",
+          "impacts": [],
+          "observation_ids": [
+            "observation:m-1"
+          ]
+        },
+        "verification:action-2": {
+          "action_id": "action-2",
+          "distinguishes": [
+            "H0",
+            "H1"
+          ],
+          "evidence_ids": [
+            "answer-shade"
+          ],
+          "id": "verification:action-2",
+          "impacts": [],
+          "observation_ids": [
+            "observation:answer-shade"
+          ]
+        }
+      }
+    }
+  },
+  "id": "repeated_measurement_after_new_evidence",
+  "input_state": {
+    "conclusion": null,
+    "evidence": {
+      "answer-shade": {
+        "certainty": null,
+        "id": "answer-shade",
+        "observation_id": "observation:answer-shade",
+        "source_id": "action-2",
+        "source_type": "technician_answer"
+      },
+      "m-1": {
+        "certainty": null,
+        "id": "m-1",
+        "observation_id": "observation:m-1",
+        "source_id": "m-1",
+        "source_type": "measurement"
+      }
+    },
+    "hypotheses": {
+      "H0": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H0",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H1": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H1",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H2": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H2",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H3": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H3",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      }
+    },
+    "investigation_id": "parity-repeat-after-evidence",
+    "max_steps": 20,
+    "measurements": {
+      "m-1": {
+        "id": "m-1",
+        "location": "onduleur",
+        "measurement_type": "dc_voltage",
+        "source_id": "action-1",
+        "unit": "V",
+        "value": 310.0
+      }
+    },
+    "observations": {
+      "observation:answer-shade": {
+        "certainty": null,
+        "id": "observation:answer-shade",
+        "source_id": "action-2",
+        "source_type": "technician_answer",
+        "statement": "Oui, sur la rangée basse.",
+        "unit": null,
+        "value": null
+      },
+      "observation:m-1": {
+        "certainty": null,
+        "id": "observation:m-1",
+        "source_id": "m-1",
+        "source_type": "measurement",
+        "statement": "dc_voltage mesurée à onduleur",
+        "unit": "V",
+        "value": 310.0
+      }
+    },
+    "pending_action": null,
+    "problem": {
+      "description": "La production est anormalement faible."
+    },
+    "status": "investigating",
+    "step_count": 2,
+    "system": {
+      "characteristics": {},
+      "domain": "photovoltaic",
+      "manufacturer": null,
+      "model": null,
+      "type": "photovoltaic_installation"
+    },
+    "timeline": [
+      {
+        "details": {
+          "action_id": "action-1",
+          "distinguishes": [
+            "H1",
+            "H2"
+          ],
+          "evidence_ids": [],
+          "signature": [
+            "request_measurement",
+            "dc_voltage",
+            "V",
+            "onduleur"
+          ],
+          "tool_name": "request_measurement"
+        },
+        "event_type": "decision_recorded",
+        "sequence": 1,
+        "summary": "Mesurer le point demandé."
+      },
+      {
+        "details": {
+          "action_id": "action-1"
+        },
+        "event_type": "action_requested",
+        "sequence": 2,
+        "summary": "Action externe demandée : request_measurement."
+      },
+      {
+        "details": {
+          "from": "investigating",
+          "to": "waiting_for_technician"
+        },
+        "event_type": "status_changed",
+        "sequence": 3,
+        "summary": "Statut : investigating -> waiting_for_technician."
+      },
+      {
+        "details": {
+          "observation_id": "observation:m-1",
+          "source_id": "m-1",
+          "source_type": "measurement"
+        },
+        "event_type": "observation_added",
+        "sequence": 4,
+        "summary": "Observation ajoutée depuis measurement."
+      },
+      {
+        "details": {
+          "evidence_id": "m-1",
+          "observation_id": "observation:m-1",
+          "source_id": "m-1",
+          "source_type": "measurement"
+        },
+        "event_type": "evidence_added",
+        "sequence": 5,
+        "summary": "Preuve créée par référence à une observation validée."
+      },
+      {
+        "details": {
+          "action_id": "action-1",
+          "evidence_ids": [
+            "m-1"
+          ],
+          "verification_id": "verification:action-1"
+        },
+        "event_type": "verification_recorded",
+        "sequence": 6,
+        "summary": "Résultat d'outil validé et enregistré."
+      },
+      {
+        "details": {
+          "action_id": "action-1"
+        },
+        "event_type": "action_resumed",
+        "sequence": 7,
+        "summary": "Résultat externe reçu ; l'investigation peut reprendre."
+      },
+      {
+        "details": {
+          "from": "waiting_for_technician",
+          "to": "investigating"
+        },
+        "event_type": "status_changed",
+        "sequence": 8,
+        "summary": "Statut : waiting_for_technician -> investigating."
+      },
+      {
+        "details": {
+          "action_id": "action-2",
+          "distinguishes": [
+            "H0",
+            "H1"
+          ],
+          "evidence_ids": [
+            "m-1"
+          ],
+          "signature": [
+            "ask_technician",
+            "un ombrage est-il apparu ?"
+          ],
+          "tool_name": "ask_technician"
+        },
+        "event_type": "decision_recorded",
+        "sequence": 9,
+        "summary": "Obtenir une observation manquante."
+      },
+      {
+        "details": {
+          "action_id": "action-2"
+        },
+        "event_type": "action_requested",
+        "sequence": 10,
+        "summary": "Action externe demandée : ask_technician."
+      },
+      {
+        "details": {
+          "from": "investigating",
+          "to": "waiting_for_technician"
+        },
+        "event_type": "status_changed",
+        "sequence": 11,
+        "summary": "Statut : investigating -> waiting_for_technician."
+      },
+      {
+        "details": {
+          "observation_id": "observation:answer-shade",
+          "source_id": "action-2",
+          "source_type": "technician_answer"
+        },
+        "event_type": "observation_added",
+        "sequence": 12,
+        "summary": "Observation ajoutée depuis technician_answer."
+      },
+      {
+        "details": {
+          "evidence_id": "answer-shade",
+          "observation_id": "observation:answer-shade",
+          "source_id": "action-2",
+          "source_type": "technician_answer"
+        },
+        "event_type": "evidence_added",
+        "sequence": 13,
+        "summary": "Preuve créée par référence à une observation validée."
+      },
+      {
+        "details": {
+          "action_id": "action-2",
+          "evidence_ids": [
+            "answer-shade"
+          ],
+          "verification_id": "verification:action-2"
+        },
+        "event_type": "verification_recorded",
+        "sequence": 14,
+        "summary": "Résultat d'outil validé et enregistré."
+      },
+      {
+        "details": {
+          "action_id": "action-2"
+        },
+        "event_type": "action_resumed",
+        "sequence": 15,
+        "summary": "Résultat externe reçu ; l'investigation peut reprendre."
+      },
+      {
+        "details": {
+          "from": "waiting_for_technician",
+          "to": "investigating"
+        },
+        "event_type": "status_changed",
+        "sequence": 16,
+        "summary": "Statut : waiting_for_technician -> investigating."
+      }
+    ],
+    "verifications": {
+      "verification:action-1": {
+        "action_id": "action-1",
+        "distinguishes": [
+          "H1",
+          "H2"
+        ],
+        "evidence_ids": [
+          "m-1"
+        ],
+        "id": "verification:action-1",
+        "impacts": [],
+        "observation_ids": [
+          "observation:m-1"
+        ]
+      },
+      "verification:action-2": {
+        "action_id": "action-2",
+        "distinguishes": [
+          "H0",
+          "H1"
+        ],
+        "evidence_ids": [
+          "answer-shade"
+        ],
+        "id": "verification:action-2",
+        "impacts": [],
+        "observation_ids": [
+          "observation:answer-shade"
+        ]
+      }
+    }
+  },
+  "invariants": null,
+  "operation": "advance",
+  "submission": null
+}

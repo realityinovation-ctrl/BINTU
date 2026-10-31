@@ -24,9 +24,11 @@ Le test `tests/test_parity_fixtures.py` échoue si un fichier ne correspond plus
 - Échec de la première décision à la création : l'état reste à l'étape 0, sans chronologie
 - `advance()` refusé quand le statut n'est pas `investigating`
 - Question, puis réponse du technicien
+- Réponse vide, réponse sans question en attente, observation ou preuve ou vérification déjà présente
+- Mesure valide, type inconnu, mauvaise unité, valeur non finie, identifiant déjà utilisé
 - Mesure valide, type inconnu, mauvaise unité, valeur non finie
 - Image acceptée, et refusée si l'action en attente n'est pas `analyze_image`
-- Comparaison de deux mesures
+- Comparaison de deux mesures, unités différentes, mesures inconnues
 - Conclusion valide avec une mesure citée
 - Conclusion acceptée à confiance exactement 0,7 sans mesure citée
 - Conclusion refusée au-dessus de 0,7 sans mesure citée
@@ -35,10 +37,18 @@ Le test `tests/test_parity_fixtures.py` échoue si un fichier ne correspond plus
 - Fin explicite pour informations insuffisantes
 - Plafond `max_steps` = 20, sans appeler le fournisseur
 - Anti-boucle : question, mesure, foyer d'image et comparaison
+- Mesure répétée sans signature dans la chronologie, y compris si la clé de preuve manque
+- Mesure répétée autorisée quand une preuve nouvelle existe, avec ou sans signature
+- Un `action_id` qui n'est pas un texte ne compte pas comme preuve directe
 - Une conclusion n'est pas traitée comme une répétition
 - Élimination sans preuve contradictoire forte
 - Hypothèse déjà éliminée qui le reste
 - Statut d'hypothèse dérivé par le Core : une proposition différente est refusée
+- Impacts de vérification : étayée, plausible, éliminée, affaiblie, statut déjà étayé
+- Refus d'impact : investigation inactive, liste vide, vérification inconnue, impacts déjà posés, preuve ou observation inconnue, hypothèse en double, hypothèse hors `distinguishes`
+- Mise à jour d'hypothèse refusée : doublon, hors `distinguishes`, sans preuve, preuve inconnue
+- Raison vide, `distinguishes` en double, preuve de conclusion inconnue, rapport pour une autre investigation
+- Document déjà au format `system` relu tel quel
 - Refus d'ouvrir un conducteur sous tension
 - `generate_report` refusé sans modifier l'état
 - Ancien document `installation` relu en `system` : les `null` disparaissent, les valeurs connues restent

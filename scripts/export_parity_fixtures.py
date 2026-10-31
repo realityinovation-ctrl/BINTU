@@ -10,7 +10,7 @@ import json
 import sqlite3
 import sys
 import tempfile
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -74,6 +74,12 @@ class Case:
 
 def _jsonable(value: Any) -> Any:
     return json.loads(json.dumps(value, ensure_ascii=False))
+
+
+def _frozen(value: Any) -> Any:
+    """The object a reader gets back from the sorted fixture JSON."""
+
+    return json.loads(json.dumps(value, ensure_ascii=False, sort_keys=True))
 
 
 def _text(payload: dict[str, Any]) -> str:
@@ -187,12 +193,16 @@ def _mixed_units(investigation_id: str) -> InvestigationState:
     return state
 
 
-def _measured_then_answered(investigation_id: str) -> InvestigationState:
+def _measured_then_answered(
+    investigation_id: str, answer_evidence_id: str = "answer-shade"
+) -> InvestigationState:
     state = _measured(investigation_id)
     decision = _ask("Un ombrage est-il apparu ?")
     engine = _engine(state, [decision])
     engine.advance()
-    engine.submit_technician_answer("answer-shade", "Oui, sur la rangée basse.")
+    engine.submit_technician_answer(
+        answer_evidence_id, "Oui, sur la rangée basse."
+    )
     return state
 
 
@@ -1167,10 +1177,19 @@ def cases() -> list[Case]:
             decision=_measure(),
         ),
         Case(
-            "unsigned_measurement_with_later_evidence",
+            "unsigned_measurement_refused_when_later_evidence_sorts_first",
             "anti_loop",
             "advance",
             _strip_signatures(_measured_then_answered("parity-unsigned-later")),
+            decision=_measure(),
+        ),
+        Case(
+            "unsigned_measurement_allowed_when_later_evidence_sorts_after",
+            "anti_loop",
+            "advance",
+            _strip_signatures(
+                _measured_then_answered("parity-unsigned-sorted-later", "z-shade")
+            ),
             decision=_measure(),
         ),
         Case(
@@ -1351,28 +1370,54 @@ def cases() -> list[Case]:
     ]
 
 
+def _reloaded_case(case: Case) -> tuple[Case, dict[str, Any]]:
+    """Freeze the input, parse that JSON, and return the object to execute."""
+
+    if case.legacy_document is not None:
+        frozen = _frozen(case.legacy_document)
+        return replace(case, legacy_document=frozen), frozen
+    if case.state is None:
+        raise RuntimeError(f"{case.case_id} has no input state")
+    frozen = _frozen(case.state.model_dump(mode="json"))
+    decision = case.decision
+    if decision is not None:
+        decision = AgentDecision.model_validate(
+            _frozen(decision.model_dump(mode="json"))
+        )
+    submission = _frozen(case.submission) if case.submission is not None else None
+    return (
+        replace(
+            case,
+            state=InvestigationState.model_validate(frozen),
+            decision=decision,
+            submission=submission,
+        ),
+        frozen,
+    )
+
+
 def export_fixtures(root: Path | None = FIXTURE_ROOT) -> dict[str, str]:
-    """Capture each input, execute it, and optionally write the JSON files."""
+    """Freeze each input, reload it, execute that copy, then write the JSON."""
 
     documents: dict[str, str] = {}
     for case in cases():
-        input_state = _capture_input(case)
-        outcome = _run(case)
+        reloaded, input_state = _reloaded_case(case)
+        outcome = _run(reloaded)
         payload = {
-            "id": case.case_id,
-            "category": case.category,
-            "operation": case.operation,
+            "id": reloaded.case_id,
+            "category": reloaded.category,
+            "operation": reloaded.operation,
             "input_state": input_state,
             "decision": (
-                case.decision.model_dump(mode="json")
-                if case.decision is not None
+                reloaded.decision.model_dump(mode="json")
+                if reloaded.decision is not None
                 else None
             ),
-            "submission": case.submission,
+            "submission": reloaded.submission,
             "expected": outcome["expected"],
             "invariants": outcome["invariants"],
         }
-        relative = f"{case.category}/{case.case_id}.json"
+        relative = f"{reloaded.category}/{reloaded.case_id}.json"
         documents[relative] = _text(_jsonable(payload))
     if root is not None:
         for relative, text in documents.items():
@@ -1380,14 +1425,6 @@ def export_fixtures(root: Path | None = FIXTURE_ROOT) -> dict[str, str]:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(text, encoding="utf-8")
     return documents
-
-
-def _capture_input(case: Case) -> dict[str, Any]:
-    if case.legacy_document is not None:
-        return _jsonable(case.legacy_document)
-    if case.state is None:
-        raise RuntimeError(f"{case.case_id} has no input state")
-    return case.state.model_dump(mode="json")
 
 
 def main() -> None:

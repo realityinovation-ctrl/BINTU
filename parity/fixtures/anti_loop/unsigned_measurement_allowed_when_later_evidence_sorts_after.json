@@ -17,19 +17,19 @@
     "state": {
       "conclusion": null,
       "evidence": {
-        "answer-shade": {
-          "certainty": null,
-          "id": "answer-shade",
-          "observation_id": "observation:answer-shade",
-          "source_id": "action-2",
-          "source_type": "technician_answer"
-        },
         "m-1": {
           "certainty": null,
           "id": "m-1",
           "observation_id": "observation:m-1",
           "source_id": "m-1",
           "source_type": "measurement"
+        },
+        "z-shade": {
+          "certainty": null,
+          "id": "z-shade",
+          "observation_id": "observation:z-shade",
+          "source_id": "action-2",
+          "source_type": "technician_answer"
         }
       },
       "hypotheses": {
@@ -58,7 +58,7 @@
           "supporting_evidence_ids": []
         }
       },
-      "investigation_id": "parity-unsigned-later",
+      "investigation_id": "parity-unsigned-sorted-later",
       "max_steps": 20,
       "measurements": {
         "m-1": {
@@ -71,15 +71,6 @@
         }
       },
       "observations": {
-        "observation:answer-shade": {
-          "certainty": null,
-          "id": "observation:answer-shade",
-          "source_id": "action-2",
-          "source_type": "technician_answer",
-          "statement": "Oui, sur la rangée basse.",
-          "unit": null,
-          "value": null
-        },
         "observation:m-1": {
           "certainty": null,
           "id": "observation:m-1",
@@ -88,6 +79,15 @@
           "statement": "dc_voltage mesurée à onduleur",
           "unit": "V",
           "value": 310.0
+        },
+        "observation:z-shade": {
+          "certainty": null,
+          "id": "observation:z-shade",
+          "source_id": "action-2",
+          "source_type": "technician_answer",
+          "statement": "Oui, sur la rangée basse.",
+          "unit": null,
+          "value": null
         }
       },
       "pending_action": {
@@ -235,7 +235,7 @@
         },
         {
           "details": {
-            "observation_id": "observation:answer-shade",
+            "observation_id": "observation:z-shade",
             "source_id": "action-2",
             "source_type": "technician_answer"
           },
@@ -245,8 +245,8 @@
         },
         {
           "details": {
-            "evidence_id": "answer-shade",
-            "observation_id": "observation:answer-shade",
+            "evidence_id": "z-shade",
+            "observation_id": "observation:z-shade",
             "source_id": "action-2",
             "source_type": "technician_answer"
           },
@@ -258,7 +258,7 @@
           "details": {
             "action_id": "action-2",
             "evidence_ids": [
-              "answer-shade"
+              "z-shade"
             ],
             "verification_id": "verification:action-2"
           },
@@ -291,8 +291,8 @@
               "H2"
             ],
             "evidence_ids": [
-              "answer-shade",
-              "m-1"
+              "m-1",
+              "z-shade"
             ],
             "signature": [
               "request_measurement",
@@ -347,34 +347,34 @@
             "H1"
           ],
           "evidence_ids": [
-            "answer-shade"
+            "z-shade"
           ],
           "id": "verification:action-2",
           "impacts": [],
           "observation_ids": [
-            "observation:answer-shade"
+            "observation:z-shade"
           ]
         }
       }
     }
   },
-  "id": "unsigned_measurement_with_later_evidence",
+  "id": "unsigned_measurement_allowed_when_later_evidence_sorts_after",
   "input_state": {
     "conclusion": null,
     "evidence": {
-      "answer-shade": {
-        "certainty": null,
-        "id": "answer-shade",
-        "observation_id": "observation:answer-shade",
-        "source_id": "action-2",
-        "source_type": "technician_answer"
-      },
       "m-1": {
         "certainty": null,
         "id": "m-1",
         "observation_id": "observation:m-1",
         "source_id": "m-1",
         "source_type": "measurement"
+      },
+      "z-shade": {
+        "certainty": null,
+        "id": "z-shade",
+        "observation_id": "observation:z-shade",
+        "source_id": "action-2",
+        "source_type": "technician_answer"
       }
     },
     "hypotheses": {
@@ -403,7 +403,7 @@
         "supporting_evidence_ids": []
       }
     },
-    "investigation_id": "parity-unsigned-later",
+    "investigation_id": "parity-unsigned-sorted-later",
     "max_steps": 20,
     "measurements": {
       "m-1": {
@@ -416,15 +416,6 @@
       }
     },
     "observations": {
-      "observation:answer-shade": {
-        "certainty": null,
-        "id": "observation:answer-shade",
-        "source_id": "action-2",
-        "source_type": "technician_answer",
-        "statement": "Oui, sur la rangée basse.",
-        "unit": null,
-        "value": null
-      },
       "observation:m-1": {
         "certainty": null,
         "id": "observation:m-1",
@@ -433,6 +424,15 @@
         "statement": "dc_voltage mesurée à onduleur",
         "unit": "V",
         "value": 310.0
+      },
+      "observation:z-shade": {
+        "certainty": null,
+        "id": "observation:z-shade",
+        "source_id": "action-2",
+        "source_type": "technician_answer",
+        "statement": "Oui, sur la rangée basse.",
+        "unit": null,
+        "value": null
       }
     },
     "pending_action": null,
@@ -565,7 +565,7 @@
       },
       {
         "details": {
-          "observation_id": "observation:answer-shade",
+          "observation_id": "observation:z-shade",
           "source_id": "action-2",
           "source_type": "technician_answer"
         },
@@ -575,8 +575,8 @@
       },
       {
         "details": {
-          "evidence_id": "answer-shade",
-          "observation_id": "observation:answer-shade",
+          "evidence_id": "z-shade",
+          "observation_id": "observation:z-shade",
           "source_id": "action-2",
           "source_type": "technician_answer"
         },
@@ -588,7 +588,7 @@
         "details": {
           "action_id": "action-2",
           "evidence_ids": [
-            "answer-shade"
+            "z-shade"
           ],
           "verification_id": "verification:action-2"
         },
@@ -637,12 +637,12 @@
           "H1"
         ],
         "evidence_ids": [
-          "answer-shade"
+          "z-shade"
         ],
         "id": "verification:action-2",
         "impacts": [],
         "observation_ids": [
-          "observation:answer-shade"
+          "observation:z-shade"
         ]
       }
     }

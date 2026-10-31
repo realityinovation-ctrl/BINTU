@@ -38,7 +38,9 @@ Le test `tests/test_parity_fixtures.py` échoue si un fichier ne correspond plus
 - Plafond `max_steps` = 20, sans appeler le fournisseur
 - Anti-boucle : question, mesure, foyer d'image et comparaison
 - Mesure répétée sans signature dans la chronologie, y compris si la clé de preuve manque
-- Mesure répétée autorisée quand une preuve nouvelle existe, avec ou sans signature
+- Mesure répétée sans signature refusée quand une preuve chronologiquement ultérieure se trie avant la mesure
+- Mesure répétée autorisée quand une preuve nouvelle existe et qu'une signature est présente
+- Mesure répétée sans signature autorisée quand l'identifiant de la preuve ultérieure se trie après celui de la mesure
 - Un `action_id` qui n'est pas un texte ne compte pas comme preuve directe
 - Une conclusion n'est pas traitée comme une répétition
 - Élimination sans preuve contradictoire forte
@@ -53,6 +55,14 @@ Le test `tests/test_parity_fixtures.py` échoue si un fichier ne correspond plus
 - `generate_report` refusé sans modifier l'état
 - Ancien document `installation` relu en `system` : les `null` disparaissent, les valeurs connues restent
 - Système `electric_motor` écrit puis relu
+
+## Défaut connu : ordre des clés de `evidence`
+
+`SQLiteInvestigationStore` écrit `state_json` avec `sort_keys=True` (`_serialize_state`). Une relecture reconstruit le dictionnaire `evidence` dans l'ordre alphabétique des identifiants. Le garde anti-boucle sans signature (`_evidence_after`) traite comme ultérieures les clés qui suivent l'identifiant de la mesure dans cet ordre, et non les preuves ajoutées plus tard dans la chronologie.
+
+Une preuve créée après la mesure, dont l'identifiant se trie avant celui de la mesure, autorise la répétition tant que l'état reste en mémoire. Le même état, une fois figé en JSON trié ou relu depuis la base, la refuse. Le Core Python n'est pas modifié pour cela.
+
+Les fixtures calculent l'attendu après avoir sérialisé l'entrée comme le fichier figé, puis rechargé cet objet. `answer-shade` se trie avant `m-1` et la répétition est refusée. `z-shade` se trie après `m-1` et la répétition est acceptée.
 
 ## Hors de ce gel
 

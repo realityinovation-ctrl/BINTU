@@ -357,7 +357,7 @@ export function NewInvestigation({
                       <Icon name="info" />
                       <span>
                         L’horaire et l’équipement, s’ils sont remplis, sont ajoutés à la description
-                        du problème. Aucune fiche d’installation n’est créée. Les fichiers choisis
+                        du problème. Aucune caractéristique du système n’est inventée. Les fichiers choisis
                         ne sont pas envoyés.
                       </span>
                     </div>

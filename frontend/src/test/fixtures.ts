@@ -23,13 +23,12 @@ export function makeInvestigation(
       problem: {
         description: "La production solaire est anormalement faible.",
       },
-      installation: {
-        nominal_power_kwp: null,
-        panel_count: null,
-        inverter_model: null,
-        battery_present: null,
-        battery_capacity_kwh: null,
-        system_voltage_v: null,
+      system: {
+        domain: "photovoltaic",
+        type: "photovoltaic_installation",
+        manufacturer: null,
+        model: null,
+        characteristics: {},
       },
       measurement_catalog: [
         {

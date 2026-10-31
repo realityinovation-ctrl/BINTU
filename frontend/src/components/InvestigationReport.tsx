@@ -1,7 +1,7 @@
 import type { InvestigationStateView } from "../types/investigation";
 import {
-  HYPOTHESIS_LABELS,
   HYPOTHESIS_STATUS_LABELS,
+  hypothesisLabel,
   SOURCE_LABELS,
   measurementLine,
 } from "../presentation/labels";
@@ -54,7 +54,10 @@ export function InvestigationReport({
         <div className="section-heading">
           <span>Hypothèses</span>
         </div>
-        <HypothesesPanel hypotheses={state.hypotheses} />
+        <HypothesesPanel
+          hypotheses={state.hypotheses}
+          domain={state.system.domain}
+        />
       </section>
       {conclusion && conclusion.remaining_uncertainties.length > 0 && (
         <section className="card uncertainties">
@@ -114,7 +117,7 @@ export function InvestigationReport({
           <ul className="report-list">
             {state.hypotheses.map((hypothesis) => (
               <li key={hypothesis.hypothesis_id}>
-                {HYPOTHESIS_LABELS[hypothesis.hypothesis_id]} :{" "}
+                {hypothesisLabel(hypothesis.hypothesis_id, state.system.domain)} :{" "}
                 {HYPOTHESIS_STATUS_LABELS[hypothesis.status]}
               </li>
             ))}

@@ -1,7 +1,7 @@
 import type { Hypothesis } from "../types/investigation";
 import {
-  HYPOTHESIS_LABELS,
   HYPOTHESIS_STATUS_LABELS,
+  hypothesisLabel,
 } from "../presentation/labels";
 import { StatusPill } from "./Shell";
 
@@ -18,8 +18,10 @@ const KIND: Record<
 
 export function HypothesesPanel({
   hypotheses,
+  domain = "photovoltaic",
 }: {
   hypotheses: Hypothesis[];
+  domain?: string;
 }) {
   return (
     <div>
@@ -35,7 +37,7 @@ export function HypothesesPanel({
           >
             <div className="hypothesis-top">
               <h3 className="hypothesis-title">
-                {HYPOTHESIS_LABELS[hypothesis.hypothesis_id]}
+                {hypothesisLabel(hypothesis.hypothesis_id, domain)}
               </h3>
               <StatusPill kind={KIND[status]}>
                 {HYPOTHESIS_STATUS_LABELS[status]}

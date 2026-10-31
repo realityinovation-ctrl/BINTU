@@ -1,4 +1,5 @@
 import type {
+  DiagnosticSystem,
   Evidence,
   Hypothesis,
   Measurement,
@@ -7,11 +8,12 @@ import type {
 } from "../types/investigation";
 import { HypothesesPanel } from "./HypothesesPanel";
 import {
-  installationEntries,
+  characteristicEntries,
   measurementLabel,
   measurementLine,
   observationIsCited,
   SOURCE_LABELS,
+  systemTitle,
 } from "../presentation/labels";
 
 function linkedMeasurement(
@@ -31,7 +33,7 @@ export function Dossier({
   citedIds,
   hypotheses,
   catalog,
-  installation,
+  system,
 }: {
   open: boolean;
   onClose: () => void;
@@ -41,9 +43,9 @@ export function Dossier({
   citedIds: Set<string>;
   hypotheses: Hypothesis[];
   catalog: MeasurementCatalogItem[];
-  installation: Record<string, string | number | boolean | null>;
+  system: DiagnosticSystem;
 }) {
-  const knownInstallation = installationEntries(installation);
+  const knownCharacteristics = characteristicEntries(system.characteristics);
   return (
     <aside
       id="dossier"
@@ -106,7 +108,7 @@ export function Dossier({
         )}
       </section>
 
-      <HypothesesPanel hypotheses={hypotheses} />
+      <HypothesesPanel hypotheses={hypotheses} domain={system.domain} />
 
       <section className="dossier-section" aria-labelledby="measurements-title">
         <h2 id="measurements-title">Mesures</h2>
@@ -122,12 +124,13 @@ export function Dossier({
       </section>
 
       <details className="installation-details">
-        <summary>Installation</summary>
-        {knownInstallation.length === 0 ? (
-          <p className="empty-copy">Aucune donnée d'installation renseignée.</p>
+        <summary>Système</summary>
+        <p>{systemTitle(system)}</p>
+        {knownCharacteristics.length === 0 ? (
+          <p className="empty-copy">Aucune caractéristique renseignée.</p>
         ) : (
           <dl>
-            {knownInstallation.map((item) => (
+            {knownCharacteristics.map((item) => (
               <div key={item.label}>
                 <dt>{item.label}</dt>
                 <dd>{item.value}</dd>

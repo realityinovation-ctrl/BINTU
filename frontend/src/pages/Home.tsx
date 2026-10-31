@@ -85,7 +85,7 @@ export function Home({
         <section className="home-intro">
           <p className="eyebrow">BINTU</p>
           <h1 className="page-title">
-            Diagnostic technique intelligent pour les installations photovoltaïques.
+            Agent de diagnostic technique multimodal.
           </h1>
           <p className="home-slogan">
             BINTU ne répond pas seulement.{" "}
@@ -93,8 +93,8 @@ export function Home({
             BINTU enquête.
           </p>
           <p className="home-lead">
-            BINTU aide les techniciens à identifier l’origine d’une anomalie photovoltaïque en
-            combinant observations, images, mesures et informations terrain.
+            BINTU enquête progressivement sur un problème technique en choisissant
+            la meilleure information à demander.
           </p>
           <button className="button primary-button" type="button" onClick={onNew}>
             Nouveau diagnostic
@@ -111,7 +111,7 @@ export function Home({
           <article className="card capability-card">
             <Icon name="camera" />
             <h2>Image</h2>
-            <p>Fournir une photo de l’installation.</p>
+            <p>Fournir une photo du système.</p>
           </article>
           <article className="card capability-card">
             <Icon name="activity" />

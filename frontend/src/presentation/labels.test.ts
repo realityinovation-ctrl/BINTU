@@ -14,6 +14,7 @@ describe("présentation des données reçues", () => {
       "Chaîne électrique",
       "Stockage / conversion",
     ]);
+    expect(distinguishesLabels(["H1"], "electrical")).toEqual(["H1"]);
     expect(distinguishesLabels(undefined)).toEqual([]);
     expect(distinguishesLabels("H2")).toEqual([]);
   });
@@ -104,7 +105,7 @@ describe("présentation des données reçues", () => {
     expect(
       humanizeTimelineSummary("Gather initial system context before testing hypotheses"),
     ).toBe(
-      "BINTU a besoin de mieux comprendre l’installation avant de tester ses hypothèses.",
+      "BINTU a besoin de mieux comprendre le système avant de tester ses hypothèses.",
     );
     expect(humanizeTimelineSummary("Please inspect the inverter display.")).toBe(
       "Cette information aidera BINTU à poursuivre le diagnostic.",

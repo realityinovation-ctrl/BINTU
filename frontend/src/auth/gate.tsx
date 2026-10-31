@@ -64,7 +64,7 @@ export function LoadingSession() {
         <span className="boot-index">01 · Session</span>
       </header>
       <section className="boot-module">
-        <p className="boot-kicker">Diagnostic technique solaire</p>
+        <p className="boot-kicker">Diagnostic technique</p>
         <h1>BINTU ne répond pas seulement. BINTU enquête.</h1>
         <ul className="boot-grid">
           <li><span>01</span>Session</li>

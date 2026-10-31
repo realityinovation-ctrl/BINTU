@@ -82,9 +82,17 @@ export interface TimelineEvent {
   details: Record<string, unknown>;
 }
 
+export interface DiagnosticSystem {
+  domain: string;
+  type: string;
+  manufacturer: string | null;
+  model: string | null;
+  characteristics: Record<string, string | number | boolean | null>;
+}
+
 export interface InvestigationStateView {
   problem: Problem | null;
-  installation: Record<string, string | number | boolean | null>;
+  system: DiagnosticSystem;
   measurement_catalog: MeasurementCatalogItem[];
   observations: Observation[];
   measurements: Measurement[];

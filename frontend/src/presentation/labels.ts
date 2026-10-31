@@ -1,4 +1,5 @@
 import type {
+  DiagnosticSystem,
   Hypothesis,
   InvestigationStatus,
   Measurement,
@@ -13,6 +14,15 @@ export const HYPOTHESIS_LABELS: Record<Hypothesis["hypothesis_id"], string> = {
   H2: "Chaîne électrique",
   H3: "Stockage / conversion",
 };
+
+const PHOTOVOLTAIC_DOMAIN = "photovoltaic";
+
+export function hypothesisLabel(
+  id: Hypothesis["hypothesis_id"],
+  domain = PHOTOVOLTAIC_DOMAIN,
+): string {
+  return domain === PHOTOVOLTAIC_DOMAIN ? HYPOTHESIS_LABELS[id] : id;
+}
 
 export const HYPOTHESIS_STATUS_LABELS: Record<Hypothesis["status"], string> = {
   unexplored: "À explorer",
@@ -71,9 +81,9 @@ const GENERIC_REASON =
 
 const KNOWN_REASONS: Record<string, string> = {
   "gather initial system context before testing hypotheses":
-    "BINTU a besoin de mieux comprendre l’installation avant de tester ses hypothèses.",
+    "BINTU a besoin de mieux comprendre le système avant de tester ses hypothèses.",
   "gather initial context for zero production":
-    "BINTU a besoin de mieux comprendre l’installation avant de tester ses hypothèses.",
+    "BINTU a besoin de mieux comprendre le système avant de tester ses hypothèses.",
 };
 
 const FRENCH_MARKERS =
@@ -92,7 +102,10 @@ export function presentReason(reason: string): string {
   return trimmed;
 }
 
-export function humanizeTimelineSummary(summary: string): string {
+export function humanizeTimelineSummary(
+  summary: string,
+  domain = PHOTOVOLTAIC_DOMAIN,
+): string {
   const action = summary.match(/^Action externe demandée : ([a-z_]+)\.$/);
   if (action) return TIMELINE_ACTIONS[action[1]] ?? "Action demandée.";
 
@@ -111,7 +124,7 @@ export function humanizeTimelineSummary(summary: string): string {
     const id = hypothesisChange[1] as Hypothesis["hypothesis_id"];
     const from = TIMELINE_WORDS[hypothesisChange[2]] ?? "À explorer";
     const to = TIMELINE_WORDS[hypothesisChange[3]] ?? "À explorer";
-    return `${HYPOTHESIS_LABELS[id]} : ${from} → ${to}.`;
+    return `${hypothesisLabel(id, domain)} : ${from} → ${to}.`;
   }
 
   const added = summary.match(/^Observation ajoutée depuis ([a-z_]+)\.$/);
@@ -134,7 +147,7 @@ export const SOURCE_LABELS: Record<Observation["source_type"], string> = {
   image_analysis: "Image",
 };
 
-const INSTALLATION_LABELS: Record<string, string> = {
+const CHARACTERISTIC_LABELS: Record<string, string> = {
   nominal_power_kwp: "Puissance nominale",
   panel_count: "Nombre de panneaux",
   inverter_model: "Onduleur",
@@ -190,12 +203,29 @@ export function measurementLine(
   return `${label} : ${measurement.value} ${measurement.unit} — ${measurement.location}`;
 }
 
-export function installationEntries(
-  installation: Record<string, string | number | boolean | null>,
+const DOMAIN_LABELS: Record<string, string> = {
+  photovoltaic: "Photovoltaïque",
+  electrical: "Électricité",
+};
+
+const SYSTEM_TYPE_LABELS: Record<string, string> = {
+  photovoltaic_installation: "Installation PV",
+  electric_motor: "Moteur électrique",
+  industrial_inverter: "Onduleur industriel",
+};
+
+export function systemTitle(system: DiagnosticSystem): string {
+  const domain = DOMAIN_LABELS[system.domain] ?? system.domain;
+  const type = SYSTEM_TYPE_LABELS[system.type] ?? system.type;
+  return `${domain} — ${type}`;
+}
+
+export function characteristicEntries(
+  characteristics: DiagnosticSystem["characteristics"],
 ): { label: string; value: string }[] {
-  return Object.entries(installation).flatMap(([key, value]) => {
-    const label = INSTALLATION_LABELS[key];
-    if (!label || value === null) return [];
+  return Object.entries(characteristics).flatMap(([key, value]) => {
+    if (value === null) return [];
+    const label = CHARACTERISTIC_LABELS[key] ?? key;
     return [
       {
         label,
@@ -205,11 +235,14 @@ export function installationEntries(
   });
 }
 
-export function distinguishesLabels(value: unknown): string[] {
+export function distinguishesLabels(
+  value: unknown,
+  domain = PHOTOVOLTAIC_DOMAIN,
+): string[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap((item) => {
     if (typeof item !== "string" || !HYPOTHESIS_IDS.has(item)) return [];
-    return [HYPOTHESIS_LABELS[item as Hypothesis["hypothesis_id"]]];
+    return [hypothesisLabel(item as Hypothesis["hypothesis_id"], domain)];
   });
 }
 

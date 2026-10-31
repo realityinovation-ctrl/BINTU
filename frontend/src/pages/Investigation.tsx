@@ -19,12 +19,13 @@ import { VoiceInput } from "../components/VoiceInput";
 import {
   STATUS_KIND,
   STATUS_LABELS,
+  characteristicEntries,
   citedEvidenceIds,
   distinguishesLabels,
   gestureFor,
   humanizeTimelineSummary,
   presentReason,
-  installationEntries,
+  systemTitle,
 } from "../presentation/labels";
 import type {
   Investigation as InvestigationData,
@@ -167,9 +168,9 @@ export function Investigation({
       : null;
   const gesture = pending ? gestureFor(pending, state.measurement_catalog) : null;
   const distinguished = pending
-    ? distinguishesLabels(pending.arguments.distinguishes)
+    ? distinguishesLabels(pending.arguments.distinguishes, state.system.domain)
     : [];
-  const installation = installationEntries(state.installation);
+  const characteristics = characteristicEntries(state.system.characteristics);
   const citedIds = citedEvidenceIds(state.conclusion?.evidence_ids);
   const hasHypothesisMovement = state.hypotheses.some(
     (hypothesis) => hypothesis.status !== "unexplored",
@@ -189,23 +190,21 @@ export function Investigation({
         </div>
       </div>
 
-      {installation.length > 0 && (
-        <div className="asset-context">
-          <div className="asset-symbol">
-            <Icon name="bolt" size={19} />
-          </div>
-          <div className="asset-name">
-            <span>INSTALLATION</span>
-            <strong>{installation[0].label}</strong>
-          </div>
-          {installation.slice(0, 3).map((item) => (
-            <div className="asset-data" key={item.label}>
-              <span>{item.label}</span>
-              <strong>{item.value}</strong>
-            </div>
-          ))}
+      <div className="asset-context">
+        <div className="asset-symbol">
+          <Icon name="bolt" size={19} />
         </div>
-      )}
+        <div className="asset-name">
+          <span>Système diagnostiqué</span>
+          <strong>{systemTitle(state.system)}</strong>
+        </div>
+        {characteristics.slice(0, 3).map((item) => (
+          <div className="asset-data" key={item.label}>
+            <span>{item.label}</span>
+            <strong>{item.value}</strong>
+          </div>
+        ))}
+      </div>
 
       <section className="investigation-overview" aria-label="Synthèse du diagnostic">
         <div className="overview-intro">
@@ -322,7 +321,7 @@ export function Investigation({
                 <span>Hypothèses</span>
                 <span className="section-count">{state.hypotheses.length} familles</span>
               </div>
-              <HypothesesPanel hypotheses={state.hypotheses} />
+              <HypothesesPanel hypotheses={state.hypotheses} domain={state.system.domain} />
             </section>
           </main>
 
@@ -448,7 +447,7 @@ export function Investigation({
                         <Icon name="check" size={12} />
                       </span>
                       <div>
-                        <strong>{humanizeTimelineSummary(event.summary)}</strong>
+                        <strong>{humanizeTimelineSummary(event.summary, state.system.domain)}</strong>
                         <time>Étape {event.sequence}</time>
                       </div>
                     </div>

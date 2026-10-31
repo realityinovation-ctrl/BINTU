@@ -1,0 +1,102 @@
+{
+  "category": "report",
+  "decision": {
+    "arguments": {
+      "distinguishes": [
+        "H0"
+      ],
+      "investigation_id": "parity-report"
+    },
+    "reason": "Le rapport n'est pas exécuté par le core.",
+    "tool_name": "generate_report"
+  },
+  "expected": {
+    "error": {
+      "message": "generate_report is contracted but deferred in Agent Core v0.2",
+      "type": "UnsupportedToolError"
+    }
+  },
+  "id": "generate_report_rejected",
+  "input_state": {
+    "conclusion": null,
+    "evidence": {},
+    "hypotheses": {
+      "H0": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H0",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H1": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H1",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H2": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H2",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H3": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H3",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      }
+    },
+    "investigation_id": "parity-report",
+    "max_steps": 20,
+    "measurements": {},
+    "observations": {},
+    "pending_action": null,
+    "problem": {
+      "description": "La production est anormalement faible."
+    },
+    "status": "investigating",
+    "step_count": 0,
+    "system": {
+      "characteristics": {},
+      "domain": "photovoltaic",
+      "manufacturer": null,
+      "model": null,
+      "type": "photovoltaic_installation"
+    },
+    "timeline": [],
+    "verifications": {}
+  },
+  "invariants": {
+    "evidence": {},
+    "hypotheses": {
+      "H0": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H0",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H1": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H1",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H2": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H2",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H3": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H3",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      }
+    },
+    "step_count": 0,
+    "timeline": []
+  },
+  "operation": "advance",
+  "submission": null
+}

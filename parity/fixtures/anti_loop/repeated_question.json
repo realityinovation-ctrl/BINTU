@@ -1,0 +1,317 @@
+{
+  "category": "anti_loop",
+  "decision": {
+    "arguments": {
+      "distinguishes": [
+        "H0",
+        "H1"
+      ],
+      "question": "Le disjoncteur est-il fermé ?"
+    },
+    "reason": "Obtenir une observation manquante.",
+    "tool_name": "ask_technician"
+  },
+  "expected": {
+    "error": {
+      "message": "repetitive action does not add diagnostic information",
+      "type": "DecisionValidationError"
+    }
+  },
+  "id": "repeated_question",
+  "input_state": {
+    "conclusion": null,
+    "evidence": {
+      "answer-1": {
+        "certainty": null,
+        "id": "answer-1",
+        "observation_id": "observation:answer-1",
+        "source_id": "action-1",
+        "source_type": "technician_answer"
+      }
+    },
+    "hypotheses": {
+      "H0": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H0",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H1": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H1",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H2": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H2",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H3": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H3",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      }
+    },
+    "investigation_id": "parity-repeat-question",
+    "max_steps": 20,
+    "measurements": {},
+    "observations": {
+      "observation:answer-1": {
+        "certainty": null,
+        "id": "observation:answer-1",
+        "source_id": "action-1",
+        "source_type": "technician_answer",
+        "statement": "Oui, il est fermé.",
+        "unit": null,
+        "value": null
+      }
+    },
+    "pending_action": null,
+    "problem": {
+      "description": "La production est anormalement faible."
+    },
+    "status": "investigating",
+    "step_count": 1,
+    "system": {
+      "characteristics": {},
+      "domain": "photovoltaic",
+      "manufacturer": null,
+      "model": null,
+      "type": "photovoltaic_installation"
+    },
+    "timeline": [
+      {
+        "details": {
+          "action_id": "action-1",
+          "distinguishes": [
+            "H0",
+            "H1"
+          ],
+          "evidence_ids": [],
+          "signature": [
+            "ask_technician",
+            "le disjoncteur est-il fermé ?"
+          ],
+          "tool_name": "ask_technician"
+        },
+        "event_type": "decision_recorded",
+        "sequence": 1,
+        "summary": "Obtenir une observation manquante."
+      },
+      {
+        "details": {
+          "action_id": "action-1"
+        },
+        "event_type": "action_requested",
+        "sequence": 2,
+        "summary": "Action externe demandée : ask_technician."
+      },
+      {
+        "details": {
+          "from": "investigating",
+          "to": "waiting_for_technician"
+        },
+        "event_type": "status_changed",
+        "sequence": 3,
+        "summary": "Statut : investigating -> waiting_for_technician."
+      },
+      {
+        "details": {
+          "observation_id": "observation:answer-1",
+          "source_id": "action-1",
+          "source_type": "technician_answer"
+        },
+        "event_type": "observation_added",
+        "sequence": 4,
+        "summary": "Observation ajoutée depuis technician_answer."
+      },
+      {
+        "details": {
+          "evidence_id": "answer-1",
+          "observation_id": "observation:answer-1",
+          "source_id": "action-1",
+          "source_type": "technician_answer"
+        },
+        "event_type": "evidence_added",
+        "sequence": 5,
+        "summary": "Preuve créée par référence à une observation validée."
+      },
+      {
+        "details": {
+          "action_id": "action-1",
+          "evidence_ids": [
+            "answer-1"
+          ],
+          "verification_id": "verification:action-1"
+        },
+        "event_type": "verification_recorded",
+        "sequence": 6,
+        "summary": "Résultat d'outil validé et enregistré."
+      },
+      {
+        "details": {
+          "action_id": "action-1"
+        },
+        "event_type": "action_resumed",
+        "sequence": 7,
+        "summary": "Résultat externe reçu ; l'investigation peut reprendre."
+      },
+      {
+        "details": {
+          "from": "waiting_for_technician",
+          "to": "investigating"
+        },
+        "event_type": "status_changed",
+        "sequence": 8,
+        "summary": "Statut : waiting_for_technician -> investigating."
+      }
+    ],
+    "verifications": {
+      "verification:action-1": {
+        "action_id": "action-1",
+        "distinguishes": [
+          "H0",
+          "H1"
+        ],
+        "evidence_ids": [
+          "answer-1"
+        ],
+        "id": "verification:action-1",
+        "impacts": [],
+        "observation_ids": [
+          "observation:answer-1"
+        ]
+      }
+    }
+  },
+  "invariants": {
+    "evidence": {
+      "answer-1": {
+        "certainty": null,
+        "id": "answer-1",
+        "observation_id": "observation:answer-1",
+        "source_id": "action-1",
+        "source_type": "technician_answer"
+      }
+    },
+    "hypotheses": {
+      "H0": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H0",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H1": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H1",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H2": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H2",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H3": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H3",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      }
+    },
+    "step_count": 1,
+    "timeline": [
+      {
+        "details": {
+          "action_id": "action-1",
+          "distinguishes": [
+            "H0",
+            "H1"
+          ],
+          "evidence_ids": [],
+          "signature": [
+            "ask_technician",
+            "le disjoncteur est-il fermé ?"
+          ],
+          "tool_name": "ask_technician"
+        },
+        "event_type": "decision_recorded",
+        "sequence": 1,
+        "summary": "Obtenir une observation manquante."
+      },
+      {
+        "details": {
+          "action_id": "action-1"
+        },
+        "event_type": "action_requested",
+        "sequence": 2,
+        "summary": "Action externe demandée : ask_technician."
+      },
+      {
+        "details": {
+          "from": "investigating",
+          "to": "waiting_for_technician"
+        },
+        "event_type": "status_changed",
+        "sequence": 3,
+        "summary": "Statut : investigating -> waiting_for_technician."
+      },
+      {
+        "details": {
+          "observation_id": "observation:answer-1",
+          "source_id": "action-1",
+          "source_type": "technician_answer"
+        },
+        "event_type": "observation_added",
+        "sequence": 4,
+        "summary": "Observation ajoutée depuis technician_answer."
+      },
+      {
+        "details": {
+          "evidence_id": "answer-1",
+          "observation_id": "observation:answer-1",
+          "source_id": "action-1",
+          "source_type": "technician_answer"
+        },
+        "event_type": "evidence_added",
+        "sequence": 5,
+        "summary": "Preuve créée par référence à une observation validée."
+      },
+      {
+        "details": {
+          "action_id": "action-1",
+          "evidence_ids": [
+            "answer-1"
+          ],
+          "verification_id": "verification:action-1"
+        },
+        "event_type": "verification_recorded",
+        "sequence": 6,
+        "summary": "Résultat d'outil validé et enregistré."
+      },
+      {
+        "details": {
+          "action_id": "action-1"
+        },
+        "event_type": "action_resumed",
+        "sequence": 7,
+        "summary": "Résultat externe reçu ; l'investigation peut reprendre."
+      },
+      {
+        "details": {
+          "from": "waiting_for_technician",
+          "to": "investigating"
+        },
+        "event_type": "status_changed",
+        "sequence": 8,
+        "summary": "Statut : waiting_for_technician -> investigating."
+      }
+    ]
+  },
+  "operation": "advance",
+  "submission": null
+}

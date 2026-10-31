@@ -1,0 +1,288 @@
+{
+  "category": "image",
+  "decision": {
+    "arguments": {
+      "distinguishes": [
+        "H1"
+      ],
+      "focus": "poussière sur le champ",
+      "image_id": "image-demande-1"
+    },
+    "reason": "Voir ce que la photo montre.",
+    "tool_name": "analyze_image"
+  },
+  "expected": {
+    "state": {
+      "conclusion": null,
+      "evidence": {
+        "image-1": {
+          "certainty": 0.4,
+          "id": "image-1",
+          "observation_id": "observation:image-1",
+          "source_id": "image-demande-1",
+          "source_type": "image_analysis"
+        }
+      },
+      "hypotheses": {
+        "H0": {
+          "contradictory_evidence_ids": [],
+          "hypothesis_id": "H0",
+          "status": "unexplored",
+          "supporting_evidence_ids": []
+        },
+        "H1": {
+          "contradictory_evidence_ids": [],
+          "hypothesis_id": "H1",
+          "status": "unexplored",
+          "supporting_evidence_ids": []
+        },
+        "H2": {
+          "contradictory_evidence_ids": [],
+          "hypothesis_id": "H2",
+          "status": "unexplored",
+          "supporting_evidence_ids": []
+        },
+        "H3": {
+          "contradictory_evidence_ids": [],
+          "hypothesis_id": "H3",
+          "status": "unexplored",
+          "supporting_evidence_ids": []
+        }
+      },
+      "investigation_id": "parity-image",
+      "max_steps": 20,
+      "measurements": {},
+      "observations": {
+        "observation:image-1": {
+          "certainty": 0.4,
+          "id": "observation:image-1",
+          "source_id": "image-demande-1",
+          "source_type": "image_analysis",
+          "statement": "Une couche uniforme est visible.",
+          "unit": null,
+          "value": null
+        }
+      },
+      "pending_action": null,
+      "problem": {
+        "description": "La production est anormalement faible."
+      },
+      "status": "investigating",
+      "step_count": 1,
+      "system": {
+        "characteristics": {},
+        "domain": "photovoltaic",
+        "manufacturer": null,
+        "model": null,
+        "type": "photovoltaic_installation"
+      },
+      "timeline": [
+        {
+          "details": {
+            "action_id": "action-1",
+            "distinguishes": [
+              "H1"
+            ],
+            "evidence_ids": [],
+            "signature": [
+              "analyze_image",
+              "poussière sur le champ"
+            ],
+            "tool_name": "analyze_image"
+          },
+          "event_type": "decision_recorded",
+          "sequence": 1,
+          "summary": "Voir ce que la photo montre."
+        },
+        {
+          "details": {
+            "action_id": "action-1"
+          },
+          "event_type": "action_requested",
+          "sequence": 2,
+          "summary": "Action externe demandée : analyze_image."
+        },
+        {
+          "details": {
+            "from": "investigating",
+            "to": "waiting_for_technician"
+          },
+          "event_type": "status_changed",
+          "sequence": 3,
+          "summary": "Statut : investigating -> waiting_for_technician."
+        },
+        {
+          "details": {
+            "observation_id": "observation:image-1",
+            "source_id": "image-demande-1",
+            "source_type": "image_analysis"
+          },
+          "event_type": "observation_added",
+          "sequence": 4,
+          "summary": "Observation ajoutée depuis image_analysis."
+        },
+        {
+          "details": {
+            "evidence_id": "image-1",
+            "observation_id": "observation:image-1",
+            "source_id": "image-demande-1",
+            "source_type": "image_analysis"
+          },
+          "event_type": "evidence_added",
+          "sequence": 5,
+          "summary": "Preuve créée par référence à une observation validée."
+        },
+        {
+          "details": {
+            "action_id": "action-1",
+            "evidence_ids": [
+              "image-1"
+            ],
+            "verification_id": "verification:action-1"
+          },
+          "event_type": "verification_recorded",
+          "sequence": 6,
+          "summary": "Résultat d'outil validé et enregistré."
+        },
+        {
+          "details": {
+            "action_id": "action-1"
+          },
+          "event_type": "action_resumed",
+          "sequence": 7,
+          "summary": "Résultat externe reçu ; l'investigation peut reprendre."
+        },
+        {
+          "details": {
+            "from": "waiting_for_technician",
+            "to": "investigating"
+          },
+          "event_type": "status_changed",
+          "sequence": 8,
+          "summary": "Statut : waiting_for_technician -> investigating."
+        }
+      ],
+      "verifications": {
+        "verification:action-1": {
+          "action_id": "action-1",
+          "distinguishes": [
+            "H1"
+          ],
+          "evidence_ids": [
+            "image-1"
+          ],
+          "id": "verification:action-1",
+          "impacts": [],
+          "observation_ids": [
+            "observation:image-1"
+          ]
+        }
+      }
+    }
+  },
+  "id": "image_accepted",
+  "input_state": {
+    "conclusion": null,
+    "evidence": {},
+    "hypotheses": {
+      "H0": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H0",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H1": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H1",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H2": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H2",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H3": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H3",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      }
+    },
+    "investigation_id": "parity-image",
+    "max_steps": 20,
+    "measurements": {},
+    "observations": {},
+    "pending_action": {
+      "action_id": "action-1",
+      "decision": {
+        "arguments": {
+          "distinguishes": [
+            "H1"
+          ],
+          "focus": "poussière sur le champ",
+          "image_id": "image-demande-1"
+        },
+        "reason": "Voir ce que la photo montre.",
+        "tool_name": "analyze_image"
+      }
+    },
+    "problem": {
+      "description": "La production est anormalement faible."
+    },
+    "status": "waiting_for_technician",
+    "step_count": 1,
+    "system": {
+      "characteristics": {},
+      "domain": "photovoltaic",
+      "manufacturer": null,
+      "model": null,
+      "type": "photovoltaic_installation"
+    },
+    "timeline": [
+      {
+        "details": {
+          "action_id": "action-1",
+          "distinguishes": [
+            "H1"
+          ],
+          "evidence_ids": [],
+          "signature": [
+            "analyze_image",
+            "poussière sur le champ"
+          ],
+          "tool_name": "analyze_image"
+        },
+        "event_type": "decision_recorded",
+        "sequence": 1,
+        "summary": "Voir ce que la photo montre."
+      },
+      {
+        "details": {
+          "action_id": "action-1"
+        },
+        "event_type": "action_requested",
+        "sequence": 2,
+        "summary": "Action externe demandée : analyze_image."
+      },
+      {
+        "details": {
+          "from": "investigating",
+          "to": "waiting_for_technician"
+        },
+        "event_type": "status_changed",
+        "sequence": 3,
+        "summary": "Statut : investigating -> waiting_for_technician."
+      }
+    ],
+    "verifications": {}
+  },
+  "invariants": null,
+  "operation": "submit_image_analysis",
+  "submission": {
+    "certainty": 0.4,
+    "evidence_id": "image-1",
+    "statement": "Une couche uniforme est visible."
+  }
+}

@@ -10,16 +10,31 @@ import {
   type HypothesisImpact,
   type InvestigationState,
 } from "../../src/core/models";
-import type { AIProvider } from "../../src/core/ports/aiProvider";
+import type {
+  AIProvider,
+  ProviderCapabilities,
+} from "../../src/core/ports/aiProvider";
 import {
   canonical,
   type Fixture,
 } from "./fixtures";
 
+const unavailableCapabilities: ProviderCapabilities = {
+  reasoning_structured: false,
+  vision: false,
+  asr_streaming: false,
+  tts: false,
+  native_live: false,
+};
+
 class ScriptedProvider implements AIProvider {
   private index = 0;
 
   constructor(private readonly decisions: AgentDecision[]) {}
+
+  capabilities(): ProviderCapabilities {
+    return unavailableCapabilities;
+  }
 
   decideNext(_state: InvestigationState): AgentDecision {
     const decision = this.decisions[this.index];
@@ -32,6 +47,10 @@ class ScriptedProvider implements AIProvider {
 }
 
 class ForbiddenProvider implements AIProvider {
+  capabilities(): ProviderCapabilities {
+    return unavailableCapabilities;
+  }
+
   decideNext(_state: InvestigationState): AgentDecision {
     throw new Error("the provider must not be called");
   }

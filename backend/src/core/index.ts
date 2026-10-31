@@ -25,5 +25,5 @@ export {
   parseDecision,
   parseState,
 } from "./models";
-export type { AIProvider } from "./ports/aiProvider";
+export type { AIProvider, ProviderCapabilities } from "./ports/aiProvider";
 export type { DiagnosticRepository } from "./ports/diagnosticRepository";

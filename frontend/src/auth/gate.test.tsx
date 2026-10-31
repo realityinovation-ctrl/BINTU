@@ -20,7 +20,7 @@ test("n'appelle pas l'API pendant le chargement de la session", () => {
   render(<App />);
 
   expect(
-    screen.getByRole("heading", { name: "Vérification de la session…" }),
+    screen.getByRole("heading", { name: "BINTU ne répond pas seulement. BINTU enquête." }),
   ).toBeInTheDocument();
   expect(fetchMock).not.toHaveBeenCalled();
 });

@@ -473,7 +473,28 @@
 .permanent-disclaimer { position: fixed; bottom: 0; left: 248px; right: 0; height: 38px; z-index: 12; background: var(--marine-800); color: #dbe4f6; display: flex; justify-content: center; align-items: center; gap: 7px; font-size: 10px; letter-spacing: .015em; }
 .mobile-nav { display: none; }
 
+.boot-screen { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; padding: 28px clamp(20px, 4vw, 56px) 32px; background: var(--marine-900); color: #fff; }
+.boot-screen::before { content: ''; position: fixed; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(47,107,255,.08), transparent 28%); }
+.boot-bar, .boot-module, .boot-status { position: relative; }
+.boot-bar { display: flex; align-items: center; justify-content: space-between; min-height: 64px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.boot-screen .brand { height: auto; padding: 0; }
+.boot-index, .boot-kicker { color: #8ea0c8; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.boot-module { align-self: center; max-width: 760px; padding: 28px 0 8px; }
+.boot-kicker { margin: 0 0 16px; }
+.boot-screen h1 { max-width: 14em; margin: 0; font-family: 'Sora', sans-serif; font-size: clamp(32px, 5vw, 52px); line-height: 1.08; letter-spacing: -.035em; }
+.boot-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 32px 0 0; padding: 0; list-style: none; }
+.boot-grid li { min-height: 72px; display: flex; flex-direction: column; justify-content: space-between; padding: 12px 14px; border: 1px solid rgba(255,255,255,.12); border-radius: 8px; background: rgba(255,255,255,.03); color: #fff; font-size: 14px; font-weight: 600; }
+.boot-grid span { color: var(--primary); font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; }
+.boot-status { display: flex; align-items: center; gap: 10px; margin: 0; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.1); color: #aebbd7; font-size: 13px; }
+.boot-mark { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 4px rgba(47,107,255,.16); }
+@media (max-width: 640px) {
+  .boot-grid { grid-template-columns: 1fr; }
+  .boot-grid li { min-height: 56px; flex-direction: row; align-items: center; }
+}
 .login-page { min-height: 100vh; display: grid; grid-template-columns: minmax(420px, .82fr) minmax(560px, 1.18fr); background: var(--surface); }
+.clerk-host { width: 100%; margin-top: 36px; }
+.login-panel-copy { margin-bottom: 18px; }
+.login-panel-copy p { color: var(--text-secondary); line-height: 1.55; }
 .login-panel { min-height: 100vh; display: flex; justify-content: center; padding: 38px 52px; position: relative; z-index: 2; }
 .login-panel-inner { width: min(100%, 430px); display: flex; flex-direction: column; }
 .login-panel .brand { height: 44px; padding: 0; align-self: flex-start; }

@@ -71,10 +71,19 @@ export function utcNow(): string {
   return new Date().toISOString().replace("Z", "000+00:00");
 }
 
+export interface RepositorySequence {
+  newId?: () => string;
+  now?: () => string;
+}
+
 export class SqliteDiagnosticRepository implements DiagnosticRepository {
   private readonly database: Database.Database;
+  private readonly newId: () => string;
+  private readonly now: () => string;
 
-  constructor(filename: string) {
+  constructor(filename: string, sequence: RepositorySequence = {}) {
+    this.newId = sequence.newId ?? randomUUID;
+    this.now = sequence.now ?? utcNow;
     try {
       if (filename !== ":memory:") {
         mkdirSync(dirname(filename), { recursive: true });
@@ -95,8 +104,8 @@ export class SqliteDiagnosticRepository implements DiagnosticRepository {
     if (!organizationId || !createdByUserId) {
       throw new PersistenceError("investigation owner is required");
     }
-    const state = createInvestigation(randomUUID());
-    const timestamp = utcNow();
+    const state = createInvestigation(this.newId());
+    const timestamp = this.now();
     try {
       this.database
         .prepare(
@@ -229,7 +238,7 @@ export class SqliteDiagnosticRepository implements DiagnosticRepository {
       WHERE id = ? AND organization_id = ?
       `,
       [
-        utcNow(),
+        this.now(),
         state.status,
         serializeState(state),
         1,

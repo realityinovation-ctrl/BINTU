@@ -9,8 +9,9 @@
  * Current evidence identifiers are prefixed, so they are not integer indexes.
  */
 
-import { dumpState, parseState, type InvestigationState } from "../core/models";
 import { StateCorruptionError } from "../core/errors";
+import { normalizeLegacySystem } from "../core/legacySystem";
+import { dumpState, parseState, type InvestigationState } from "../core/models";
 
 export const SCHEMA_VERSION = 1;
 
@@ -48,7 +49,7 @@ export function deserializeState(
       statePayload[key] = value;
     }
   }
-  return restoreState(statePayload, expectedId, expectedStatus);
+  return restoreState(normalizeLegacySystem(statePayload), expectedId, expectedStatus);
 }
 
 export function restoreState(

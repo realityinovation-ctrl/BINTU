@@ -1,0 +1,32 @@
+{
+  "analyzer": null,
+  "forbidden": [],
+  "id": "auth/unauthorized",
+  "provider": {
+    "repeat": false,
+    "steps": []
+  },
+  "route": "auth",
+  "steps": [
+    {
+      "auth": {
+        "kind": "anonymous"
+      },
+      "expect": {
+        "body": {
+          "detail": "Authentication required"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 401
+      },
+      "request": {
+        "headers": {},
+        "method": "GET",
+        "path": "/api/investigations"
+      }
+    }
+  ],
+  "transcriber": null
+}

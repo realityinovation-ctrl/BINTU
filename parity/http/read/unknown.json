@@ -1,0 +1,40 @@
+{
+  "analyzer": null,
+  "forbidden": [],
+  "id": "read/unknown",
+  "provider": {
+    "repeat": false,
+    "steps": []
+  },
+  "route": "read",
+  "steps": [
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "detail": "Investigation not found"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 404
+      },
+      "request": {
+        "headers": {},
+        "method": "GET",
+        "path": "/api/investigations/missing-investigation"
+      }
+    }
+  ],
+  "transcriber": null
+}

@@ -1,0 +1,32 @@
+{
+  "analyzer": null,
+  "forbidden": [],
+  "id": "health/ok",
+  "provider": {
+    "repeat": false,
+    "steps": []
+  },
+  "route": "health",
+  "steps": [
+    {
+      "auth": {
+        "kind": "anonymous"
+      },
+      "expect": {
+        "body": {
+          "status": "ok"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 200
+      },
+      "request": {
+        "headers": {},
+        "method": "GET",
+        "path": "/api/health"
+      }
+    }
+  ],
+  "transcriber": null
+}

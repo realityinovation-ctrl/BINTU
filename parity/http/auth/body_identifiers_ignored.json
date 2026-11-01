@@ -1,0 +1,72 @@
+{
+  "analyzer": null,
+  "forbidden": [],
+  "id": "auth/body_identifiers_ignored",
+  "provider": {
+    "repeat": false,
+    "steps": []
+  },
+  "route": "auth",
+  "steps": [
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "detail": "Invalid request"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 422
+      },
+      "request": {
+        "body": {
+          "organization_id": "org_from_body",
+          "problem": "Production solaire anormalement faible.",
+          "user_id": "user_from_body"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": [],
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 200
+      },
+      "request": {
+        "headers": {},
+        "method": "GET",
+        "path": "/api/investigations"
+      }
+    }
+  ],
+  "transcriber": null
+}

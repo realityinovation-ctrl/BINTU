@@ -1,0 +1,79 @@
+{
+  "analyzer": null,
+  "forbidden": [
+    "sk-test-secret-key"
+  ],
+  "id": "create/provider_unavailable",
+  "provider": {
+    "repeat": false,
+    "steps": [
+      {
+        "detail": "failure with sk-test-secret-key",
+        "error": "http"
+      }
+    ]
+  },
+  "route": "create",
+  "steps": [
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "detail": "AI provider unavailable"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 502
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "detail": "Investigation not found"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 404
+      },
+      "request": {
+        "headers": {},
+        "method": "GET",
+        "path": "/api/investigations/00000000-0000-0000-0000-000000000001"
+      }
+    }
+  ],
+  "transcriber": null
+}

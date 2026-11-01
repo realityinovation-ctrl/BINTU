@@ -4,6 +4,7 @@ import Fastify, { type FastifyInstance } from "fastify";
 import type { HttpDependencies } from "./deps";
 import { mapError } from "./errors";
 import { parseRelaxedJson } from "./jsonBody";
+import { registerOperateRoutes } from "./operateRoutes";
 import { registerReadRoutes } from "./readRoutes";
 import { sendJson } from "./reply";
 
@@ -42,6 +43,7 @@ export async function buildApp(deps: HttpDependencies): Promise<FastifyInstance>
     return sendJson(reply, mapped.status, mapped.body);
   });
   registerReadRoutes(app, deps);
+  registerOperateRoutes(app, deps);
   await app.ready();
   return app;
 }

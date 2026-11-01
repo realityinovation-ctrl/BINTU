@@ -1,3 +1,4 @@
+import type { AuthRuntime } from "../auth/runtime";
 import type { AIProvider } from "../core/ports/aiProvider";
 import type { DiagnosticRepository } from "../core/ports/diagnosticRepository";
 import type { AuthContextProvider, ImageAnalyzer, Transcriber } from "./ports";
@@ -9,4 +10,6 @@ export interface HttpDependencies {
   imageAnalyzer: ImageAnalyzer;
   auth: AuthContextProvider;
   newId: () => string;
+  authRuntime?: AuthRuntime;
+  logStream?: { write(chunk: string): void };
 }

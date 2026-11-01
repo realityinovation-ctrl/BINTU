@@ -20,7 +20,7 @@ export interface AuthContext {
   permissions: readonly string[];
 }
 
-/** Phase 4 injects a fixed context. Real session verification arrives in Phase 5. */
+/** TestAuthContext supplies a fixed context. SessionAuthenticator reads the cookie. */
 export interface AuthContextProvider {
   authenticate(): AuthContext;
 }

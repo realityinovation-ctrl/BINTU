@@ -1,7 +1,8 @@
 import type { FastifyRequest } from "fastify";
 
+import { csrfTokenMatches } from "../auth/csrfToken";
 import { CSRF_FAILED, type AuthRuntime } from "../auth/runtime";
-import { digestsEqual, sha256Hex } from "../auth/secrets";
+import { sha256Hex } from "../auth/secrets";
 import { sessionIsActive } from "../auth/sessions";
 import { readCookie } from "./cookies";
 import { HttpError } from "./errors";
@@ -46,8 +47,7 @@ export function assertMutationGuards(
   }
   if (
     presented === undefined ||
-    session.csrfTokenHash == null ||
-    !digestsEqual(sha256Hex(presented), session.csrfTokenHash)
+    !csrfTokenMatches(presented, sessionToken, runtime.csrfSecret)
   ) {
     throw new HttpError(403, CSRF_FAILED);
   }

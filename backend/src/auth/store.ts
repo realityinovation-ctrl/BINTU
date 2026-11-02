@@ -25,7 +25,6 @@ export interface SessionRecord {
   idHash: string;
   userId: string;
   organizationId: string;
-  csrfTokenHash: string | null;
   createdAt: string;
   lastSeenAt: string;
   expiresAt: string;
@@ -56,7 +55,6 @@ export interface AuthStore {
   findSession(idHash: string): SessionRecord | null;
   touchSession(idHash: string, lastSeenAt: string): void;
   revokeSession(idHash: string, revokedAt: string): void;
-  updateCsrfHash(idHash: string, csrfTokenHash: string): void;
   insertInvitation(invitation: InvitationRecord): void;
   findInvitationByCodeHash(codeHash: string): InvitationRecord | null;
   markInvitationUsed(id: string, usedAt: string): boolean;

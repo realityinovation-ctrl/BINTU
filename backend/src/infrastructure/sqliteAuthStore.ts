@@ -33,7 +33,6 @@ interface SessionRow {
   id_hash: string;
   user_id: string;
   organization_id: string;
-  csrf_token_hash: string | null;
   created_at: string;
   last_seen_at: string;
   expires_at: string;
@@ -153,16 +152,15 @@ export class SqliteAuthStore implements AuthStore {
       .prepare(
         `
         INSERT INTO sessions (
-          id_hash, user_id, organization_id, csrf_token_hash,
+          id_hash, user_id, organization_id,
           created_at, last_seen_at, expires_at, revoked_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
         `,
       )
       .run(
         session.idHash,
         session.userId,
         session.organizationId,
-        session.csrfTokenHash,
         session.createdAt,
         session.lastSeenAt,
         session.expiresAt,
@@ -174,7 +172,7 @@ export class SqliteAuthStore implements AuthStore {
     const row = this.database
       .prepare(
         `
-        SELECT id_hash, user_id, organization_id, csrf_token_hash,
+        SELECT id_hash, user_id, organization_id,
                created_at, last_seen_at, expires_at, revoked_at
         FROM sessions
         WHERE id_hash = ?
@@ -196,12 +194,6 @@ export class SqliteAuthStore implements AuthStore {
         "UPDATE sessions SET revoked_at = ? WHERE id_hash = ? AND revoked_at IS NULL",
       )
       .run(revokedAt, idHash);
-  }
-
-  updateCsrfHash(idHash: string, csrfTokenHash: string): void {
-    this.database
-      .prepare("UPDATE sessions SET csrf_token_hash = ? WHERE id_hash = ?")
-      .run(csrfTokenHash, idHash);
   }
 
   insertInvitation(invitation: InvitationRecord): void {
@@ -274,7 +266,6 @@ function sessionFrom(row: SessionRow): SessionRecord {
     idHash: row.id_hash,
     userId: row.user_id,
     organizationId: row.organization_id,
-    csrfTokenHash: row.csrf_token_hash,
     createdAt: row.created_at,
     lastSeenAt: row.last_seen_at,
     expiresAt: row.expires_at,

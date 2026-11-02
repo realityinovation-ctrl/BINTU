@@ -118,6 +118,7 @@ async function openHarness(options: HarnessOptions = {}): Promise<Harness> {
     newId,
     randomBytes,
     bootstrapCode: options.bootstrapCode ?? BOOTSTRAP,
+    csrfSecret: "csrf-secret-fixture",
     absoluteMs: options.absoluteMs ?? 3_600_000,
     idleMs: options.idleMs ?? 3_600_000,
     invitationMs: options.invitationMs ?? 60_000,
@@ -544,7 +545,7 @@ describe("internal authentication", () => {
     }
   });
 
-  it("rotates the csrf token and ignores identity fields supplied by the browser", async () => {
+  it("keeps the same csrf token for the whole session", async () => {
     const ctx = await openHarness();
     try {
       const extra = await post(ctx.app, "/auth/login", {
@@ -563,26 +564,46 @@ describe("internal authentication", () => {
         code: BOOTSTRAP,
         organization_name: "Atelier Alpha",
       });
-      const session = await loginAs(ctx.app, "ada@example.test");
+      const ada = await loginAs(ctx.app, "ada@example.test");
       const again = await ctx.app.inject({
         method: "GET",
         url: "/auth/me",
-        headers: { cookie: session.cookie },
+        headers: { cookie: ada.cookie },
       });
-      const rotated = (JSON.parse(again.body) as { csrf_token: string }).csrf_token;
-      expect(rotated).not.toBe(session.csrf);
-      const stale = await post(
+      const repeated = (JSON.parse(again.body) as { csrf_token: string }).csrf_token;
+      expect(repeated).toBe(ada.csrf);
+      const invitation = await post(
+        ctx.app,
+        "/auth/invitations",
+        {},
+        { cookie: ada.cookie, "x-csrf-token": ada.csrf },
+      );
+      const code = (JSON.parse(invitation.body) as { code: string }).code;
+      await post(ctx.app, "/auth/register", {
+        email: "bruno@example.test",
+        password: PASSWORD,
+        code,
+      });
+      const bruno = await loginAs(ctx.app, "bruno@example.test");
+      const foreign = await post(
         ctx.app,
         "/auth/logout",
         {},
-        { cookie: session.cookie, "x-csrf-token": session.csrf },
+        { cookie: ada.cookie, "x-csrf-token": bruno.csrf },
       );
-      expect(stale.statusCode).toBe(403);
+      expect(foreign.statusCode).toBe(403);
+      expect(JSON.parse(foreign.body)).toEqual({ detail: "CSRF validation failed" });
+      const [first, second] = await Promise.all([
+        post(ctx.app, "/auth/invitations", {}, { cookie: ada.cookie, "x-csrf-token": ada.csrf }),
+        post(ctx.app, "/auth/invitations", {}, { cookie: ada.cookie, "x-csrf-token": ada.csrf }),
+      ]);
+      expect(first.statusCode).toBe(201);
+      expect(second.statusCode).toBe(201);
       const loggedOut = await post(
         ctx.app,
         "/auth/logout",
         {},
-        { cookie: session.cookie, "x-csrf-token": rotated },
+        { cookie: ada.cookie, "x-csrf-token": ada.csrf },
       );
       expect(loggedOut.statusCode).toBe(200);
       const cleared = loggedOut.headers["set-cookie"];
@@ -593,7 +614,7 @@ describe("internal authentication", () => {
       const after = await ctx.app.inject({
         method: "GET",
         url: "/auth/me",
-        headers: { cookie: session.cookie },
+        headers: { cookie: ada.cookie },
       });
       expect(after.statusCode).toBe(401);
     } finally {

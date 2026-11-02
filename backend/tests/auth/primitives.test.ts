@@ -13,7 +13,7 @@ import {
   PRODUCTION_ARGON2,
 } from "../../src/auth/passwords";
 import { digestsEqual, secretsEqual, sha256Hex } from "../../src/auth/secrets";
-import { openSession, rotateCsrf, sessionIsActive } from "../../src/auth/sessions";
+import { openSession, sessionIsActive } from "../../src/auth/sessions";
 import type { SessionRecord } from "../../src/auth/store";
 import { AUTH_MIGRATIONS } from "../../src/infrastructure/authMigrations";
 import { SqliteAuthStore } from "../../src/infrastructure/sqliteAuthStore";
@@ -84,11 +84,8 @@ describe("auth primitives", () => {
       expect(opened.token).not.toBe(opened.record.idHash);
       expect(store.findSession(opened.token)).toBeNull();
       expect(store.findSession(sha256Hex(opened.token))?.idHash).toBe(sha256Hex(opened.token));
-      const rotated = rotateCsrf(store, opened.record.idHash, () =>
-        Buffer.from("abcdef0123456789abcdef0123456789"),
-      );
-      expect(store.findSession(opened.record.idHash)?.csrfTokenHash).toBe(sha256Hex(rotated));
-      expect(store.findSession(opened.record.idHash)?.csrfTokenHash).not.toBe(rotated);
+      const stored = JSON.stringify(store.findSession(sha256Hex(opened.token)));
+      expect(stored).not.toContain(opened.token);
     } finally {
       store.close();
       rmSync(directory, { recursive: true, force: true });
@@ -100,7 +97,6 @@ describe("auth primitives", () => {
       idHash: "hash",
       userId: "user-ada",
       organizationId: "org-alpha",
-      csrfTokenHash: "csrf",
       createdAt: new Date(START).toISOString(),
       lastSeenAt: new Date(START).toISOString(),
       expiresAt: new Date(START + 5_000).toISOString(),
@@ -230,7 +226,10 @@ describe("auth primitives", () => {
         id: number;
         applied_at: string;
       }[];
-      expect(migrations).toEqual([{ id: 1, applied_at: "2026-06-01T00:00:00.000Z" }]);
+      expect(migrations).toEqual([
+        { id: 1, applied_at: "2026-06-01T00:00:00.000Z" },
+        { id: 2, applied_at: "2026-06-01T00:00:00.000Z" },
+      ]);
       const names = (table: string) =>
         (probe.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[]).map(
           (column) => column.name,
@@ -244,6 +243,7 @@ describe("auth primitives", () => {
       ]);
       expect(names("sessions")).toContain("id_hash");
       expect(names("sessions")).not.toContain("id");
+      expect(names("sessions")).not.toContain("csrf_token_hash");
       expect(names("invitations")).toContain("code_hash");
       const legacy = probe
         .prepare(

@@ -10,8 +10,9 @@ import {
   type AuthRuntime,
 } from "../auth/runtime";
 import { registerAccount } from "../auth/registration";
+import { deriveCsrfToken } from "../auth/csrfToken";
 import { sha256Hex } from "../auth/secrets";
-import { openSession, rotateCsrf } from "../auth/sessions";
+import { openSession } from "../auth/sessions";
 import { requirePermission } from "./auth";
 import { readCookie, writeSessionCookie } from "./cookies";
 import type { HttpDependencies } from "./deps";
@@ -165,10 +166,10 @@ export function registerAuthRoutes(
       token === undefined
         ? null
         : runtime.store.findSession(sha256Hex(token));
-    if (session === null) {
+    if (token === undefined || session === null) {
       return sendJson(reply, 401, { detail: "Authentication required" });
     }
-    const csrfToken = rotateCsrf(runtime.store, session.idHash, runtime.randomBytes);
+    const csrfToken = deriveCsrfToken(token, runtime.csrfSecret);
     return sendJson(reply, 200, {
       user_id: context.userId,
       organization_id: context.organizationId,

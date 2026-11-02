@@ -55,6 +55,11 @@ export const AUTH_MIGRATIONS: readonly { id: number; name: string; sql: string }
       );
     `,
   },
+  {
+    id: 2,
+    name: "drop-session-csrf-hash",
+    sql: "ALTER TABLE sessions DROP COLUMN csrf_token_hash;",
+  },
 ];
 
 export function migrateAuth(database: Database.Database, appliedAt: string): void {

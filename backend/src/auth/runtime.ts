@@ -9,6 +9,7 @@ export interface AuthRuntime {
   newId: () => string;
   randomBytes: (size: number) => Buffer;
   bootstrapCode: string;
+  csrfSecret: string;
   absoluteMs: number;
   idleMs: number;
   invitationMs: number;

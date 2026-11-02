@@ -11,6 +11,8 @@ export interface AuthSettings {
   argon2: Argon2Settings;
   rateLimit: { max: number; windowMs: number; blockMs: number };
   trustedProxies: readonly string[];
+  csrfSecret: string;
+  bootstrapAllowMultiple: boolean;
 }
 
 const DEVELOPMENT_ORIGIN = "http://localhost:5173";
@@ -59,5 +61,7 @@ export function readAuthSettings(env: NodeJS.ProcessEnv): AuthSettings {
       blockMs: integer(env.BINTU_RATE_LIMIT_BLOCK_SECONDS, 15 * 60) * 1000,
     },
     trustedProxies: parseTrustedProxies(env.BINTU_TRUSTED_PROXIES),
+    csrfSecret: env.BINTU_CSRF_SECRET ?? "",
+    bootstrapAllowMultiple: env.BINTU_BOOTSTRAP_ALLOW_MULTIPLE === "true",
   };
 }

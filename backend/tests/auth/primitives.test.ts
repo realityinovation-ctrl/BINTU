@@ -197,6 +197,17 @@ describe("auth primitives", () => {
       readAuthSettings({ BINTU_ALLOWED_ORIGINS: "http://localhost:5173, http://127.0.0.1:5173" })
         .allowedOrigins,
     ).toEqual(["http://localhost:5173", "http://127.0.0.1:5173"]);
+    expect(readAuthSettings({}).csrfSecret).toBe("");
+    expect(readAuthSettings({ BINTU_CSRF_SECRET: "csrf-secret-fixture" }).csrfSecret).toBe(
+      "csrf-secret-fixture",
+    );
+    expect(readAuthSettings({}).bootstrapAllowMultiple).toBe(false);
+    expect(
+      readAuthSettings({ BINTU_BOOTSTRAP_ALLOW_MULTIPLE: "true" }).bootstrapAllowMultiple,
+    ).toBe(true);
+    expect(
+      readAuthSettings({ BINTU_BOOTSTRAP_ALLOW_MULTIPLE: "yes" }).bootstrapAllowMultiple,
+    ).toBe(false);
     expect(readAuthSettings({}).trustedProxies).toEqual([]);
     expect(readAuthSettings({ BINTU_TRUSTED_PROXIES: "127.0.0.1, 10.0.0.0/8" }).trustedProxies).toEqual([
       "127.0.0.1",

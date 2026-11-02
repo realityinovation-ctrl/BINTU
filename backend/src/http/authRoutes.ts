@@ -14,6 +14,7 @@ import { deriveCsrfToken } from "../auth/csrfToken";
 import { sha256Hex } from "../auth/secrets";
 import { openSession } from "../auth/sessions";
 import { clientAddress } from "./clientAddress";
+import { requirePermission } from "./auth";
 import { readCookie, writeSessionCookie } from "./cookies";
 import type { HttpDependencies } from "./deps";
 import { parseBody } from "./jsonBody";
@@ -59,6 +60,7 @@ export function registerAuthRoutes(
         clock: runtime.clock,
         newId: runtime.newId,
         bootstrapCode: runtime.bootstrapCode,
+        bootstrapAllowMultiple: runtime.bootstrapAllowMultiple,
       },
       {
         email,

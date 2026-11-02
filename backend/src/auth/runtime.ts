@@ -11,6 +11,7 @@ export interface AuthRuntime {
   bootstrapCode: string;
   csrfSecret: string;
   trustedProxies: readonly string[];
+  bootstrapAllowMultiple: boolean;
   absoluteMs: number;
   idleMs: number;
   invitationMs: number;

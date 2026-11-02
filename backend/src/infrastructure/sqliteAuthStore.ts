@@ -237,6 +237,13 @@ export class SqliteAuthStore implements AuthStore {
       .run(usedAt, id);
     return result.changes === 1;
   }
+
+  countOrganizations(): number {
+    const row = this.database.prepare("SELECT COUNT(*) AS total FROM organizations").get() as {
+      total: number;
+    };
+    return row.total;
+  }
 }
 
 function userFrom(row: UserRow): UserRecord {

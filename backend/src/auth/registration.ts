@@ -18,6 +18,7 @@ export interface RegistrationDeps {
   clock: Clock;
   newId: () => string;
   bootstrapCode: string;
+  bootstrapAllowMultiple: boolean;
 }
 
 /**
@@ -98,9 +99,12 @@ function acceptBootstrap(
   passwordHash: string,
   organizationName: string,
   now: string,
-): "accepted" {
+): "accepted" | "rejected" {
   if (deps.store.findUserByEmail(email)) {
     return "accepted";
+  }
+  if (!deps.bootstrapAllowMultiple && deps.store.countOrganizations() > 0) {
+    return "rejected";
   }
   try {
     deps.store.transaction(() => {

@@ -85,6 +85,7 @@ interface HarnessOptions {
   secureCookie?: boolean;
   bootstrapCode?: string;
   trustedProxies?: readonly string[];
+  bootstrapAllowMultiple?: boolean;
   allowedOrigins?: readonly string[];
   logStream?: { write(chunk: string): void };
 }
@@ -121,6 +122,7 @@ async function openHarness(options: HarnessOptions = {}): Promise<Harness> {
     bootstrapCode: options.bootstrapCode ?? BOOTSTRAP,
     csrfSecret: "csrf-secret-fixture",
     trustedProxies: options.trustedProxies ?? [],
+    bootstrapAllowMultiple: options.bootstrapAllowMultiple === true,
     absoluteMs: options.absoluteMs ?? 3_600_000,
     idleMs: options.idleMs ?? 3_600_000,
     invitationMs: options.invitationMs ?? 60_000,
@@ -743,7 +745,12 @@ describe("internal authentication", () => {
   });
 
   it("blocks register, login, and invitations for a while, and leaves diagnostic reads unlimited", async () => {
-    const ctx = await openHarness({ max: 2, windowMs: 5_000, blockMs: 5_000 });
+    const ctx = await openHarness({
+      max: 2,
+      windowMs: 5_000,
+      blockMs: 5_000,
+      bootstrapAllowMultiple: true,
+    });
     try {
       const first = await post(ctx.app, "/auth/register", {
         email: "ada@example.test",
@@ -829,7 +836,7 @@ describe("internal authentication", () => {
   });
 
   it("isolates two organizations and hides diagnostics that have no organization", async () => {
-    const ctx = await openHarness();
+    const ctx = await openHarness({ bootstrapAllowMultiple: true });
     try {
       await post(ctx.app, "/auth/register", {
         email: "ada@example.test",
@@ -1033,6 +1040,61 @@ describe("internal authentication", () => {
       expect(spoofed.statusCode).toBe(429);
     } finally {
       await direct.close();
+    }
+  });
+
+  it("creates another organization with the bootstrap code only when that is allowed", async () => {
+    const closed = await openHarness();
+    try {
+      const first = await post(closed.app, "/auth/register", {
+        email: "ada@example.test",
+        password: PASSWORD,
+        code: BOOTSTRAP,
+        organization_name: "Atelier Alpha",
+      });
+      const sameEmail = await post(closed.app, "/auth/register", {
+        email: "ada@example.test",
+        password: PASSWORD,
+        code: BOOTSTRAP,
+        organization_name: "Atelier Alpha",
+      });
+      const second = await post(closed.app, "/auth/register", {
+        email: "bruno@example.test",
+        password: PASSWORD,
+        code: BOOTSTRAP,
+        organization_name: "Atelier Beta",
+      });
+      expect(first.statusCode).toBe(201);
+      expect(sameEmail.statusCode).toBe(201);
+      expect(JSON.parse(sameEmail.body)).toEqual({ status: "accepted" });
+      expect(second.statusCode).toBe(400);
+      expect(JSON.parse(second.body)).toEqual({
+        detail: "Registration could not be completed",
+      });
+      expect(closed.store.countOrganizations()).toBe(1);
+    } finally {
+      await closed.close();
+    }
+
+    const opened = await openHarness({ bootstrapAllowMultiple: true });
+    try {
+      const first = await post(opened.app, "/auth/register", {
+        email: "ada@example.test",
+        password: PASSWORD,
+        code: BOOTSTRAP,
+        organization_name: "Atelier Alpha",
+      });
+      const second = await post(opened.app, "/auth/register", {
+        email: "bruno@example.test",
+        password: PASSWORD,
+        code: BOOTSTRAP,
+        organization_name: "Atelier Beta",
+      });
+      expect(first.statusCode).toBe(201);
+      expect(second.statusCode).toBe(201);
+      expect(opened.store.countOrganizations()).toBe(2);
+    } finally {
+      await opened.close();
     }
   });
 });

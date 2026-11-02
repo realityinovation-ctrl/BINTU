@@ -58,4 +58,5 @@ export interface AuthStore {
   insertInvitation(invitation: InvitationRecord): void;
   findInvitationByCodeHash(codeHash: string): InvitationRecord | null;
   markInvitationUsed(id: string, usedAt: string): boolean;
+  countOrganizations(): number;
 }

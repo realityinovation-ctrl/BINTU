@@ -13,7 +13,7 @@ import { registerAccount } from "../auth/registration";
 import { deriveCsrfToken } from "../auth/csrfToken";
 import { sha256Hex } from "../auth/secrets";
 import { openSession } from "../auth/sessions";
-import { requirePermission } from "./auth";
+import { clientAddress } from "./clientAddress";
 import { readCookie, writeSessionCookie } from "./cookies";
 import type { HttpDependencies } from "./deps";
 import { parseBody } from "./jsonBody";
@@ -44,7 +44,7 @@ export function registerAuthRoutes(
   deps: HttpDependencies,
 ): void {
   app.post("/auth/register", async (request, reply) => {
-    if (!runtime.limiter.allow(`register-ip:${request.ip}`)) {
+    if (!runtime.limiter.allow(`register-ip:${clientAddress(request, runtime.trustedProxies)}`)) {
       return sendJson(reply, 429, { detail: TOO_MANY_ATTEMPTS });
     }
     const body = parseBody(registerSchema, request.body);
@@ -74,7 +74,7 @@ export function registerAuthRoutes(
   });
 
   app.post("/auth/login", async (request, reply) => {
-    if (!runtime.limiter.allow(`login-ip:${request.ip}`)) {
+    if (!runtime.limiter.allow(`login-ip:${clientAddress(request, runtime.trustedProxies)}`)) {
       return sendJson(reply, 429, { detail: TOO_MANY_ATTEMPTS });
     }
     const body = parseBody(loginSchema, request.body);
@@ -184,7 +184,7 @@ export function registerAuthRoutes(
     parseBody(invitationSchema, request.body ?? {});
     const user = runtime.store.findUserById(context.userId);
     if (
-      !runtime.limiter.allow(`invite-ip:${request.ip}`) ||
+      !runtime.limiter.allow(`invite-ip:${clientAddress(request, runtime.trustedProxies)}`) ||
       (user !== null && !runtime.limiter.allow(`invite-email:${user.email}`))
     ) {
       return sendJson(reply, 429, { detail: TOO_MANY_ATTEMPTS });

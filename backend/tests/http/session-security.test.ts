@@ -84,6 +84,7 @@ interface HarnessOptions {
   blockMs?: number;
   secureCookie?: boolean;
   bootstrapCode?: string;
+  trustedProxies?: readonly string[];
   allowedOrigins?: readonly string[];
   logStream?: { write(chunk: string): void };
 }
@@ -119,6 +120,7 @@ async function openHarness(options: HarnessOptions = {}): Promise<Harness> {
     randomBytes,
     bootstrapCode: options.bootstrapCode ?? BOOTSTRAP,
     csrfSecret: "csrf-secret-fixture",
+    trustedProxies: options.trustedProxies ?? [],
     absoluteMs: options.absoluteMs ?? 3_600_000,
     idleMs: options.idleMs ?? 3_600_000,
     invitationMs: options.invitationMs ?? 60_000,
@@ -974,6 +976,63 @@ describe("internal authentication", () => {
       expect(log).not.toContain("fixture-token-value");
     } finally {
       await ctx.close();
+    }
+  });
+
+  it("counts the forwarded client only when the peer is a trusted proxy", async () => {
+    const trusted = await openHarness({
+      max: 1,
+      trustedProxies: ["127.0.0.1", "::ffff:127.0.0.1"],
+    });
+    try {
+      const first = await post(
+        trusted.app,
+        "/auth/login",
+        { email: "ada@example.test", password: PASSWORD },
+        { "x-forwarded-for": "203.0.113.10" },
+        "127.0.0.1",
+      );
+      const sameClient = await post(
+        trusted.app,
+        "/auth/login",
+        { email: "ada@example.test", password: PASSWORD },
+        { "x-forwarded-for": "203.0.113.10" },
+        "127.0.0.1",
+      );
+      const otherClient = await post(
+        trusted.app,
+        "/auth/login",
+        { email: "bruno@example.test", password: PASSWORD },
+        { "x-forwarded-for": "203.0.113.11" },
+        "127.0.0.1",
+      );
+      expect(first.statusCode).toBe(401);
+      expect(sameClient.statusCode).toBe(429);
+      expect(otherClient.statusCode).toBe(401);
+    } finally {
+      await trusted.close();
+    }
+
+    const direct = await openHarness({ max: 1, trustedProxies: ["10.0.0.8"] });
+    try {
+      const first = await post(
+        direct.app,
+        "/auth/login",
+        { email: "ada@example.test", password: PASSWORD },
+        { "x-forwarded-for": "203.0.113.20" },
+        "192.0.2.5",
+      );
+      const spoofed = await post(
+        direct.app,
+        "/auth/login",
+        { email: "bruno@example.test", password: OTHER_PASSWORD },
+        { "x-forwarded-for": "198.51.100.30" },
+        "192.0.2.5",
+      );
+      expect(first.statusCode).toBe(401);
+      expect(spoofed.statusCode).toBe(429);
+    } finally {
+      await direct.close();
     }
   });
 });

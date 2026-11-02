@@ -6,6 +6,7 @@ import Database from "better-sqlite3";
 import { describe, expect, it } from "vitest";
 
 import { readAuthSettings } from "../../src/auth/config";
+import { addressForQuota, isTrustedProxy } from "../../src/auth/trustedProxy";
 import { normalizeEmail } from "../../src/auth/email";
 import {
   Argon2Hasher,
@@ -196,6 +197,19 @@ describe("auth primitives", () => {
       readAuthSettings({ BINTU_ALLOWED_ORIGINS: "http://localhost:5173, http://127.0.0.1:5173" })
         .allowedOrigins,
     ).toEqual(["http://localhost:5173", "http://127.0.0.1:5173"]);
+    expect(readAuthSettings({}).trustedProxies).toEqual([]);
+    expect(readAuthSettings({ BINTU_TRUSTED_PROXIES: "127.0.0.1, 10.0.0.0/8" }).trustedProxies).toEqual([
+      "127.0.0.1",
+      "10.0.0.0/8",
+    ]);
+    expect(isTrustedProxy("10.1.2.3", ["10.0.0.0/8"])).toBe(true);
+    expect(isTrustedProxy("11.0.0.1", ["10.0.0.0/8"])).toBe(false);
+    expect(isTrustedProxy("203.0.113.8", ["0.0.0.0/0", "*"])).toBe(false);
+    expect(isTrustedProxy("::ffff:127.0.0.1", ["127.0.0.1"])).toBe(true);
+    expect(addressForQuota("192.0.2.5", "203.0.113.9", [])).toBe("192.0.2.5");
+    expect(addressForQuota("127.0.0.1", "203.0.113.9, 10.0.0.1", ["127.0.0.1"])).toBe(
+      "203.0.113.9",
+    );
   });
 
   it("replays auth migrations without touching investigations", () => {

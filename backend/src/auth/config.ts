@@ -1,4 +1,5 @@
 import { PRODUCTION_ARGON2, type Argon2Settings } from "./passwords";
+import { parseTrustedProxies } from "./trustedProxy";
 
 export interface AuthSettings {
   production: boolean;
@@ -9,6 +10,7 @@ export interface AuthSettings {
   invitationMs: number;
   argon2: Argon2Settings;
   rateLimit: { max: number; windowMs: number; blockMs: number };
+  trustedProxies: readonly string[];
 }
 
 const DEVELOPMENT_ORIGIN = "http://localhost:5173";
@@ -56,5 +58,6 @@ export function readAuthSettings(env: NodeJS.ProcessEnv): AuthSettings {
       windowMs: integer(env.BINTU_RATE_LIMIT_WINDOW_SECONDS, 15 * 60) * 1000,
       blockMs: integer(env.BINTU_RATE_LIMIT_BLOCK_SECONDS, 15 * 60) * 1000,
     },
+    trustedProxies: parseTrustedProxies(env.BINTU_TRUSTED_PROXIES),
   };
 }

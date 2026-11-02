@@ -10,6 +10,7 @@ export interface AuthRuntime {
   randomBytes: (size: number) => Buffer;
   bootstrapCode: string;
   csrfSecret: string;
+  trustedProxies: readonly string[];
   absoluteMs: number;
   idleMs: number;
   invitationMs: number;

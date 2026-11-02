@@ -14,7 +14,7 @@ import {
 import { MockAIProvider } from "../../src/core/mockProvider";
 import { parseDecision, type InvestigationState } from "../../src/core/models";
 import type { AIProvider, ProviderCapabilities } from "../../src/core/ports/aiProvider";
-import { canonicalJson } from "../../src/infrastructure/stateJson";
+import { canonicalJson, serializeState } from "../../src/infrastructure/stateJson";
 import {
   LIST_LIMIT,
   SqliteDiagnosticRepository,
@@ -252,5 +252,29 @@ describe("sqlite diagnostic repository", () => {
     const reread = repository.get(created.investigation_id, "org-alpha");
     expect(Object.keys(reread.evidence)).toEqual(["m-1", "m-2"]);
     expect(canonicalJson(reread)).toBe(canonicalJson(stored?.state));
+  });
+
+  it("turns a duplicate row and a closed database into persistence failures", () => {
+    const repository = open();
+    const state = repository.create("org-alpha", "user-alpha");
+    expect(() =>
+      repository.insertRaw(
+        row({
+          id: state.investigation_id,
+          stateJson: serializeState(state),
+        }),
+      ),
+    ).toThrow(PersistenceError);
+
+    const closed = new SqliteDiagnosticRepository(":memory:");
+    const stored = closed.create("org-alpha", "user-alpha");
+    closed.close();
+    expect(() => closed.save(stored, "org-alpha")).toThrow(PersistenceError);
+    expect(() => closed.get(stored.investigation_id, "org-alpha")).toThrow(PersistenceError);
+    expect(() => closed.list("org-alpha")).toThrow(PersistenceError);
+    expect(() => closed.readAll()).toThrow(PersistenceError);
+    expect(() => closed.delete(stored.investigation_id, "org-alpha")).toThrow(
+      PersistenceError,
+    );
   });
 });

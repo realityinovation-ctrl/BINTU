@@ -5,6 +5,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import type { InvestigationState } from "../../src/core/models";
+import { createInvestigation } from "../../src/infrastructure/sqliteDiagnosticRepository";
 import {
   canonicalJson,
   deserializeState,
@@ -115,5 +116,27 @@ describe("state json", () => {
       "2",
       "10",
     ]);
+  });
+
+  it("reports a schema version with the same text Python would use", () => {
+    const state = createInvestigation("schema-id");
+    const payload = JSON.parse(serializeState(state)) as Record<string, unknown>;
+    const read = (schemaVersion: unknown) =>
+      deserializeState(
+        JSON.stringify({ ...payload, schema_version: schemaVersion }),
+        state.investigation_id,
+        state.status,
+      );
+    expect(() => read("nope")).toThrow("unsupported schema_version: 'nope'");
+    expect(() => read(true)).toThrow("unsupported schema_version: True");
+    expect(() => read(false)).toThrow("unsupported schema_version: False");
+    const { schema_version: _version, ...withoutVersion } = payload;
+    expect(() =>
+      deserializeState(
+        JSON.stringify(withoutVersion),
+        state.investigation_id,
+        state.status,
+      ),
+    ).toThrow("unsupported schema_version: None");
   });
 });

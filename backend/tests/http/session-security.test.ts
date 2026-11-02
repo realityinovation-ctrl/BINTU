@@ -1124,6 +1124,89 @@ describe("internal authentication", () => {
       await ctx.close();
     }
   });
+
+  it("rejects a mutation once the session is no longer active", async () => {
+    const ctx = await openHarness({ absoluteMs: 5_000, idleMs: 60_000 });
+    try {
+      await post(ctx.app, "/auth/register", {
+        email: "ada@example.test",
+        password: PASSWORD,
+        code: BOOTSTRAP,
+        organization_name: "Atelier Alpha",
+      });
+      const session = await loginAs(ctx.app, "ada@example.test");
+      ctx.clock.advance(5_000);
+      const expired = await post(
+        ctx.app,
+        "/auth/logout",
+        {},
+        { cookie: session.cookie, "x-csrf-token": session.csrf },
+      );
+      const unknown = await post(
+        ctx.app,
+        "/auth/logout",
+        {},
+        { cookie: "bintu_session=not-a-session", "x-csrf-token": session.csrf },
+      );
+      expect(expired.statusCode).toBe(401);
+      expect(JSON.parse(expired.body)).toEqual({ detail: "Authentication required" });
+      expect(unknown.statusCode).toBe(401);
+      expect(JSON.parse(unknown.body)).toEqual({ detail: "Authentication required" });
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  it("refuses an invitation when the account disappears and a login without a membership", async () => {
+    const ctx = await openHarness();
+    const original = ctx.store.findUserById.bind(ctx.store);
+    let lookups = 0;
+    let findUser: ReturnType<typeof vi.spyOn> | undefined;
+    try {
+      await post(ctx.app, "/auth/register", {
+        email: "ada@example.test",
+        password: PASSWORD,
+        code: BOOTSTRAP,
+        organization_name: "Atelier Alpha",
+      });
+      const session = await loginAs(ctx.app, "ada@example.test");
+      findUser = vi.spyOn(ctx.store, "findUserById").mockImplementation((id: string) => {
+        lookups += 1;
+        if (lookups > 1) {
+          return null;
+        }
+        return original(id);
+      });
+      const invitation = await post(
+        ctx.app,
+        "/auth/invitations",
+        {},
+        { cookie: session.cookie, "x-csrf-token": session.csrf },
+      );
+      expect(invitation.statusCode).toBe(403);
+      expect(JSON.parse(invitation.body)).toEqual({
+        detail: "Active organization required",
+      });
+      findUser.mockRestore();
+      const passwordHash = await ctx.runtime.hasher.hash(PASSWORD);
+      ctx.store.insertUser({
+        id: "00000000-0000-4000-8000-000000000099",
+        email: "solo@example.test",
+        passwordHash,
+        createdAt: ctx.clock.now().toISOString(),
+        disabledAt: null,
+      });
+      const alone = await post(ctx.app, "/auth/login", {
+        email: "solo@example.test",
+        password: PASSWORD,
+      });
+      expect(alone.statusCode).toBe(401);
+      expect(JSON.parse(alone.body)).toEqual({ detail: "Authentication failed" });
+    } finally {
+      findUser?.mockRestore();
+      await ctx.close();
+    }
+  });
 });
 
 function countWhere(filename: string, clause: string): number {

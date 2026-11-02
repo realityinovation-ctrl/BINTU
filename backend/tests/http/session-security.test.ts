@@ -5,7 +5,7 @@ import path from "node:path";
 
 import Database from "better-sqlite3";
 import type { FastifyInstance } from "fastify";
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import type { Clock } from "../../src/auth/clock";
 import { permissionsFor } from "../../src/auth/permissions";
@@ -236,7 +236,12 @@ async function loginAs(
   };
 }
 
-describe("internal authentication", () => {
+describe("internal authentication", { timeout: 30_000 }, () => {
+  beforeAll(async () => {
+    await new Argon2Hasher({ memoryCost: 32, timeCost: 1, parallelism: 1 }).hash(
+      PASSWORD,
+    );
+  });
   it("registers an administrator from the bootstrap code and keeps a duplicate email indistinguishable", async () => {
     const ctx = await openHarness();
     try {

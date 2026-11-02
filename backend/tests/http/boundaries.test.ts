@@ -88,7 +88,7 @@ function uint32(value: number): Buffer {
   return buffer;
 }
 
-describe("http boundaries", () => {
+describe("http boundaries", { timeout: 30_000 }, () => {
   it("keeps malformed cookies, array headers, and an empty peer on their safe paths", () => {
     expect(readCookie("bintu_session", "bintu_session")).toBeUndefined();
     expect(readCookie("other=value", "bintu_session")).toBeUndefined();

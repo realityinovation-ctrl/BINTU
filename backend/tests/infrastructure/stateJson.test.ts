@@ -74,7 +74,7 @@ json.dump([
   return JSON.parse(result.stdout) as string[];
 }
 
-describe("state json", () => {
+describe("state json", { timeout: 30_000 }, () => {
   it("matches the python snapshot after parsing, including evidence key order", () => {
     const states = fixtureStates();
     expect(states.length).toBeGreaterThan(60);

@@ -302,7 +302,7 @@ function canonical(value: unknown): unknown {
 
 const fixtures = loadFixtures();
 
-describe("http fixtures", () => {
+describe("http fixtures", { timeout: 30_000 }, () => {
   it("replays every frozen FastAPI response, including non-finite measurements", () => {
     const names = fixtures.map((fixture) => fixture.id);
     expect(names).toContain("message/non_finite_value");

@@ -1161,7 +1161,6 @@ describe("internal authentication", () => {
     const ctx = await openHarness();
     const original = ctx.store.findUserById.bind(ctx.store);
     let lookups = 0;
-    let findUser: ReturnType<typeof vi.spyOn> | undefined;
     try {
       await post(ctx.app, "/auth/register", {
         email: "ada@example.test",
@@ -1170,24 +1169,27 @@ describe("internal authentication", () => {
         organization_name: "Atelier Alpha",
       });
       const session = await loginAs(ctx.app, "ada@example.test");
-      findUser = vi.spyOn(ctx.store, "findUserById").mockImplementation((id: string) => {
+      const findUser = vi.spyOn(ctx.store, "findUserById").mockImplementation((id: string) => {
         lookups += 1;
         if (lookups > 1) {
           return null;
         }
         return original(id);
       });
-      const invitation = await post(
-        ctx.app,
-        "/auth/invitations",
-        {},
-        { cookie: session.cookie, "x-csrf-token": session.csrf },
-      );
-      expect(invitation.statusCode).toBe(403);
-      expect(JSON.parse(invitation.body)).toEqual({
-        detail: "Active organization required",
-      });
-      findUser.mockRestore();
+      try {
+        const invitation = await post(
+          ctx.app,
+          "/auth/invitations",
+          {},
+          { cookie: session.cookie, "x-csrf-token": session.csrf },
+        );
+        expect(invitation.statusCode).toBe(403);
+        expect(JSON.parse(invitation.body)).toEqual({
+          detail: "Active organization required",
+        });
+      } finally {
+        findUser.mockRestore();
+      }
       const passwordHash = await ctx.runtime.hasher.hash(PASSWORD);
       ctx.store.insertUser({
         id: "00000000-0000-4000-8000-000000000099",
@@ -1203,7 +1205,6 @@ describe("internal authentication", () => {
       expect(alone.statusCode).toBe(401);
       expect(JSON.parse(alone.body)).toEqual({ detail: "Authentication failed" });
     } finally {
-      findUser?.mockRestore();
       await ctx.close();
     }
   });

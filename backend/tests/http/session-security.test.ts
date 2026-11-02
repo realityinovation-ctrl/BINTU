@@ -1207,6 +1207,55 @@ describe("internal authentication", () => {
       await ctx.close();
     }
   });
+
+  it("accepts one registration when two requests collide on the same email", async () => {
+    const ctx = await openHarness({ bootstrapAllowMultiple: true });
+    const original = ctx.store.findUserByEmail.bind(ctx.store);
+    let lookups = 0;
+    const findEmail = vi.spyOn(ctx.store, "findUserByEmail").mockImplementation((email: string) => {
+      lookups += 1;
+      if (lookups <= 2) {
+        return null;
+      }
+      return original(email);
+    });
+    try {
+      const body = {
+        email: "ada@example.test",
+        password: PASSWORD,
+        code: BOOTSTRAP,
+        organization_name: "Atelier Alpha",
+      };
+      const [first, second] = await Promise.all([
+        post(ctx.app, "/auth/register", body),
+        post(ctx.app, "/auth/register", {
+          ...body,
+          organization_name: "Atelier Beta",
+        }),
+      ]);
+      expect(first.statusCode).toBe(201);
+      expect(second.statusCode).toBe(201);
+      expect(JSON.parse(first.body)).toEqual({ status: "accepted" });
+      expect(JSON.parse(second.body)).toEqual({ status: "accepted" });
+      expect(lookups).toBeGreaterThanOrEqual(2);
+      const database = new Database(ctx.file, { readonly: true });
+      try {
+        const users = database
+          .prepare("SELECT COUNT(*) AS n FROM users WHERE email = ?")
+          .get("ada@example.test") as { n: number };
+        const organizations = database
+          .prepare("SELECT COUNT(*) AS n FROM organizations")
+          .get() as { n: number };
+        expect(users.n).toBe(1);
+        expect(organizations.n).toBe(1);
+      } finally {
+        database.close();
+      }
+    } finally {
+      findEmail.mockRestore();
+      await ctx.close();
+    }
+  });
 });
 
 function countWhere(filename: string, clause: string): number {

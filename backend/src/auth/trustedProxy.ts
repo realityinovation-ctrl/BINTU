@@ -13,6 +13,12 @@ export function parseTrustedProxies(value: string | undefined): readonly string[
     .filter((item) => item.length > 0);
 }
 
+/**
+ * Quota address for one connection.
+ * An untrusted peer keeps its own address, and X-Forwarded-For is ignored.
+ * A trusted peer uses the first comma-separated hop, the leftmost one.
+ * An empty hop falls back to that peer.
+ */
 export function addressForQuota(
   peer: string,
   forwarded: string | undefined,

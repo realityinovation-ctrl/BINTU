@@ -19,3 +19,4 @@ data/
 *.sqlite3-wal
 *.sqlite3-shm
 backend/tmp/
+backend/node_modules/

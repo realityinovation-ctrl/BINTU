@@ -11,3 +11,11 @@ coverage.xml
 htmlcov/
 frontend/dist/
 frontend/node_modules/
+
+# Données locales et bases SQLite
+data/
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+backend/tmp/

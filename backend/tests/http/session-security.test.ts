@@ -5,7 +5,7 @@ import path from "node:path";
 
 import Database from "better-sqlite3";
 import type { FastifyInstance } from "fastify";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { Clock } from "../../src/auth/clock";
 import { permissionsFor } from "../../src/auth/permissions";
@@ -1095,6 +1095,33 @@ describe("internal authentication", () => {
       expect(opened.store.countOrganizations()).toBe(2);
     } finally {
       await opened.close();
+    }
+  });
+
+  it("hashes the password when the email already exists", async () => {
+    const ctx = await openHarness();
+    const hash = vi.spyOn(ctx.runtime.hasher, "hash");
+    try {
+      const created = await post(ctx.app, "/auth/register", {
+        email: "ada@example.test",
+        password: PASSWORD,
+        code: BOOTSTRAP,
+        organization_name: "Atelier Alpha",
+      });
+      const duplicate = await post(ctx.app, "/auth/register", {
+        email: "ada@example.test",
+        password: PASSWORD,
+        code: BOOTSTRAP,
+        organization_name: "Atelier Alpha",
+      });
+      expect(created.statusCode).toBe(201);
+      expect(duplicate.statusCode).toBe(201);
+      expect(hash).toHaveBeenCalledTimes(2);
+      expect(hash).toHaveBeenNthCalledWith(1, PASSWORD);
+      expect(hash).toHaveBeenNthCalledWith(2, PASSWORD);
+    } finally {
+      hash.mockRestore();
+      await ctx.close();
     }
   });
 });

@@ -11,7 +11,23 @@ coverage.xml
 htmlcov/
 frontend/dist/
 frontend/node_modules/
-backend/dist/
-backend/node_modules/
-backend/coverage/
-backend/tmp/
+
+# Product Python backend (ex-backend2)
+backend/.venv/
+backend/.venv-win/
+backend/.memory/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+backend/*.egg-info/
+
+# Paused Node migration (reference only)
+backend_node/
+backend_node/dist/
+backend_node/node_modules/
+backend_node/coverage/
+backend_node/tmp/
+
+backend3/

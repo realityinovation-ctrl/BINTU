@@ -92,9 +92,10 @@ $env:MODEL_API_KEY="votre-cle-locale"
 Le fichier `.env.example` documente le nom de la variable sans contenir de
 secret. Le package ne charge pas automatiquement les fichiers `.env`.
 
-L'identité, la session et l'organisation active viennent de Clerk. Le détail
-de lancement local est dans `docs/authentication.md`. La clé secrète Clerk
-reste une variable du backend. Elle ne va jamais dans `VITE_`.
+L'identité produit vient de Google OAuth ; le backend échange l'ID token
+contre une session Bearer (MySQL). Le détail est dans
+`docs/authentication.md`. `GOOGLE_CLIENT_ID` reste côté serveur ; le front
+reçoit le Client ID public via `GET /api/auth/config`.
 
 Une décision Meta attend au plus `META_DECISION_TIMEOUT_SECONDS` secondes.
 La valeur par défaut est 60, le maximum accepté est 120. Passé ce délai, le
@@ -163,30 +164,43 @@ Les tests utilisent exclusivement des fichiers SQLite temporaires :
 .\.venv\Scripts\python -m pytest
 ```
 
-## Backend FastAPI
+## Backend produit (FastAPI + MySQL)
 
-Le backend MVP expose la création, la consultation et la réponse textuelle à
-une investigation. Il utilise SQLite et délègue toutes les transitions métier
-à `InvestigationEngine`. Les tests remplacent systématiquement
-`MetaAIProvider` et n'appellent jamais Meta.
+Le runtime HTTP actif est le dossier [`backend/`](backend/) : MySQL, Google
+OAuth (Bearer), diagnostic, Live Gemini et assistant contextuel. Le détail
+est dans [`backend/GUIDE.md`](backend/GUIDE.md).
 
 ```powershell
-$env:MODEL_API_KEY="votre-cle-locale"
-$env:BINTU_DB_PATH="data/bintu.sqlite3"
-.\.venv\Scripts\python -m uvicorn bintu_backend.app:create_app --factory --reload
+# MySQL (WAMP/XAMPP) : importer backend/bdd.sql (bootstrap), puis migrations
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+copy .env.example .env
+# Renseigner GOOGLE_CLIENT_ID et au moins une clé IA (Meta, Gemini ou OpenAI)
+python migrate.py
+python server.py
 ```
 
-L'API est alors disponible sur `http://127.0.0.1:8000`. Le CORS est limité aux
-origines locales courantes sur les ports 3000 et 5173. Le endpoint `message`
-répond à `ask_technician`. Une mesure passe par
-`POST /api/investigations/{id}/measurement` uniquement lorsque le Core attend
-`request_measurement`.
+L'API écoute sur `http://127.0.0.1:8000`. Vite proxifie `/api` (HTTP + WS)
+vers ce port. Pour un message qui avance le diagnostic, le corps doit inclure
+`"commit": true`. Desk et app mobile partagent le même backend : voir
+[`docs/api-clients-desk-mobile.md`](docs/api-clients-desk-mobile.md).
 
-Le catalogue fermé est défini dans `measurement_catalog.py` : tension DC/AC,
-courant DC/AC et puissance AC, avec leur unité imposée. Le frontend affiche ce
-catalogue mais ne peut ni l'étendre ni imposer une unité. La valeur devient un
-`Measurement`, une observation factuelle et une `Evidence` de type
-`measurement`. Elle ne modifie aucune hypothèse et ne produit aucune conclusion.
+La migration Node est en pause dans [`backend_node/`](backend_node/).
+
+### Runtime vs référence Core
+
+| Dossier | Rôle |
+|---------|------|
+| [`backend/bintu/core`](backend/bintu/core) | **Runtime produit** (fait foi) : graphe, `commit`, assistant |
+| [`src/bintu_agent_core`](src/bintu_agent_core) | Référence de règles + pytest historique / package Agent Core |
+| [`backend_node/`](backend_node/) | Pause — Fastify Node, pas de runtime produit ni fusion dans cette migration |
+
+Les fixtures `parity/` restent liées à `src` / `backend_node`.
+
+Le catalogue fermé (tension DC/AC, courant DC/AC, puissance AC) reste imposé
+par le backend. Le frontend ne peut ni l'étendre ni changer l'unité.
 
 ## Frontend React
 

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bintu"
+version = "0.3.0"
+description = "BINTU diagnostic backend with MySQL and AR overlay payloads"
+readme = "GUIDE.md"
+requires-python = ">=3.11"
+dependencies = [
+    "clerk-backend-api>=7.0.0,<8",
+    "fastapi>=0.115,<0.116",
+    "httpx>=0.28,<1",
+    "pydantic>=2.10,<3",
+    "pymysql>=1.1,<2",
+    "python-multipart>=0.0.20,<1",
+    "uvicorn>=0.32,<1",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["bintu*"]

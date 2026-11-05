@@ -1,0 +1,133 @@
+{
+  "category": "hypothesis",
+  "decision": null,
+  "expected": {
+    "error": {
+      "message": "verification references unknown observations: ['observation:missing']",
+      "type": "DecisionValidationError"
+    }
+  },
+  "id": "verification_unknown_observation",
+  "input_state": {
+    "conclusion": null,
+    "evidence": {
+      "answer-1": {
+        "certainty": null,
+        "id": "answer-1",
+        "observation_id": "observation:answer-1",
+        "source_id": "action-9",
+        "source_type": "technician_answer"
+      }
+    },
+    "hypotheses": {
+      "H0": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H0",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H1": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H1",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H2": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H2",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H3": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H3",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      }
+    },
+    "investigation_id": "parity-impact-unknown-observation",
+    "max_steps": 20,
+    "measurements": {},
+    "observations": {},
+    "pending_action": null,
+    "problem": {
+      "description": "La production est anormalement faible."
+    },
+    "status": "investigating",
+    "step_count": 0,
+    "system": {
+      "characteristics": {},
+      "domain": "photovoltaic",
+      "manufacturer": null,
+      "model": null,
+      "type": "photovoltaic_installation"
+    },
+    "timeline": [],
+    "verifications": {
+      "verification:action-9": {
+        "action_id": "action-9",
+        "distinguishes": [
+          "H0"
+        ],
+        "evidence_ids": [
+          "answer-1"
+        ],
+        "id": "verification:action-9",
+        "impacts": [],
+        "observation_ids": [
+          "observation:missing"
+        ]
+      }
+    }
+  },
+  "invariants": {
+    "evidence": {
+      "answer-1": {
+        "certainty": null,
+        "id": "answer-1",
+        "observation_id": "observation:answer-1",
+        "source_id": "action-9",
+        "source_type": "technician_answer"
+      }
+    },
+    "hypotheses": {
+      "H0": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H0",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H1": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H1",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H2": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H2",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H3": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H3",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      }
+    },
+    "step_count": 0,
+    "timeline": []
+  },
+  "operation": "apply_verification_impacts",
+  "submission": {
+    "impacts": [
+      {
+        "hypothesis_id": "H0",
+        "relation": "supporting",
+        "strength": "strong"
+      }
+    ],
+    "verification_id": "verification:action-9"
+  }
+}

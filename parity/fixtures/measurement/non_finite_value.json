@@ -1,0 +1,199 @@
+{
+  "category": "measurement",
+  "decision": {
+    "arguments": {
+      "distinguishes": [
+        "H1",
+        "H2"
+      ],
+      "location": "onduleur",
+      "measurement_type": "dc_voltage",
+      "unit": "V"
+    },
+    "reason": "Mesurer le point demandé.",
+    "tool_name": "request_measurement"
+  },
+  "expected": {
+    "error": {
+      "message": "A finite numeric measurement is required",
+      "status_code": 422,
+      "type": "HTTPException"
+    }
+  },
+  "id": "non_finite_value",
+  "input_state": {
+    "conclusion": null,
+    "evidence": {},
+    "hypotheses": {
+      "H0": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H0",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H1": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H1",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H2": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H2",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H3": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H3",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      }
+    },
+    "investigation_id": "parity-non-finite",
+    "max_steps": 20,
+    "measurements": {},
+    "observations": {},
+    "pending_action": {
+      "action_id": "action-1",
+      "decision": {
+        "arguments": {
+          "distinguishes": [
+            "H1",
+            "H2"
+          ],
+          "location": "onduleur",
+          "measurement_type": "dc_voltage",
+          "unit": "V"
+        },
+        "reason": "Mesurer le point demandé.",
+        "tool_name": "request_measurement"
+      }
+    },
+    "problem": {
+      "description": "La production est anormalement faible."
+    },
+    "status": "waiting_for_technician",
+    "step_count": 1,
+    "system": {
+      "characteristics": {},
+      "domain": "photovoltaic",
+      "manufacturer": null,
+      "model": null,
+      "type": "photovoltaic_installation"
+    },
+    "timeline": [
+      {
+        "details": {
+          "action_id": "action-1",
+          "distinguishes": [
+            "H1",
+            "H2"
+          ],
+          "evidence_ids": [],
+          "signature": [
+            "request_measurement",
+            "dc_voltage",
+            "V",
+            "onduleur"
+          ],
+          "tool_name": "request_measurement"
+        },
+        "event_type": "decision_recorded",
+        "sequence": 1,
+        "summary": "Mesurer le point demandé."
+      },
+      {
+        "details": {
+          "action_id": "action-1"
+        },
+        "event_type": "action_requested",
+        "sequence": 2,
+        "summary": "Action externe demandée : request_measurement."
+      },
+      {
+        "details": {
+          "from": "investigating",
+          "to": "waiting_for_technician"
+        },
+        "event_type": "status_changed",
+        "sequence": 3,
+        "summary": "Statut : investigating -> waiting_for_technician."
+      }
+    ],
+    "verifications": {}
+  },
+  "invariants": {
+    "evidence": {},
+    "hypotheses": {
+      "H0": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H0",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H1": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H1",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H2": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H2",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H3": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H3",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      }
+    },
+    "step_count": 1,
+    "timeline": [
+      {
+        "details": {
+          "action_id": "action-1",
+          "distinguishes": [
+            "H1",
+            "H2"
+          ],
+          "evidence_ids": [],
+          "signature": [
+            "request_measurement",
+            "dc_voltage",
+            "V",
+            "onduleur"
+          ],
+          "tool_name": "request_measurement"
+        },
+        "event_type": "decision_recorded",
+        "sequence": 1,
+        "summary": "Mesurer le point demandé."
+      },
+      {
+        "details": {
+          "action_id": "action-1"
+        },
+        "event_type": "action_requested",
+        "sequence": 2,
+        "summary": "Action externe demandée : request_measurement."
+      },
+      {
+        "details": {
+          "from": "investigating",
+          "to": "waiting_for_technician"
+        },
+        "event_type": "status_changed",
+        "sequence": 3,
+        "summary": "Statut : investigating -> waiting_for_technician."
+      }
+    ]
+  },
+  "operation": "http_non_finite_measurement",
+  "submission": {
+    "message": "NaN"
+  }
+}

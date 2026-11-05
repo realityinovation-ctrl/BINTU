@@ -1,0 +1,214 @@
+{
+  "analyzer": null,
+  "forbidden": [],
+  "id": "measurement/string_value",
+  "provider": {
+    "repeat": false,
+    "steps": [
+      {
+        "decision": {
+          "arguments": {
+            "distinguishes": [
+              "H1",
+              "H2"
+            ],
+            "location": "onduleur",
+            "measurement_type": "dc_voltage",
+            "unit": "V"
+          },
+          "reason": "Mesurer le point demandé.",
+          "tool_name": "request_measurement"
+        }
+      }
+    ]
+  },
+  "route": "measurement",
+  "steps": [
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000001",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H1",
+                  "H2"
+                ],
+                "location": "onduleur",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              "reason": "Mesurer le point demandé.",
+              "tool_name": "request_measurement"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H1",
+                    "H2"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "request_measurement",
+                    "dc_voltage",
+                    "V",
+                    "onduleur"
+                  ],
+                  "tool_name": "request_measurement"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Mesurer le point demandé."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : request_measurement."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "detail": "A finite numeric measurement is required"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 422
+      },
+      "request": {
+        "body_raw": "{\"measurement_type\":\"dc_voltage\",\"value\":\"abc\",\"unit\":\"V\",\"location\":\"onduleur\"}",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations/00000000-0000-0000-0000-000000000001/measurement"
+      }
+    }
+  ],
+  "transcriber": null
+}

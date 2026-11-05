@@ -1,0 +1,40 @@
+{
+  "analyzer": null,
+  "forbidden": [],
+  "id": "auth/no_organization",
+  "provider": {
+    "repeat": false,
+    "steps": []
+  },
+  "route": "auth",
+  "steps": [
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": null,
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "detail": "Active organization required"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 403
+      },
+      "request": {
+        "headers": {},
+        "method": "GET",
+        "path": "/api/investigations"
+      }
+    }
+  ],
+  "transcriber": null
+}

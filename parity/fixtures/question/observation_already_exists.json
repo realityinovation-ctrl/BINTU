@@ -1,0 +1,201 @@
+{
+  "category": "question",
+  "decision": {
+    "arguments": {
+      "distinguishes": [
+        "H0",
+        "H1"
+      ],
+      "question": "Depuis quand ?"
+    },
+    "reason": "Obtenir une observation manquante.",
+    "tool_name": "ask_technician"
+  },
+  "expected": {
+    "error": {
+      "message": "observation already exists: observation:answer-2",
+      "type": "DecisionValidationError"
+    }
+  },
+  "id": "observation_already_exists",
+  "input_state": {
+    "conclusion": null,
+    "evidence": {},
+    "hypotheses": {
+      "H0": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H0",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H1": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H1",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H2": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H2",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H3": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H3",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      }
+    },
+    "investigation_id": "parity-observation-exists",
+    "max_steps": 20,
+    "measurements": {},
+    "observations": {
+      "observation:answer-2": {
+        "certainty": null,
+        "id": "observation:answer-2",
+        "source_id": "action-0",
+        "source_type": "technician_answer",
+        "statement": "Déjà noté.",
+        "unit": null,
+        "value": null
+      }
+    },
+    "pending_action": {
+      "action_id": "action-1",
+      "decision": {
+        "arguments": {
+          "distinguishes": [
+            "H0",
+            "H1"
+          ],
+          "question": "Depuis quand ?"
+        },
+        "reason": "Obtenir une observation manquante.",
+        "tool_name": "ask_technician"
+      }
+    },
+    "problem": {
+      "description": "La production est anormalement faible."
+    },
+    "status": "waiting_for_technician",
+    "step_count": 1,
+    "system": {
+      "characteristics": {},
+      "domain": "photovoltaic",
+      "manufacturer": null,
+      "model": null,
+      "type": "photovoltaic_installation"
+    },
+    "timeline": [
+      {
+        "details": {
+          "action_id": "action-1",
+          "distinguishes": [
+            "H0",
+            "H1"
+          ],
+          "evidence_ids": [],
+          "signature": [
+            "ask_technician",
+            "depuis quand ?"
+          ],
+          "tool_name": "ask_technician"
+        },
+        "event_type": "decision_recorded",
+        "sequence": 1,
+        "summary": "Obtenir une observation manquante."
+      },
+      {
+        "details": {
+          "action_id": "action-1"
+        },
+        "event_type": "action_requested",
+        "sequence": 2,
+        "summary": "Action externe demandée : ask_technician."
+      },
+      {
+        "details": {
+          "from": "investigating",
+          "to": "waiting_for_technician"
+        },
+        "event_type": "status_changed",
+        "sequence": 3,
+        "summary": "Statut : investigating -> waiting_for_technician."
+      }
+    ],
+    "verifications": {}
+  },
+  "invariants": {
+    "evidence": {},
+    "hypotheses": {
+      "H0": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H0",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H1": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H1",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H2": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H2",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H3": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H3",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      }
+    },
+    "step_count": 1,
+    "timeline": [
+      {
+        "details": {
+          "action_id": "action-1",
+          "distinguishes": [
+            "H0",
+            "H1"
+          ],
+          "evidence_ids": [],
+          "signature": [
+            "ask_technician",
+            "depuis quand ?"
+          ],
+          "tool_name": "ask_technician"
+        },
+        "event_type": "decision_recorded",
+        "sequence": 1,
+        "summary": "Obtenir une observation manquante."
+      },
+      {
+        "details": {
+          "action_id": "action-1"
+        },
+        "event_type": "action_requested",
+        "sequence": 2,
+        "summary": "Action externe demandée : ask_technician."
+      },
+      {
+        "details": {
+          "from": "investigating",
+          "to": "waiting_for_technician"
+        },
+        "event_type": "status_changed",
+        "sequence": 3,
+        "summary": "Statut : investigating -> waiting_for_technician."
+      }
+    ]
+  },
+  "operation": "submit_technician_answer",
+  "submission": {
+    "answer": "Depuis trois jours.",
+    "evidence_id": "answer-2"
+  }
+}

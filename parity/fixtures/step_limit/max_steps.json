@@ -1,0 +1,128 @@
+{
+  "category": "step_limit",
+  "decision": {
+    "arguments": {
+      "distinguishes": [
+        "H0",
+        "H1"
+      ],
+      "question": "Cette question ne doit pas être posée."
+    },
+    "reason": "Obtenir une observation manquante.",
+    "tool_name": "ask_technician"
+  },
+  "expected": {
+    "state": {
+      "conclusion": null,
+      "evidence": {},
+      "hypotheses": {
+        "H0": {
+          "contradictory_evidence_ids": [],
+          "hypothesis_id": "H0",
+          "status": "unexplored",
+          "supporting_evidence_ids": []
+        },
+        "H1": {
+          "contradictory_evidence_ids": [],
+          "hypothesis_id": "H1",
+          "status": "unexplored",
+          "supporting_evidence_ids": []
+        },
+        "H2": {
+          "contradictory_evidence_ids": [],
+          "hypothesis_id": "H2",
+          "status": "unexplored",
+          "supporting_evidence_ids": []
+        },
+        "H3": {
+          "contradictory_evidence_ids": [],
+          "hypothesis_id": "H3",
+          "status": "unexplored",
+          "supporting_evidence_ids": []
+        }
+      },
+      "investigation_id": "parity-step-limit",
+      "max_steps": 20,
+      "measurements": {},
+      "observations": {},
+      "pending_action": null,
+      "problem": {
+        "description": "La production est anormalement faible."
+      },
+      "status": "insufficient_information",
+      "step_count": 20,
+      "system": {
+        "characteristics": {},
+        "domain": "photovoltaic",
+        "manufacturer": null,
+        "model": null,
+        "type": "photovoltaic_installation"
+      },
+      "timeline": [
+        {
+          "details": {
+            "from": "investigating",
+            "to": "insufficient_information"
+          },
+          "event_type": "status_changed",
+          "sequence": 1,
+          "summary": "Nombre maximal d'étapes atteint."
+        }
+      ],
+      "verifications": {}
+    }
+  },
+  "id": "max_steps",
+  "input_state": {
+    "conclusion": null,
+    "evidence": {},
+    "hypotheses": {
+      "H0": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H0",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H1": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H1",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H2": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H2",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      },
+      "H3": {
+        "contradictory_evidence_ids": [],
+        "hypothesis_id": "H3",
+        "status": "unexplored",
+        "supporting_evidence_ids": []
+      }
+    },
+    "investigation_id": "parity-step-limit",
+    "max_steps": 20,
+    "measurements": {},
+    "observations": {},
+    "pending_action": null,
+    "problem": {
+      "description": "La production est anormalement faible."
+    },
+    "status": "investigating",
+    "step_count": 20,
+    "system": {
+      "characteristics": {},
+      "domain": "photovoltaic",
+      "manufacturer": null,
+      "model": null,
+      "type": "photovoltaic_installation"
+    },
+    "timeline": [],
+    "verifications": {}
+  },
+  "invariants": null,
+  "operation": "advance_at_step_limit",
+  "submission": null
+}

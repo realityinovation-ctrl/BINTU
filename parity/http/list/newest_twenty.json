@@ -1,0 +1,3344 @@
+{
+  "analyzer": null,
+  "forbidden": [],
+  "id": "list/newest_twenty",
+  "provider": {
+    "repeat": true,
+    "steps": [
+      {
+        "decision": {
+          "arguments": {
+            "distinguishes": [
+              "H0",
+              "H1"
+            ],
+            "question": "Quel état est affiché ?"
+          },
+          "reason": "Obtenir une observation.",
+          "tool_name": "ask_technician"
+        }
+      }
+    ]
+  },
+  "route": "list",
+  "steps": [
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000001",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000002",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000003",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000004",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000005",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000006",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000007",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000008",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000009",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-00000000000a",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-00000000000b",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-00000000000c",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-00000000000d",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-00000000000e",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-00000000000f",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000010",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000011",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000012",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000013",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000014",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": {
+          "investigation_id": "00000000-0000-0000-0000-000000000015",
+          "state": {
+            "conclusion": null,
+            "evidence": [],
+            "hypotheses": [
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H0",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H1",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H2",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              },
+              {
+                "contradictory_evidence_ids": [],
+                "hypothesis_id": "H3",
+                "status": "unexplored",
+                "supporting_evidence_ids": []
+              }
+            ],
+            "measurement_catalog": [
+              {
+                "label": "Tension DC",
+                "measurement_type": "dc_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant DC",
+                "measurement_type": "dc_current",
+                "unit": "A"
+              },
+              {
+                "label": "Tension AC",
+                "measurement_type": "ac_voltage",
+                "unit": "V"
+              },
+              {
+                "label": "Courant AC",
+                "measurement_type": "ac_current",
+                "unit": "A"
+              },
+              {
+                "label": "Puissance AC",
+                "measurement_type": "ac_power",
+                "unit": "W"
+              }
+            ],
+            "measurements": [],
+            "observations": [],
+            "pending_action": {
+              "action_id": "action-1",
+              "arguments": {
+                "distinguishes": [
+                  "H0",
+                  "H1"
+                ],
+                "question": "Quel état est affiché ?"
+              },
+              "reason": "Obtenir une observation.",
+              "tool_name": "ask_technician"
+            },
+            "problem": {
+              "description": "Production solaire anormalement faible."
+            },
+            "system": {
+              "characteristics": {},
+              "domain": "photovoltaic",
+              "manufacturer": null,
+              "model": null,
+              "type": "photovoltaic_installation"
+            },
+            "timeline": [
+              {
+                "details": {
+                  "action_id": "action-1",
+                  "distinguishes": [
+                    "H0",
+                    "H1"
+                  ],
+                  "evidence_ids": [],
+                  "signature": [
+                    "ask_technician",
+                    "quel état est affiché ?"
+                  ],
+                  "tool_name": "ask_technician"
+                },
+                "event_type": "decision_recorded",
+                "sequence": 1,
+                "summary": "Obtenir une observation."
+              },
+              {
+                "details": {
+                  "action_id": "action-1"
+                },
+                "event_type": "action_requested",
+                "sequence": 2,
+                "summary": "Action externe demandée : ask_technician."
+              },
+              {
+                "details": {
+                  "from": "investigating",
+                  "to": "waiting_for_technician"
+                },
+                "event_type": "status_changed",
+                "sequence": 3,
+                "summary": "Statut : investigating -> waiting_for_technician."
+              }
+            ]
+          },
+          "status": "waiting_for_technician"
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 201
+      },
+      "request": {
+        "body": {
+          "problem": "Production solaire anormalement faible."
+        },
+        "headers": {
+          "content-type": "application/json"
+        },
+        "method": "POST",
+        "path": "/api/investigations"
+      }
+    },
+    {
+      "auth": {
+        "kind": "context",
+        "organization_id": "org_test_alpha",
+        "permissions": [
+          "diagnostic:create",
+          "diagnostic:operate",
+          "diagnostic:read"
+        ],
+        "role": "member",
+        "user_id": "user_test_technician"
+      },
+      "expect": {
+        "body": [
+          {
+            "investigation_id": "00000000-0000-0000-0000-000000000015",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:42.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-000000000014",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:40.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-000000000013",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:38.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-000000000012",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:36.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-000000000011",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:34.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-000000000010",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:32.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-00000000000f",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:30.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-00000000000e",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:28.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-00000000000d",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:26.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-00000000000c",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:24.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-00000000000b",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:22.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-00000000000a",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:20.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-000000000009",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:18.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-000000000008",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:16.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-000000000007",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:14.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-000000000006",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:12.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-000000000005",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:10.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-000000000004",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:08.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-000000000003",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:06.000000+00:00"
+          },
+          {
+            "investigation_id": "00000000-0000-0000-0000-000000000002",
+            "problem": "Production solaire anormalement faible.",
+            "status": "waiting_for_technician",
+            "updated_at": "2026-01-01T00:00:04.000000+00:00"
+          }
+        ],
+        "headers": {
+          "content-type": "application/json"
+        },
+        "status": 200
+      },
+      "request": {
+        "headers": {},
+        "method": "GET",
+        "path": "/api/investigations"
+      }
+    }
+  ],
+  "transcriber": null
+}
